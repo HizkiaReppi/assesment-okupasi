@@ -1,43 +1,33 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import axiosInstance from '../api/axiosConfig'; // Pastikan path ini sesuai
+import { useAuth } from '../components/AuthContext';
 
-const Login: React.FC = () => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      console.log('Attempting login with:', { email, password });
-      const response = await axiosInstance.post('/user/login', {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/user/login`, {
         email,
-        password
+        password,
       });
-      console.log('Login response:', response.data);
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('role', response.data.user.role); // Simpan role pengguna
+      login(); // Update login status
       navigate('/');
     } catch (error) {
       console.error('Login failed', error);
       if (error.response) {
-        // Server responded with a status other than 200 range
-        console.error('Response data:', error.response.data);
-        console.error('Response status:', error.response.status);
-        console.error('Response headers:', error.response.headers);
-        setError(error.response.data.errors[0].message || 'Login failed');
-      } else if (error.request) {
-        // Request was made but no response received
-        console.error('Request data:', error.request);
-        setError('No response from server');
+        setError(error.response.data.error || 'Login failed');
       } else {
-        // Something else caused an error
-        console.error('Error', error.message);
-        setError(error.message);
+        setError('Login failed');
       }
     }
   };

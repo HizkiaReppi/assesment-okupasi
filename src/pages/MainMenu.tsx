@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import hoverImagePeta from '../assets/FullMap.png'; // Ganti dengan path gambar untuk Peta Okupasi
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../components/AuthContext';import hoverImagePeta from '../assets/FullMap.png'; // Ganti dengan path gambar untuk Peta Okupasi
 import hoverImageSekolah from '../assets/CariSekolah.jpg'; // Ganti dengan path gambar untuk Cari Sekolah
 import hoverImageData from '../assets/programmer.jpg'; // Ganti dengan path gambar untuk Data
 
 const MainMenu = () => {
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, section: string) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -15,6 +18,14 @@ const MainMenu = () => {
 
   const handleMouseLeave = () => {
     setHoveredSection(null);
+  };
+
+  const handleClick = (path: string) => {
+    if (isLoggedIn) {
+      navigate('/home');
+    } else {
+      navigate('/login');
+    }
   };
 
   const renderHoverImage = (section: string, image: string) => {
@@ -45,7 +56,10 @@ const MainMenu = () => {
           <p className="mt-4 mb-4 max-w-md">
             Temukan informasi terkait okupasi sekolah kejuruan yang ada di daerah Tondano dan Tomohon
           </p>
-          <button className="px-6 py-3 bg-orange-700 text-white text-lg font-semibold rounded-lg shadow-lg transform transition duration-300 hover:bg-orange-800 hover:scale-105">
+          <button
+            onClick={() => handleClick('/home')}
+            className="px-6 py-3 bg-orange-700 text-white text-lg font-semibold rounded-lg shadow-lg transform transition duration-300 hover:bg-orange-800 hover:scale-105"
+          >
             Getting Started
           </button>
         </div>
@@ -57,7 +71,12 @@ const MainMenu = () => {
         onMouseLeave={handleMouseLeave}
       >
         <div className="relative z-10 text-center px-4">
-          <a href="/cari-sekolah" className="text-4xl font-bold text-black hover:text-orange-500">Cari Sekolah</a>
+          <button
+            onClick={() => handleClick('/cari-sekolah')}
+            className="text-4xl font-bold text-black hover:text-orange-500"
+          >
+            Cari Sekolah
+          </button>
         </div>
         {renderHoverImage('sekolah', hoverImageSekolah)}
       </div>
@@ -67,7 +86,12 @@ const MainMenu = () => {
         onMouseLeave={handleMouseLeave}
       >
         <div className="relative z-10 text-center px-4">
-          <a href="/cek-data" className="text-4xl font-bold text-black hover:text-orange-500">Data</a>
+          <button
+            onClick={() => handleClick('/cek-data')}
+            className="text-4xl font-bold text-black hover:text-orange-500"
+          >
+            Data
+          </button>
         </div>
         {renderHoverImage('data', hoverImageData)}
       </div>
@@ -76,3 +100,5 @@ const MainMenu = () => {
 };
 
 export default MainMenu;
+
+
