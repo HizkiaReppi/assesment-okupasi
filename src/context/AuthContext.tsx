@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -8,14 +8,24 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
-    // Ambil status login dari localStorage saat inisialisasi
-    return localStorage.getItem('isLoggedIn') === 'true';
+  const [isLoggedIn, setIsLoggedInState] = useState<boolean>(() => {
+    return sessionStorage.getItem('isLoggedIn') === 'true';
   });
 
+  const setIsLoggedIn = (isLoggedIn: boolean) => {
+    setIsLoggedInState(isLoggedIn);
+    sessionStorage.setItem('isLoggedIn', isLoggedIn.toString());
+  };
+
   useEffect(() => {
-    // Simpan status login ke localStorage setiap kali berubah
-    localStorage.setItem('isLoggedIn', isLoggedIn.toString());
+    if (isLoggedIn) {
+      const timeout = setTimeout(() => {
+        setIsLoggedIn(false);
+        sessionStorage.removeItem('isLoggedIn');
+      }, 3600000); // Logout setelah 1 jam (3600000 ms)
+
+      return () => clearTimeout(timeout);
+    }
   }, [isLoggedIn]);
 
   return (

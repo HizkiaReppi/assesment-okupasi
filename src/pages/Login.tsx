@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { login } from '../api/api'; 
-import { useAuth } from '../context/AuthContext'; 
+import { login } from '../api/api';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,7 +11,8 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { setIsLoggedIn } = useAuth(); 
+  const { setIsLoggedIn } = useAuth();
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -23,8 +24,8 @@ const Login = () => {
     try {
       const response = await login(email, password);
       if (response) {
-        setIsLoggedIn(true); 
-        navigate('/home'); 
+        setIsLoggedIn(true);
+        navigate('/home');
       } else {
         setError('Login failed. Please check your email and password.');
       }
@@ -84,6 +85,9 @@ const Login = () => {
         </form>
         <div className="mt-4 text-[#d1815b] cursor-pointer hover:underline">
           Lupa kata sandi?
+        </div>
+        <div className="mt-4 text-gray-700">
+          Sudah punya akun? <Link to="/signup" className="text-[#d1815b] hover:underline">Daftar disini</Link>
         </div>
       </div>
     </div>

@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import hoverImagePeta from '../assets/FullMap.png'; 
 import hoverImageSekolah from '../assets/CariSekolah.jpg'; 
 import hoverImageData from '../assets/programmer.jpg'; 
-import { useAuth } from '../context/AuthContext'; // Pastikan jalur impor sesuai dengan lokasi file AuthContext.tsx
+import { useAuth } from '../context/AuthContext'; 
 
 const MainMenu = () => {
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
-  const { isLoggedIn } = useAuth(); // Menggunakan Context
+  const { isLoggedIn } = useAuth(); 
   const navigate = useNavigate();
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, section: string) => {
@@ -23,9 +23,9 @@ const MainMenu = () => {
 
   const handleClick = (path: string) => {
     if (isLoggedIn) {
-      navigate('/home'); // Arahkan ke /home jika sudah login
+      navigate(path); 
     } else {
-      navigate('/login'); // Arahkan ke /login jika belum login
+      navigate('/login'); 
     }
   };
 

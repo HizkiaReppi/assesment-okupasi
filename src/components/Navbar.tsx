@@ -14,7 +14,7 @@ const Navbar = () => {
   useEffect(() => {
     if (isLoggedIn) {
       axios.get('http://localhost:3000/api/v1/user', { withCredentials: true })
-        .then(response => {
+        .then(_ => {
           setIsSuperAdmin(true); 
         })
         .catch(error => {
