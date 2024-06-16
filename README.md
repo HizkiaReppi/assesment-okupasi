@@ -19,6 +19,7 @@ Create a `.env` file in the root of your project and add the following environme
 
 ```env
 VITE_API_BASE_URL=http://localhost:3000/api/v1
+MAPS = contact developer
 ```
 
 ## Step 4: Run the Development Server
