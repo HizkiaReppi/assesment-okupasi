@@ -1,31 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { FaFilter } from 'react-icons/fa';
 import axios from 'axios';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 
+// Jangan ubah interface ini!
 interface School {
   id: string;
   nama: string;
   kota: string;
-  alamat: string; // Tambahkan alamat lengkap ke interface School
+  lat: number;  // Tambahkan ini
+  lng: number;  // Tambahkan ini
 }
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  onSelectSchool: (coordinates: { lat: number, lng: number, name: string } | null) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [schools, setSchools] = useState<School[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSchool, setSelectedSchool] = useState<{ lat: number, lon: number } | null>(null);
 
-  // Fungsi geocodeAddress untuk mengonversi alamat ke koordinat
   const geocodeAddress = async (address: string) => {
-    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
-    const data = await response.json();
-    if (data && data.length > 0) {
-      const { lat, lon } = data[0];
-      return { lat: parseFloat(lat), lon: parseFloat(lon) };
+    try {
+      const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${import.meta.env.VITE_MAPS_API_KEY}`);
+      const data = await response.json();
+      if (data && data.results && data.results.length > 0) {
+        const { lat, lng } = data.results[0].geometry.location;
+        return { lat, lng };
+      }
+      throw new Error('Address not found');
+    } catch (error) {
+      console.error('Geocoding failed:', error);
+      throw error;
     }
-    throw new Error('Address not found');
   };
 
   useEffect(() => {
@@ -34,9 +40,13 @@ const Sidebar: React.FC = () => {
         const response = await axios.get('http://localhost:3000/api/v1/sekolah', {
           withCredentials: true,
         });
-        console.log('API Response:', response.data);
         if (response.data && Array.isArray(response.data.data)) {
-          setSchools(response.data.data);
+          const schoolsWithCoords = await Promise.all(response.data.data.map(async (school: School) => {
+            const address = `${school.nama}, ${school.kota}, Indonesia`;
+            const coordinates = await geocodeAddress(address);
+            return { ...school, ...coordinates };
+          }));
+          setSchools(schoolsWithCoords);
         } else {
           console.error('Expected an array but got:', response.data);
         }
@@ -52,15 +62,8 @@ const Sidebar: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleSchoolClick = async (school: School) => {
-    try {
-      const address = `${school.nama}, Sarongsong II, Kec. Airmadidi, Kabupaten Minahasa Utara, Sulawesi Utara, 95371, Indonesia`; // Tambahkan detail lebih lengkap
-      const coordinates = await geocodeAddress(address);
-      setSelectedSchool(coordinates);
-    } catch (error) {
-      console.error('Geocoding failed:', error);
-      alert('Lokasi tidak ditemukan. Coba dengan alamat yang lebih spesifik.');
-    }
+  const handleSchoolClick = (school: School) => {
+    onSelectSchool({ lat: school.lat, lng: school.lng, name: school.nama });
   };
 
   const filteredSchools = schools.filter(school =>
@@ -83,11 +86,8 @@ const Sidebar: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <button className="ml-2">
-                <FaFilter />
-              </button>
             </div>
-            <div className="mt-4">
+            <div className="mt-4 overflow-y-auto h-64"> {/* Tambahkan scroll */}
               {filteredSchools.length > 0 ? (
                 filteredSchools.map(school => (
                   <div key={school.id} className="p-2 border-b cursor-pointer" onClick={() => handleSchoolClick(school)}>
@@ -101,21 +101,6 @@ const Sidebar: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
-      <div className="flex-1">
-        <MapContainer center={[-1.656, 120.216]} zoom={5} className="h-screen w-full">
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          {selectedSchool && (
-            <Marker position={[selectedSchool.lat, selectedSchool.lon]}>
-              <Popup>
-                Lokasi sekolah yang dipilih.
-              </Popup>
-            </Marker>
-          )}
-        </MapContainer>
       </div>
     </div>
   );

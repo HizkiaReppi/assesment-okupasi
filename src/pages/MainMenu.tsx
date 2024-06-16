@@ -73,7 +73,7 @@ const MainMenu = () => {
       >
         <div className="relative z-10 text-center px-4">
           <button
-            onClick={() => handleClick('/cari-sekolah')}
+            onClick={() => handleClick('/home')}
             className="text-4xl font-bold text-black hover:text-orange-500"
           >
             Cari Sekolah
