@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../components/AuthContext';import hoverImagePeta from '../assets/FullMap.png'; // Ganti dengan path gambar untuk Peta Okupasi
-import hoverImageSekolah from '../assets/CariSekolah.jpg'; // Ganti dengan path gambar untuk Cari Sekolah
-import hoverImageData from '../assets/programmer.jpg'; // Ganti dengan path gambar untuk Data
+import hoverImagePeta from '../assets/FullMap.png'; 
+import hoverImageSekolah from '../assets/CariSekolah.jpg'; 
+import hoverImageData from '../assets/programmer.jpg'; 
 
 const MainMenu = () => {
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
-  const { isLoggedIn } = useAuth();
+  const isLoggedIn = false; 
   const navigate = useNavigate();
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, section: string) => {
@@ -22,7 +22,7 @@ const MainMenu = () => {
 
   const handleClick = (path: string) => {
     if (isLoggedIn) {
-      navigate('/home');
+      navigate(path); // Menggunakan variabel 'path' di sini
     } else {
       navigate('/login');
     }

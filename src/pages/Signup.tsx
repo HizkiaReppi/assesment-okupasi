@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const SignUp = () => {
@@ -8,22 +7,6 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    try {
-      await axios.post('http://localhost:4000/api/v1/user/signup', {
-        username,
-        email,
-        password
-      });
-      console.log("data berhasil dikirim");
-      navigate('/login');
-    } catch (error) {
-      console.error('Sign up failed', error);
-    }
-  };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -39,7 +22,7 @@ const SignUp = () => {
           <span className="mx-2 text-gray-500">atau</span>
           <div className="w-1/4 h-px bg-gray-300"></div>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form className="space-y-4">
           <div className="relative">
             <input 
               type="text" 

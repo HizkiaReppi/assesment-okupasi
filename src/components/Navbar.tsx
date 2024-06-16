@@ -1,21 +1,13 @@
 import { useState } from "react";
 import "./Navbar.css";
 import { FaDoorOpen, FaBars, FaDoorClosed } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from './AuthContext';
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { isLoggedIn, logout } = useAuth();
-  const navigate = useNavigate();
-
+  const isLoggedIn = false; // Dummy 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
   };
 
   return (
@@ -33,7 +25,6 @@ const Navbar = () => {
           </Link>
           {isLoggedIn ? (
             <button
-              onClick={handleLogout}
               className="menu-button flex items-center hover:text-orange-500"
             >
               <FaDoorClosed className="mr-2" /> Logout
@@ -62,10 +53,6 @@ const Navbar = () => {
             </Link>
             {isLoggedIn ? (
               <button
-                onClick={() => {
-                  handleLogout();
-                  toggleMenu();
-                }}
                 className="menu-button flex items-center hover:text-orange-500"
               >
                 <FaDoorClosed className="mr-2" /> Logout

@@ -1,36 +1,12 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { useAuth } from '../components/AuthContext';
+import { Link } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const { login } = useAuth();
-  const navigate = useNavigate();
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/user/login`, {
-        email,
-        password,
-      });
-      localStorage.setItem('token', response.data.token);
-      login(); // Update login status
-      navigate('/');
-    } catch (error) {
-      console.error('Login failed', error);
-      if (error.response) {
-        setError(error.response.data.error || 'Login failed');
-      } else {
-        setError('Login failed');
-      }
-    }
-  };
+  const [error] = useState('');
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -46,7 +22,7 @@ const Login = () => {
           <span className="mx-2 text-gray-500">atau</span>
           <div className="w-1/4 h-px bg-gray-300"></div>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form className="space-y-4">
           {error && <div className="text-red-500">{error}</div>}
           <div className="relative">
             <input 
