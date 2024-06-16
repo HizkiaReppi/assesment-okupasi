@@ -10,10 +10,11 @@ interface MapProps {
   lat: number;
   lng: number;
   selectedSchoolName: string;
+  allSchools: { lat: number, lng: number, name: string }[];
   zoom: number;
 }
 
-const GoogleMapComponent: React.FC<MapProps> = ({ lat, lng, selectedSchoolName, zoom }) => {
+const GoogleMapComponent: React.FC<MapProps> = ({ lat, lng, selectedSchoolName, allSchools, zoom }) => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [infoWindowOpen, setInfoWindowOpen] = useState(true);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -36,7 +37,7 @@ const GoogleMapComponent: React.FC<MapProps> = ({ lat, lng, selectedSchoolName, 
       const position = new google.maps.LatLng(lat, lng);
       mapRef.current.setCenter(position);
       mapRef.current.setZoom(zoom);
-      setInfoWindowOpen(true); // Membuka InfoWindow otomatis saat lokasi berubah
+      setInfoWindowOpen(true);
     }
   }, [lat, lng, zoom]);
 
@@ -50,24 +51,28 @@ const GoogleMapComponent: React.FC<MapProps> = ({ lat, lng, selectedSchoolName, 
 
   useEffect(() => {
     if (map) {
-      const marker = new google.maps.Marker({
-        position: { lat, lng },
-        map,
-        title: selectedSchoolName,
-        label: {
-          text: selectedSchoolName,
-          color: 'black',
-          fontWeight: 'bold',
-        },
+      const markers = allSchools.map(school => {
+        const marker = new google.maps.Marker({
+          position: { lat: school.lat, lng: school.lng },
+          map,
+          title: school.name,
+          label: {
+            text: school.name,
+            color: 'black',
+            fontWeight: 'bold',
+          },
+        });
+
+        marker.addListener('click', handleMarkerClick);
+
+        return marker;
       });
 
-      marker.addListener('click', handleMarkerClick);
-
       return () => {
-        marker.setMap(null);
+        markers.forEach(marker => marker.setMap(null));
       };
     }
-  }, [map, lat, lng, selectedSchoolName]);
+  }, [map, allSchools]);
 
   return (
     <GoogleMap

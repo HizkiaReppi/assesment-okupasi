@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { FaFilter } from 'react-icons/fa';
 
 // Jangan ubah interface ini!
 interface School {
   id: string;
   nama: string;
   kota: string;
-  lat: number;  // Tambahkan ini
-  lng: number;  // Tambahkan ini
+  lat: number;
+  lng: number;
 }
 
 interface SidebarProps {
@@ -18,6 +19,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [schools, setSchools] = useState<School[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
 
   const geocodeAddress = async (address: string) => {
     try {
@@ -66,9 +71,37 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
     onSelectSchool({ lat: school.lat, lng: school.lng, name: school.nama });
   };
 
-  const filteredSchools = schools.filter(school =>
-    school.nama.toLowerCase().includes(searchTerm.toLowerCase())
+  const handlePageChange = (direction: 'next' | 'prev') => {
+    setCurrentPage((prevPage) => {
+      if (direction === 'next') {
+        return prevPage + 1;
+      } else if (direction === 'prev') {
+        return prevPage - 1;
+      }
+      return prevPage;
+    });
+  };
+
+  const filteredSchools = schools
+    .filter(school => school.nama.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter(school => (selectedFilter ? school.kota === selectedFilter : true));
+
+  const paginatedSchools = filteredSchools.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
+
+  const totalPages = Math.ceil(filteredSchools.length / itemsPerPage);
+
+  const toggleFilterMenu = () => {
+    setIsFilterOpen(!isFilterOpen);
+  };
+
+  const handleFilterSelect = (filter: string) => {
+    setSelectedFilter(filter);
+    setIsFilterOpen(false);
+    setCurrentPage(1); // Reset to the first page when filter changes
+  };
 
   return (
     <div className="flex">
@@ -86,10 +119,34 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+              <button onClick={toggleFilterMenu} className="ml-2 p-2 border rounded">
+                <FaFilter />
+              </button>
+              {isFilterOpen && (
+                <div className="absolute top-12 right-4 bg-white shadow-md border rounded p-4">
+                  <h4 className="font-bold mb-2">Filter by Kota</h4>
+                  {Array.from(new Set(schools.map(school => school.kota))).map(kota => (
+                    <div key={kota} className="mb-2">
+                      <button
+                        onClick={() => handleFilterSelect(kota)}
+                        className={`p-2 border rounded w-full text-left ${selectedFilter === kota ? 'bg-orange-500 text-white' : 'bg-gray-200'}`}
+                      >
+                        {kota}
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => handleFilterSelect('')}
+                    className={`p-2 border rounded w-full text-left ${selectedFilter === '' ? 'bg-orange-500 text-white' : 'bg-gray-200'}`}
+                  >
+                    Clear Filter
+                  </button>
+                </div>
+              )}
             </div>
-            <div className="mt-4 overflow-y-auto h-64"> {/* Tambahkan scroll */}
-              {filteredSchools.length > 0 ? (
-                filteredSchools.map(school => (
+            <div className="mt-4 overflow-y-auto h-[calc(100vh-20rem)]">
+              {paginatedSchools.length > 0 ? (
+                paginatedSchools.map(school => (
                   <div key={school.id} className="p-2 border-b cursor-pointer" onClick={() => handleSchoolClick(school)}>
                     <h3 className="font-bold">{school.nama}</h3>
                     <p>{school.kota}</p>
@@ -98,6 +155,22 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
               ) : (
                 <p>No schools found.</p>
               )}
+            </div>
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={() => handlePageChange('prev')}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => handlePageChange('next')}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded disabled:opacity-50"
+              >
+                Next
+              </button>
             </div>
           </div>
         )}

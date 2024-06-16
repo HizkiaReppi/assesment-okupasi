@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
-import GoogleMapComponent from '../components/GoogleMapComponent'; 
-import { useJsApiLoader, GoogleMap, Marker } from '@react-google-maps/api';
+import GoogleMapComponent from '../components/GoogleMapComponent';
+import { useJsApiLoader } from '@react-google-maps/api';
 import axios from 'axios';
 
 interface School {
@@ -66,28 +66,13 @@ const HomePage: React.FC = () => {
   return (
     <div className="relative flex flex-col sm:flex-row h-screen overflow-hidden">
       <div className="flex-grow">
-        {selectedSchool ? (
-          <GoogleMapComponent lat={selectedSchool.lat} lng={selectedSchool.lng} selectedSchoolName={selectedSchool.name} zoom={18} />
-        ) : (
-          <GoogleMap
-            mapContainerStyle={{ width: '100%', height: '100%' }}
-            center={{ lat: initialSchools[0]?.lat || -6.200000, lng: initialSchools[0]?.lng || 106.816666 }}
-            zoom={10}
-          >
-            {initialSchools.map((school, index) => (
-              <Marker
-                key={index}
-                position={{ lat: school.lat, lng: school.lng }}
-                title={school.name}
-                label={{
-                  text: school.name,
-                  color: 'black',
-                  fontWeight: 'bold',
-                }}
-              />
-            ))}
-          </GoogleMap>
-        )}
+        <GoogleMapComponent
+          lat={selectedSchool ? selectedSchool.lat : (initialSchools[0]?.lat || -6.200000)}
+          lng={selectedSchool ? selectedSchool.lng : (initialSchools[0]?.lng || 106.816666)}
+          selectedSchoolName={selectedSchool ? selectedSchool.name : ''}
+          allSchools={initialSchools}
+          zoom={selectedSchool ? 18 : 10}
+        />
       </div>
       <Sidebar onSelectSchool={(coordinates) => setSelectedSchool(coordinates)} />
     </div>
@@ -95,4 +80,3 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
-
