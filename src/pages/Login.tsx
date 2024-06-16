@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-import { login } from '../api/api';  // Pastikan jalur impor sesuai dengan lokasi file api.ts
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { login } from '../api/api'; // Pastikan jalur impor sesuai dengan lokasi file api.ts
+import { useAuth } from '../context/AuthContext'; // Pastikan jalur impor sesuai dengan lokasi file AuthContext.tsx
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { setIsLoggedIn } = useAuth(); // Menggunakan Context
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -20,8 +22,13 @@ const Login = () => {
     setLoading(true);
     setError('');
     try {
-      await login(email, password);
-      navigate('/home');  // Arahkan pengguna ke dashboard setelah login berhasil
+      const response = await login(email, password);
+      if (response) {
+        setIsLoggedIn(true); // Perbarui Context
+        navigate('/home');  // Arahkan pengguna ke dashboard setelah login berhasil
+      } else {
+        setError('Login failed. Please check your email and password.');
+      }
     } catch (err) {
       const errorMessage = (err as Error).message || 'Terjadi kesalahan, silakan coba lagi.';
       setError(errorMessage);
@@ -68,10 +75,6 @@ const Login = () => {
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </div>
           </div>
-          <div className="flex items-center">
-            <input type="checkbox" id="remember" className="mr-2" />
-            <label htmlFor="remember" className="text-gray-700">Ingat Saya</label>
-          </div>
           <button 
             type="submit" 
             className={`w-full bg-[#d1815b] text-white p-3 rounded-lg font-semibold hover:bg-[#b86842] transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -84,7 +87,7 @@ const Login = () => {
           Lupa kata sandi?
         </div>
         <div className="mt-4 text-gray-700">
-          Belum punya akun? <Link to="/signup" className="text-[#d1815b] hover:underline">Daftar disini</Link>
+          Sudah punya akun? <Link to="/signup" className="text-[#d1815b] hover:underline">Daftar disini</Link>
         </div>
       </div>
     </div>

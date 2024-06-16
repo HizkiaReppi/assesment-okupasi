@@ -3,31 +3,29 @@ import "./Navbar.css";
 import { FaDoorOpen, FaBars, FaDoorClosed } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext'; // Pastikan jalur impor sesuai dengan lokasi file AuthContext.tsx
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const navigate = useNavigate();
+  const { isLoggedIn, setIsLoggedIn } = useAuth(); // Menggunakan Context
 
   useEffect(() => {
-    // Memeriksa status login dengan memanfaatkan middleware yang ada di backend
-    axios.get('http://localhost:3000/api/v1/user', { withCredentials: true })
-      .then(response => {
-        // Jika respons berhasil, berarti pengguna sudah login dan mungkin super admin
-        setIsLoggedIn(true);
-        setIsSuperAdmin(true); // Asumsikan ini super admin jika permintaan berhasil
-      })
-      .catch(error => {
-        // Jika respons gagal karena 403 Forbidden, berarti pengguna login tapi bukan super admin
-        if (error.response && error.response.status === 403) {
-          setIsLoggedIn(true);
-          setIsSuperAdmin(false);
-        } else {
-          setIsLoggedIn(false);
-        }
-      });
-  }, []);
+    if (isLoggedIn) {
+      axios.get('http://localhost:3000/api/v1/user', { withCredentials: true })
+        .then(response => {
+          setIsSuperAdmin(true); // Asumsikan ini super admin jika permintaan berhasil
+        })
+        .catch(error => {
+          if (error.response && error.response.status === 403) {
+            setIsSuperAdmin(false);
+          }
+        });
+    } else {
+      setIsSuperAdmin(false);
+    }
+  }, [isLoggedIn]);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -52,7 +50,7 @@ const Navbar = () => {
         <div className="menu-container sm:flex hidden">
           <Link to="/" className="menu-button hover:text-orange-500">Home</Link>
           {isLoggedIn && isSuperAdmin && (
-            <Link to="/add-member" className="menu-button hover:text-orange-500">Add Member</Link>
+            <Link to="/signup" className="menu-button hover:text-orange-500">Add Member</Link>
           )}
           {isLoggedIn ? (
             <button className="menu-button flex items-center hover:text-orange-500" onClick={handleLogout}>
@@ -72,7 +70,7 @@ const Navbar = () => {
           <div className="menu-mobile sm:hidden">
             <Link to="/" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Home</Link>
             {isLoggedIn && isSuperAdmin && (
-              <Link to="/add-member" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Add Member</Link>
+              <Link to="/signup" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Add Member</Link>
             )}
             {isLoggedIn ? (
               <button className="menu-button flex items-center hover:text-orange-500" onClick={handleLogout}>
