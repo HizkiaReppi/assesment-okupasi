@@ -14,19 +14,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const setIsLoggedIn = (isLoggedIn: boolean) => {
     setIsLoggedInState(isLoggedIn);
-    sessionStorage.setItem('isLoggedIn', isLoggedIn.toString());
+    if (isLoggedIn) {
+      sessionStorage.setItem('isLoggedIn', 'true');
+    } else {
+      sessionStorage.removeItem('isLoggedIn');
+    }
   };
 
   useEffect(() => {
-    if (isLoggedIn) {
-      const timeout = setTimeout(() => {
-        setIsLoggedIn(false);
-        sessionStorage.removeItem('isLoggedIn');
-      }, 3600000); // Logout setelah 1 jam (3600000 ms)
+    const handleBeforeUnload = () => {
+      sessionStorage.removeItem('isLoggedIn');
+    };
 
-      return () => clearTimeout(timeout);
-    }
-  }, [isLoggedIn]);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>

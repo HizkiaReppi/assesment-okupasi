@@ -15,12 +15,12 @@ const AppContent = () => {
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
-    
+
     if (isLoggedIn) {
       timeout = setTimeout(() => {
         setIsLoggedIn(false);
         navigate('/login');
-      }, 3600000); // Logout setelah 1 jam (3600000 ms)
+      }, 3600000); 
     }
 
     return () => {

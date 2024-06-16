@@ -35,10 +35,13 @@ const Navbar = () => {
     try {
       await axios.post('http://localhost:3000/api/v1/user/logout', {}, { withCredentials: true });
       setIsLoggedIn(false);
-      localStorage.removeItem('isLoggedIn'); 
+      sessionStorage.removeItem('isLoggedIn'); 
       navigate('/login');
     } catch (error) {
       console.error('Logout failed', error);
+      setIsLoggedIn(false);
+      sessionStorage.removeItem('isLoggedIn');
+      navigate('/login');
     }
   };
 
