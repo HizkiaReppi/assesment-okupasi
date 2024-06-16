@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { createUser } from '../api/api'; // Pastikan jalur impor sesuai dengan lokasi file api.ts
+import { createUser } from '../api/api'; 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -26,8 +26,8 @@ const SignUp = () => {
       await createUser(username, email, password);
       toast.success('Berhasil menambahkan anggota');
       setTimeout(() => {
-        navigate('/login'); // Arahkan pengguna ke halaman login setelah pendaftaran berhasil
-      }, 2000); // Menunggu 2 detik sebelum mengarahkan ke halaman login
+        navigate('/home'); 
+      }, 2000); 
     } catch (err) {
       const errorMessage = (err as Error).message || 'Terjadi kesalahan, silakan coba lagi.';
       setError(errorMessage);

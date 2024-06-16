@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { login } from '../api/api'; // Pastikan jalur impor sesuai dengan lokasi file api.ts
-import { useAuth } from '../context/AuthContext'; // Pastikan jalur impor sesuai dengan lokasi file AuthContext.tsx
+import { login } from '../api/api'; 
+import { useAuth } from '../context/AuthContext'; 
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,8 +11,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { setIsLoggedIn } = useAuth(); // Menggunakan Context
-
+  const { setIsLoggedIn } = useAuth(); 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -24,8 +23,8 @@ const Login = () => {
     try {
       const response = await login(email, password);
       if (response) {
-        setIsLoggedIn(true); // Perbarui Context
-        navigate('/home');  // Arahkan pengguna ke dashboard setelah login berhasil
+        setIsLoggedIn(true); 
+        navigate('/home'); 
       } else {
         setError('Login failed. Please check your email and password.');
       }

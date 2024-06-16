@@ -3,19 +3,19 @@ import "./Navbar.css";
 import { FaDoorOpen, FaBars, FaDoorClosed } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext'; // Pastikan jalur impor sesuai dengan lokasi file AuthContext.tsx
+import { useAuth } from '../context/AuthContext'; 
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const navigate = useNavigate();
-  const { isLoggedIn, setIsLoggedIn } = useAuth(); // Menggunakan Context
+  const { isLoggedIn, setIsLoggedIn } = useAuth(); 
 
   useEffect(() => {
     if (isLoggedIn) {
       axios.get('http://localhost:3000/api/v1/user', { withCredentials: true })
         .then(response => {
-          setIsSuperAdmin(true); // Asumsikan ini super admin jika permintaan berhasil
+          setIsSuperAdmin(true); 
         })
         .catch(error => {
           if (error.response && error.response.status === 403) {
@@ -35,6 +35,7 @@ const Navbar = () => {
     try {
       await axios.post('http://localhost:3000/api/v1/user/logout', {}, { withCredentials: true });
       setIsLoggedIn(false);
+      localStorage.removeItem('isLoggedIn'); 
       navigate('/login');
     } catch (error) {
       console.error('Logout failed', error);
@@ -50,7 +51,7 @@ const Navbar = () => {
         <div className="menu-container sm:flex hidden">
           <Link to="/" className="menu-button hover:text-orange-500">Home</Link>
           {isLoggedIn && isSuperAdmin && (
-            <Link to="/signup" className="menu-button hover:text-orange-500">Add Member</Link>
+            <Link to="/signup" className="menu-button hover:text-orange-500">Sign Up</Link>
           )}
           {isLoggedIn ? (
             <button className="menu-button flex items-center hover:text-orange-500" onClick={handleLogout}>
@@ -70,7 +71,7 @@ const Navbar = () => {
           <div className="menu-mobile sm:hidden">
             <Link to="/" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Home</Link>
             {isLoggedIn && isSuperAdmin && (
-              <Link to="/signup" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Add Member</Link>
+              <Link to="/signup" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Sign Up</Link>
             )}
             {isLoggedIn ? (
               <button className="menu-button flex items-center hover:text-orange-500" onClick={handleLogout}>
