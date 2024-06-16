@@ -1,19 +1,44 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { createUser } from '../api/api'; // Pastikan jalur impor sesuai dengan lokasi file api.ts
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SignUp = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      await createUser(username, email, password);
+      toast.success('Berhasil menambahkan anggota');
+      setTimeout(() => {
+        navigate('/login'); // Arahkan pengguna ke halaman login setelah pendaftaran berhasil
+      }, 2000); // Menunggu 2 detik sebelum mengarahkan ke halaman login
+    } catch (err) {
+      const errorMessage = (err as Error).message || 'Terjadi kesalahan, silakan coba lagi.';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex justify-center items-center h-screen bg-[#fef7f7]">
+      <ToastContainer />
       <div className="bg-white p-8 rounded-lg shadow-lg text-center w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6">Daftar</h2>
         <img src="src/assets/google-logo.png" alt="Google Logo" className="w-12 mx-auto mb-6" />
@@ -22,7 +47,8 @@ const SignUp = () => {
           <span className="mx-2 text-gray-500">atau</span>
           <div className="w-1/4 h-px bg-gray-300"></div>
         </div>
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSignUp}>
+          {error && <div className="text-red-500">{error}</div>}
           <div className="relative">
             <input 
               type="text" 
@@ -59,8 +85,12 @@ const SignUp = () => {
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </div>
           </div>
-          <button type="submit" className="w-full bg-[#d1815b] text-white p-3 rounded-lg font-semibold hover:bg-[#b86842] transition duration-300">
-            Daftar
+          <button 
+            type="submit" 
+            className={`w-full bg-[#d1815b] text-white p-3 rounded-lg font-semibold hover:bg-[#b86842] transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={loading}
+          >
+            {loading ? 'Memuat...' : 'Daftar'}
           </button>
         </form>
         <div className="mt-4 text-gray-700">

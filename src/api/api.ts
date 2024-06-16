@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// Gunakan variabel lingkungan untuk base URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const apiClient = axios.create({
@@ -7,28 +8,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-});
-
-let authToken: string | null = null;
-
-const setAuthToken = (token: string) => {
-  authToken = token;
-  localStorage.setItem('authToken', token);
-};
-
-const getAuthToken = () => {
-  if (!authToken) {
-    authToken = localStorage.getItem('authToken');
-  }
-  return authToken;
-};
-
-apiClient.interceptors.request.use((config) => {
-  const token = getAuthToken();
-  if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`;
-  }
-  return config;
+  withCredentials: true,  // Pastikan cookies dikirim dengan setiap permintaan
 });
 
 const handleError = (error: unknown) => {
@@ -43,8 +23,7 @@ const handleError = (error: unknown) => {
 
 export const login = async (email: string, password: string) => {
   try {
-    const response = await apiClient.post('/api/v1/user/login', { email, password });
-    setAuthToken(response.data.token);
+    const response = await apiClient.post('/user/login', { email, password });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -53,7 +32,7 @@ export const login = async (email: string, password: string) => {
 
 export const getAllUsers = async () => {
   try {
-    const response = await apiClient.get('/api/v1/user');
+    const response = await apiClient.get('/user');
     return response.data;
   } catch (error) {
     handleError(error);
@@ -62,7 +41,7 @@ export const getAllUsers = async () => {
 
 export const getUserById = async (id: string) => {
   try {
-    const response = await apiClient.get(`/api/v1/user/${id}`);
+    const response = await apiClient.get(`/user/${id}`);
     return response.data;
   } catch (error) {
     handleError(error);
@@ -71,7 +50,7 @@ export const getUserById = async (id: string) => {
 
 export const createUser = async (nama: string, email: string, password: string) => {
   try {
-    const response = await apiClient.post('/api/v1/user', { nama, email, password });
+    const response = await apiClient.post('/user', { nama, email, password });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -80,7 +59,7 @@ export const createUser = async (nama: string, email: string, password: string) 
 
 export const updateUser = async (id: string, nama?: string, email?: string, password?: string) => {
   try {
-    const response = await apiClient.put(`/api/v1/user/${id}`, { nama, email, password });
+    const response = await apiClient.put(`/user/${id}`, { nama, email, password });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -89,7 +68,7 @@ export const updateUser = async (id: string, nama?: string, email?: string, pass
 
 export const deleteUser = async (id: string) => {
   try {
-    const response = await apiClient.delete(`/api/v1/user/${id}`);
+    const response = await apiClient.delete(`/user/${id}`);
     return response.data;
   } catch (error) {
     handleError(error);
@@ -98,7 +77,7 @@ export const deleteUser = async (id: string) => {
 
 export const changeEmail = async (email: string) => {
   try {
-    const response = await apiClient.patch('/api/v1/user/email', { email });
+    const response = await apiClient.patch('/user/email', { email });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -107,7 +86,7 @@ export const changeEmail = async (email: string) => {
 
 export const changePassword = async (password: string) => {
   try {
-    const response = await apiClient.patch('/api/v1/user/password', { password });
+    const response = await apiClient.patch('/user/password', { password });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -116,9 +95,7 @@ export const changePassword = async (password: string) => {
 
 export const logout = async () => {
   try {
-    const response = await apiClient.post('/api/v1/user/logout');
-    localStorage.removeItem('authToken');
-    authToken = null;
+    const response = await apiClient.post('/user/logout');
     return response.data;
   } catch (error) {
     handleError(error);

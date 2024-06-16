@@ -1,15 +1,33 @@
 import { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { login } from '../api/api';  // Pastikan jalur impor sesuai dengan lokasi file api.ts
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      await login(email, password);
+      navigate('/home');  // Arahkan pengguna ke dashboard setelah login berhasil
+    } catch (err) {
+      const errorMessage = (err as Error).message || 'Terjadi kesalahan, silakan coba lagi.';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -22,7 +40,7 @@ const Login = () => {
           <span className="mx-2 text-gray-500">atau</span>
           <div className="w-1/4 h-px bg-gray-300"></div>
         </div>
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleLogin}>
           {error && <div className="text-red-500">{error}</div>}
           <div className="relative">
             <input 
@@ -54,8 +72,12 @@ const Login = () => {
             <input type="checkbox" id="remember" className="mr-2" />
             <label htmlFor="remember" className="text-gray-700">Ingat Saya</label>
           </div>
-          <button type="submit" className="w-full bg-[#d1815b] text-white p-3 rounded-lg font-semibold hover:bg-[#b86842] transition duration-300">
-            Masuk
+          <button 
+            type="submit" 
+            className={`w-full bg-[#d1815b] text-white p-3 rounded-lg font-semibold hover:bg-[#b86842] transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={loading}
+          >
+            {loading ? 'Memuat...' : 'Masuk'}
           </button>
         </form>
         <div className="mt-4 text-[#d1815b] cursor-pointer hover:underline">
