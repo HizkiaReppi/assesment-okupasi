@@ -40,7 +40,7 @@ const SignUp = () => {
     <div className="flex justify-center items-center h-screen bg-[#fef7f7]">
       <ToastContainer />
       <div className="bg-white p-8 rounded-lg shadow-lg text-center w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6">Daftar</h2>
+        <h2 className="text-2xl font-bold mb-6">Tambah User Baru</h2>
         <img src="src/assets/google-logo.png" alt="Google Logo" className="w-12 mx-auto mb-6" />
         <div className="flex items-center justify-center mb-6">
           <div className="w-1/4 h-px bg-gray-300"></div>
@@ -93,9 +93,6 @@ const SignUp = () => {
             {loading ? 'Memuat...' : 'Daftar'}
           </button>
         </form>
-        <div className="mt-4 text-gray-700">
-          Sudah punya akun? <Link to="/login" className="text-[#d1815b] hover:underline">Login disini</Link>
-        </div>
       </div>
     </div>
   );

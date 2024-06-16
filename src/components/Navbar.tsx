@@ -51,7 +51,7 @@ const Navbar = () => {
         <div className="menu-container sm:flex hidden">
           <Link to="/" className="menu-button hover:text-orange-500">Home</Link>
           {isLoggedIn && isSuperAdmin && (
-            <Link to="/signup" className="menu-button hover:text-orange-500">Sign Up</Link>
+            <Link to="/signup" className="menu-button hover:text-orange-500">Add User</Link>
           )}
           {isLoggedIn ? (
             <button className="menu-button flex items-center hover:text-orange-500" onClick={handleLogout}>
@@ -71,7 +71,7 @@ const Navbar = () => {
           <div className="menu-mobile sm:hidden">
             <Link to="/" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Home</Link>
             {isLoggedIn && isSuperAdmin && (
-              <Link to="/signup" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Sign Up</Link>
+              <Link to="/signup" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Add User</Link>
             )}
             {isLoggedIn ? (
               <button className="menu-button flex items-center hover:text-orange-500" onClick={handleLogout}>

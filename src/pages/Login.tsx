@@ -85,9 +85,6 @@ const Login = () => {
         <div className="mt-4 text-[#d1815b] cursor-pointer hover:underline">
           Lupa kata sandi?
         </div>
-        <div className="mt-4 text-gray-700">
-          Sudah punya akun? <Link to="/signup" className="text-[#d1815b] hover:underline">Daftar disini</Link>
-        </div>
       </div>
     </div>
   );
