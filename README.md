@@ -3,6 +3,7 @@
 ## Step 1: Clone the repo
 ```bash
 git clone https://github.com/RazorTetra/assesment-maps-project.git
+cd assesment-maps-project
 ```
 
 ## Step 2: Install Dependencies
