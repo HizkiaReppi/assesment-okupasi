@@ -22,16 +22,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      sessionStorage.removeItem('isLoggedIn');
-    };
+    let timeout: ReturnType<typeof setTimeout>;
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    if (isLoggedIn) {
+      timeout = setTimeout(() => {
+        setIsLoggedIn(false);
+        sessionStorage.removeItem('isLoggedIn');
+      }, 3600000);
+    }
 
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (timeout) {
+        clearTimeout(timeout);
+      }
     };
-  }, []);
+  }, [isLoggedIn]);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
