@@ -4,7 +4,8 @@ import MainMenu from './pages/MainMenu';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import HomePage from './pages/HomePage';
-import DataSekolahPage from './pages/DataSekolahPage'; 
+import DataSekolahPage from './pages/DataSekolahPage';
+import DataOkupasiPage from './pages/DataOkupasiPage'; 
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import RedirectRoute from './routes/RedirectRoute';
@@ -17,8 +18,9 @@ const AppContent = () => {
         <Route path="/" element={<MainMenu />} />
         <Route path="/login" element={<RedirectRoute element={<Login />} />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/home" element={<ProtectedRoute element={<HomePage />} />} />
-        <Route path="/data-sekolah" element={<ProtectedRoute element={<DataSekolahPage />} />} /> 
+        <Route path="/home" element={<HomePage />} /> 
+        <Route path="/data-sekolah" element={<ProtectedRoute element={<DataSekolahPage />} />} />
+        <Route path="/data-okupasi" element={<DataOkupasiPage />} /> 
       </Routes>
     </>
   );

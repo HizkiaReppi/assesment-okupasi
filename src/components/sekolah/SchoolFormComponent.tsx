@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { addSekolah, editSekolahById } from '../api/sekolah-api';
+import { addSekolah, editSekolahById } from '../../api/sekolah-api';
 
 interface SchoolFormComponentProps {
   editId: string | null;

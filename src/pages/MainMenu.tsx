@@ -3,12 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import hoverImagePeta from '../assets/FullMap.png'; 
 import hoverImageSekolah from '../assets/CariSekolah.jpg'; 
 import hoverImageData from '../assets/programmer.jpg'; 
-import { useAuth } from '../context/AuthContext'; 
 
 const MainMenu = () => {
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
-  const { isLoggedIn } = useAuth(); 
   const navigate = useNavigate();
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, section: string) => {
@@ -22,11 +20,7 @@ const MainMenu = () => {
   };
 
   const handleClick = (path: string) => {
-    if (isLoggedIn) {
-      navigate(path); 
-    } else {
-      navigate('/login'); 
-    }
+    navigate(path);
   };
 
   const renderHoverImage = (section: string, image: string) => {

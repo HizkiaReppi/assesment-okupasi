@@ -46,21 +46,26 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed w-full z-50 bg-gray-100 shadow-md" style={{ background: "#F8F8F8", color: "black" }}>
-      <div className="navbar-container">
+    <nav className="fixed w-full z-50 bg-white shadow-md" style={{ background: "#F8F8F8", color: "black" }}>
+      <div className="navbar-container flex justify-between items-center px-4 py-2">
         <div className="logo-container">
           <img src="src/assets/logo.png" alt="Logo" className="logo" />
         </div>
-        <div className="menu-container sm:flex hidden">
+        <div className="menu-container hidden sm:flex space-x-4">
           <Link to="/" className="menu-button hover:text-orange-500">Home</Link>
-          {isLoggedIn && isSuperAdmin && (
-            <Link to="/signup" className="menu-button hover:text-orange-500">Add User</Link>
+          {isLoggedIn && (
+            <>
+              <Link to="/data-sekolah" className="menu-button hover:text-orange-500">Data Sekolah</Link>
+              <Link to="/data-okupasi" className="menu-button hover:text-orange-500">Data Okupasi</Link>
+              {isSuperAdmin && (
+                <Link to="/signup" className="menu-button hover:text-orange-500">Add User</Link>
+              )}
+              <button className="menu-button flex items-center hover:text-orange-500" onClick={handleLogout}>
+                <FaDoorClosed className="mr-2" /> Logout
+              </button>
+            </>
           )}
-          {isLoggedIn ? (
-            <button className="menu-button flex items-center hover:text-orange-500" onClick={handleLogout}>
-              <FaDoorClosed className="mr-2" /> Logout
-            </button>
-          ) : (
+          {!isLoggedIn && (
             <Link to="/login" className="menu-button flex items-center hover:text-orange-500">
               <FaDoorOpen className="mr-2" /> Login
             </Link>
@@ -71,16 +76,21 @@ const Navbar = () => {
           <FaBars />
         </div>
         {menuOpen && (
-          <div className="menu-mobile sm:hidden">
+          <div className="menu-mobile sm:hidden flex flex-col space-y-2 mt-2">
             <Link to="/" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Home</Link>
-            {isLoggedIn && isSuperAdmin && (
-              <Link to="/signup" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Add User</Link>
+            {isLoggedIn && (
+              <>
+                <Link to="/data-sekolah" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Data Sekolah</Link>
+                <Link to="/data-okupasi" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Data Okupasi</Link>
+                {isSuperAdmin && (
+                  <Link to="/signup" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Add User</Link>
+                )}
+                <button className="menu-button flex items-center hover:text-orange-500" onClick={handleLogout}>
+                  <FaDoorClosed className="mr-2" /> Logout
+                </button>
+              </>
             )}
-            {isLoggedIn ? (
-              <button className="menu-button flex items-center hover:text-orange-500" onClick={handleLogout}>
-                <FaDoorClosed className="mr-2" /> Logout
-              </button>
-            ) : (
+            {!isLoggedIn && (
               <Link to="/login" className="menu-button flex items-center hover:text-orange-500" onClick={toggleMenu}>
                 <FaDoorOpen className="mr-2" /> Login
               </Link>

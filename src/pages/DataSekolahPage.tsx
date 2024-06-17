@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   getAllSekolah,
   deleteSekolahById,
@@ -8,10 +8,10 @@ import {
   deleteKompetensiById,
   getAllSekolahStatByKodeOkupasi
 } from '../api/sekolah-api';
-import SchoolFormComponent from '../components/SchoolFormComponent';
-import SchoolListComponent from '../components/SchoolListComponent';
-import KompetensiListComponent from '../components/KompetensiListComponent';
-import KompetensiFormComponent from '../components/KompetensiFormComponent';
+import SchoolFormComponent from '../components/sekolah/SchoolFormComponent';
+import SchoolListComponent from '../components/sekolah/SchoolListComponent';
+import KompetensiListComponent from '../components/sekolah/KompetensiListComponent';
+import KompetensiFormComponent from '../components/sekolah/KompetensiFormComponent';
 
 interface School {
   id: string;
