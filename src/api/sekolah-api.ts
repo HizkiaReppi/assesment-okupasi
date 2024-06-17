@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Gunakan variabel lingkungan untuk base URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const apiClient = axios.create({
@@ -8,7 +7,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,  // Pastikan cookies dikirim dengan setiap permintaan
+  withCredentials: true,  // handle cookies
 });
 
 const handleError = (error: unknown) => {
@@ -21,6 +20,7 @@ const handleError = (error: unknown) => {
   }
 };
 
+// Add sekolah
 export const addSekolah = async (nama: string, kota: string) => {
   try {
     const response = await apiClient.post('/sekolah', { nama, kota });
@@ -30,6 +30,7 @@ export const addSekolah = async (nama: string, kota: string) => {
   }
 };
 
+// Get All Sekolah
 export const getAllSekolah = async (search?: number, limit?: number, page?: number, kota?: string) => {
   try {
     const params: any = { search, limit, page };
@@ -44,6 +45,7 @@ export const getAllSekolah = async (search?: number, limit?: number, page?: numb
 };
 
 
+// Get Sekolah By Id
 export const getSekolahById = async (id: string) => {
   try {
     const response = await apiClient.get(`/sekolah/${id}`);
@@ -53,6 +55,8 @@ export const getSekolahById = async (id: string) => {
   }
 };
 
+
+//Edit Sekolah By Id
 export const editSekolahById = async (id: string, nama: string, kota: string) => {
   try {
     const response = await apiClient.put(`/sekolah/${id}`, { nama, kota });
@@ -62,6 +66,7 @@ export const editSekolahById = async (id: string, nama: string, kota: string) =>
   }
 };
 
+// Delete Sekolah By Id
 export const deleteSekolahById = async (id: string) => {
   try {
     const response = await apiClient.delete(`/sekolah/${id}`);
@@ -71,6 +76,8 @@ export const deleteSekolahById = async (id: string) => {
   }
 };
 
+
+// Add Kompetensi
 export const addKompetensi = async (id: string, kode: string, unit_kompetensi: { id: string }[]) => {
   try {
     const response = await apiClient.post(`/sekolah/${id}/kompetensi`, { kode, unit_kompetensi });
@@ -80,6 +87,8 @@ export const addKompetensi = async (id: string, kode: string, unit_kompetensi: {
   }
 };
 
+
+// Get All Kompetensi
 export const getAllKompetensi = async (id: string, search?: string, limit?: number, page?: number) => {
   try {
     const response = await apiClient.get(`/sekolah/${id}/kompetensi`, { params: { search, limit, page } });
@@ -89,6 +98,7 @@ export const getAllKompetensi = async (id: string, search?: string, limit?: numb
   }
 };
 
+// Edit Kompetensi
 export const editKompetensi = async (id: string, kode: string, unit_kompetensi: { id: string }[]) => {
   try {
     const response = await apiClient.put(`/sekolah/${id}/kompetensi`, { kode, unit_kompetensi });
@@ -98,6 +108,8 @@ export const editKompetensi = async (id: string, kode: string, unit_kompetensi: 
   }
 };
 
+
+// Delete Kompetensi By Kode Okupasi
 export const deleteKompetensiByKodeOkupasi = async (id: string, kode: string) => {
   try {
     const response = await apiClient.delete(`/sekolah/${id}/okupasi/${kode}`);
@@ -107,6 +119,7 @@ export const deleteKompetensiByKodeOkupasi = async (id: string, kode: string) =>
   }
 };
 
+// Delete Kompetensi By Id
 export const deleteKompetensiById = async (id: string, idKompetensi: string) => {
   try {
     const response = await apiClient.delete(`/sekolah/${id}/kompetensi/${idKompetensi}`);
@@ -116,6 +129,7 @@ export const deleteKompetensiById = async (id: string, idKompetensi: string) => 
   }
 };
 
+// Get All Sekolah Stat By Kode Okupasi
 export const getAllSekolahStatByKodeOkupasi = async (kode: string, search?: string, limit?: number, page?: number) => {
   try {
     const response = await apiClient.get(`/sekolah/stat/okupasi/${kode}`, { params: { search, limit, page } });
