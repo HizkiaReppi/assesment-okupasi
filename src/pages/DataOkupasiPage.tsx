@@ -5,7 +5,7 @@ import OkupasiList from "../components/okupasi/OkupasiList";
 import UnitKompetensiAddForm from "../components/okupasi/UnitKompetensiAddForm";
 import UnitKompetensiEditForm from "../components/okupasi/UnitKompetensiEditForm";
 import UnitKompetensiList from "../components/okupasi/UnitKompetensiList";
-import useIsDesktop from "../hooks/useIsDesktop";
+import useIsDesktop from "../hooks/useIsDesktop"; // untuk handle layout
 
 const DataOkupasiPage: React.FC = () => {
   const [selectedKode, setSelectedKode] = useState<string | null>(null);
@@ -27,7 +27,7 @@ const DataOkupasiPage: React.FC = () => {
   };
 
   const handleRefresh = () => {
-    setRefresh(!refresh); // Toggle to force re-render or you might want to use a more direct data fetch method here
+    setRefresh(!refresh); // tambah redirect jika diperlukan
   };
 
   const handleEditUnit = (unitId: string, initialNama: string) => {
@@ -100,7 +100,7 @@ const DataOkupasiPage: React.FC = () => {
                 </button>
                 <UnitKompetensiAddForm
                   kode={selectedKode}
-                  onSuccess={handleRefresh} // Pass handleRefresh as onSuccess to trigger after adding a unit
+                  onSuccess={handleRefresh} 
                 />
               </>
             )}
@@ -118,7 +118,7 @@ const DataOkupasiPage: React.FC = () => {
                 <UnitKompetensiList
                   kode={selectedKode}
                   onEdit={handleEditUnit}
-                  refresh={refresh} // Pass the refresh toggle
+                  refresh={refresh} 
                 />
                 {editingUnit && (
                   <>
@@ -146,7 +146,7 @@ const DataOkupasiPage: React.FC = () => {
                       kode={selectedKode}
                       unitId={editingUnit.id}
                       initialNama={editingUnit.nama}
-                      onSuccess={handleSuccess} // Use handleSuccess here
+                      onSuccess={handleSuccess} 
                     />
                   </>
                 )}
