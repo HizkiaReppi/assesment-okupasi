@@ -15,6 +15,7 @@ interface SchoolListComponentProps {
   currentPage: number;
   totalPages: number;
   handlePageChange: (page: number) => void;
+  editId: string | null; // Prop untuk ID sekolah yang sedang diedit
 }
 
 const SchoolListComponent: React.FC<SchoolListComponentProps> = ({
@@ -23,7 +24,8 @@ const SchoolListComponent: React.FC<SchoolListComponentProps> = ({
   handleDelete,
   currentPage,
   totalPages,
-  handlePageChange
+  handlePageChange,
+  editId, // Terima prop editId
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -38,7 +40,10 @@ const SchoolListComponent: React.FC<SchoolListComponentProps> = ({
         </thead>
         <tbody>
           {schools.map((school) => (
-            <tr key={school.id} className="hover:bg-gray-100">
+            <tr
+              key={school.id}
+              className={`hover:bg-gray-100 ${editId === school.id ? 'bg-gray-200' : ''}`} // Gunakan warna yang lebih gelap jika sedang diedit
+            >
               <td className="text-gray-700 py-3 px-4 border-b border-gray-200">{school.nama}</td>
               <td className="text-gray-700 py-3 px-4 border-b border-gray-200">{school.kota}</td>
               <td className="py-3 px-4 border-b border-gray-200 text-center">
