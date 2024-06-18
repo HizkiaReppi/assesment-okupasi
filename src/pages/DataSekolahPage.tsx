@@ -56,6 +56,7 @@ const DataSekolahPage: React.FC = () => {
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 px-4 pt-16 md:px-0">
       <div className="bg-white p-6 rounded shadow-md w-full max-w-6xl">
+        {error && <div className="text-red-500">{error}</div>}
         <div className={`flex ${isDesktop ? 'flex-row' : 'flex-col'} gap-6`}>
           <div className="flex-1">
             <SchoolFormComponent
