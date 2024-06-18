@@ -8,7 +8,9 @@ interface SchoolFormComponentProps {
   setError: (error: string) => void;
 }
 
-const SchoolFormComponent: React.FC<SchoolFormComponentProps> = ({ editId, setEditId, fetchSchools, setError }) => {
+const SchoolFormComponent: React.FC<SchoolFormComponentProps> = ({
+  editId, setEditId, fetchSchools, setError
+}) => {
   const [nama, setNama] = useState('');
   const [kota, setKota] = useState('');
   const [loading, setLoading] = useState(false);
@@ -52,7 +54,7 @@ const SchoolFormComponent: React.FC<SchoolFormComponentProps> = ({ editId, setEd
             value={nama}
             onChange={(e) => setNama(e.target.value)}
             required
-            className="w-full p-2 border rounded mt-1"
+            className="w-full p-2 border border-gray-300 rounded mt-1 focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
           />
         </div>
         <div>
@@ -62,15 +64,16 @@ const SchoolFormComponent: React.FC<SchoolFormComponentProps> = ({ editId, setEd
             value={kota}
             onChange={(e) => setKota(e.target.value)}
             required
-            className="w-full p-2 border rounded mt-1"
+            className="w-full p-2 border border-gray-300 rounded mt-1 focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
           />
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded mt-4 hover:bg-blue-600 transition duration-200"
+          className="relative w-full bg-transparent text-gray-800 p-2 rounded mt-4 border border-gray-800 hover:bg-gray-800 hover:text-white transition duration-200"
           disabled={loading}
         >
-          {loading ? 'Memproses...' : editId ? 'Update Sekolah' : 'Tambah Sekolah'}
+          <span className="block relative z-10">{loading ? 'Memproses...' : editId ? 'Update Sekolah' : 'Tambah Sekolah'}</span>
+          <div className="absolute top-0 left-0 w-full h-full bg-gray-600 rounded transform scale-0 group-hover:scale-150 transition-transform duration-300 ease-out" style={{ clipPath: 'circle(30% at center)' }}></div>
         </button>
       </form>
     </div>

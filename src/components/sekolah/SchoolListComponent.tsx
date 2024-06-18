@@ -1,4 +1,6 @@
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 interface School {
   id: string;
@@ -26,31 +28,33 @@ const SchoolListComponent: React.FC<SchoolListComponentProps> = ({
   return (
     <div className="overflow-x-auto">
       <h2 className="text-2xl font-bold mb-4">Daftar Sekolah</h2>
-      <table className="w-full border-collapse table-fixed">
-        <thead>
+      <table className="min-w-full bg-white rounded-lg overflow-hidden">
+        <thead className="bg-gray-800 text-white">
           <tr>
-            <th className="border p-2 w-1/4">Nama</th>
-            <th className="border p-2 w-1/4">Kota</th>
-            <th className="border p-2 w-1/12">Aksi</th>
+            <th className="text-left py-3 px-4 uppercase font-semibold text-sm w-1/3">Nama</th>
+            <th className="text-left py-3 px-4 uppercase font-semibold text-sm w-1/3">Kota</th>
+            <th className="text-left py-3 px-4 uppercase font-semibold text-sm w-1/12">Aksi</th>
           </tr>
         </thead>
         <tbody>
           {schools.map((school) => (
-            <tr key={school.id}>
-              <td className="border p-2">{school.nama}</td>
-              <td className="border p-2">{school.kota}</td>
-              <td className="border p-2">
+            <tr key={school.id} className="hover:bg-gray-100">
+              <td className="text-gray-700 py-3 px-4 border-b border-gray-200">{school.nama}</td>
+              <td className="text-gray-700 py-3 px-4 border-b border-gray-200">{school.kota}</td>
+              <td className="py-3 px-4 border-b border-gray-200 text-center">
                 <button
-                  className="bg-yellow-500 text-white px-1 py-1 rounded mr-1"
                   onClick={() => handleEdit(school)}
+                  className="text-blue-500 hover:text-blue-700 p-2"
+                  title="Edit"
                 >
-                  Edit
+                  <FontAwesomeIcon icon={faEdit} />
                 </button>
                 <button
-                  className="bg-red-500 text-white px-1 py-1 rounded"
                   onClick={() => handleDelete(school.id)}
+                  className="text-red-500 hover:text-red-700 p-2"
+                  title="Delete"
                 >
-                  Hapus
+                  <FontAwesomeIcon icon={faTrash} />
                 </button>
               </td>
             </tr>
@@ -61,7 +65,7 @@ const SchoolListComponent: React.FC<SchoolListComponentProps> = ({
         {Array.from({ length: totalPages }, (_, index) => (
           <button
             key={index + 1}
-            className={`px-4 py-2 mx-2 rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`px-4 py-2 mx-2 rounded font-bold ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700 hover:bg-gray-400'}`}
             onClick={() => handlePageChange(index + 1)}
           >
             {index + 1}
