@@ -120,9 +120,9 @@ export const deleteKompetensiByKodeOkupasi = async (id: string, kode: string) =>
 };
 
 // Delete Kompetensi By Id atau delete satu kompetensi
-export const deleteKompetensiById = async (id: string, idKompetensi: string) => {
+export const deleteKompetensiById = async (id: string, idUnit: string) => {
   try {
-    const response = await apiClient.delete(`/sekolah/${id}/kompetensi/${idKompetensi}`);
+    const response = await apiClient.delete(`/sekolah/${id}/kompetensi/unit/${idUnit}`);
     return response.data;
   } catch (error) {
     handleError(error);
