@@ -36,29 +36,29 @@ const OkupasiList: React.FC<OkupasiListProps> = ({ onEdit, onViewUnits, refresh 
 
     return (
         <div className="mb-6 p-4 bg-white rounded-lg shadow-md">
-            <h2 className="text-xl font-bold text-orange-500 mb-4">Daftar Okupasi</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Daftar Okupasi</h2>
             <ul className="list-none">
                 {okupasi.map((item) => (
-                    <li key={item.kode} className="mb-4 p-4 bg-gray-100 rounded-lg shadow-sm">
-                        <span className="block text-gray-800 font-semibold">{item.nama}</span>
-                        <div className="mt-2">
+                    <li key={item.kode} className="mb-4 p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <span className="block text-gray-900 font-semibold">{item.nama}</span>
+                        <div className="mt-2 flex justify-end space-x-2">
                             <button 
                                 onClick={() => onEdit(item.kode)} 
-                                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mr-2"
+                                className="relative overflow-hidden text-sm bg-gray-300 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-400 before:absolute before:inset-0 before:bg-gray-400 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-30 before:rounded-full before:scale-0 hover:before:scale-150 before:blur"
                             >
                                 Edit
                             </button>
                             <button 
                                 onClick={() => onViewUnits(item.kode)} 
-                                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mr-2"
+                                className="relative overflow-hidden text-sm bg-blue-300 text-blue-800 px-3 py-1 rounded-md hover:bg-blue-400 before:absolute before:inset-0 before:bg-blue-400 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-30 before:rounded-full before:scale-0 hover:before:scale-150 before:blur"
                             >
-                                Lihat Unit Kompetensi
+                                View Units
                             </button>
                             <button 
                                 onClick={() => handleDelete(item.kode)} 
-                                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                                className="relative overflow-hidden text-sm bg-red-300 text-red-800 px-3 py-1 rounded-md hover:bg-red-400 before:absolute before:inset-0 before:bg-red-400 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-30 before:rounded-full before:scale-0 hover:before:scale-150 before:blur"
                             >
-                                Hapus
+                                Delete
                             </button>
                         </div>
                     </li>
