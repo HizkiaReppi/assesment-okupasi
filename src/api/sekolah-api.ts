@@ -107,7 +107,7 @@ export const editKompetensi = async (id: string, kode: string, unit_kompetensi: 
 // Delete Kompetensi By Kode Okupasi atau Delete semua kompetensi
 export const deleteKompetensiByKodeOkupasi = async (id: string, kode: string) => {
   try {
-    const response = await apiClient.delete(`/sekolah/${id}/okupasi/${kode}`, { withCredentials: true });
+    const response = await apiClient.delete(`/sekolah/${id}/kompetensi/okupasi/${kode}`, { withCredentials: true });
     return response.data;
   } catch (error) {
     handleError(error);
