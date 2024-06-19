@@ -1,89 +1,155 @@
-import React, { useState, useEffect } from 'react';
-import { getAllSekolah, deleteSekolahById } from '../api/sekolah-api';
-import SchoolFormComponent from '../components/sekolah/SchoolFormComponent';
-import SchoolListComponent from '../components/sekolah/SchoolListComponent';
-import useIsDesktop from '../hooks/useIsDesktop';
-
-interface School {
-  id: string;
-  nama: string;
-  kota: string;
-}
+import React, { useState } from "react";
+import SekolahAddForm from "../components/sekolah/SekolahAddFormComponent";
+import SekolahEditForm from "../components/sekolah/SekolahEditFormComponent";
+import SekolahList from "../components/sekolah/SekolahListComponent";
+import KompetensiAddForm from "../components/sekolah/KompetensiAddComponent";
+import KompetensiEditForm from "../components/sekolah/KompetensiEditFormComponent";
+import KompetensiList from "../components/sekolah/KompetensiListFormComponent";
+import useIsDesktop from "../hooks/useIsDesktop"; // untuk handle layout
 
 const DataSekolahPage: React.FC = () => {
-  const [schools, setSchools] = useState<School[]>([]);
-  const [editId, setEditId] = useState<string | null>(null);
-  const [error, setError] = useState('');
+  const [selectedSekolahId, setSelectedSekolahId] = useState<string | null>(null);
+  const [editingSekolahId, setEditingSekolahId] = useState<string | null>(null);
+  const [editingKompetensi, setEditingKompetensi] = useState<{
+    id: string;
+    kode: string;
+  } | null>(null);
+  const [refresh, setRefresh] = useState(false);
   const isDesktop = useIsDesktop();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchSchools();
-  }, [currentPage]);
-
-  const fetchSchools = async () => {
-    try {
-      const data = await getAllSekolah(undefined, 5, currentPage);
-      setSchools(data.data);
-      setTotalPages(data.total_page);
-    } catch (err) {
-      setError('Gagal memuat data sekolah.');
+  const handleSuccess = (updated: boolean) => {
+    if (updated) {
+      console.log("Kompetensi updated. Refreshing list...");
+      handleRefresh();
+    } else {
+      console.log("Failed to update kompetensi.");
     }
   };
 
-  const handleEdit = (school: School) => {
-    setEditId(school.id);
+  const handleRefresh = () => {
+    setRefresh(!refresh); // tambah redirect jika diperlukan
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteSekolahById(id);
-      fetchSchools();
-    } catch (err) {
-      setError('Gagal menghapus sekolah. Silakan coba lagi.');
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditId(null);
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handleEditKompetensi = (unitId: string, initialKode: string) => {
+    setEditingKompetensi({ id: unitId, kode: initialKode });
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-100 px-4 pt-16 md:px-0">
-      <div className="bg-white p-6 rounded shadow-md w-full max-w-6xl">
-        {error && <div className="text-red-500">{error}</div>}
-        <div className={`flex ${isDesktop ? 'flex-row' : 'flex-col'} gap-6`}>
+    <div className="bg-gray-100 min-h-screen p-6">
+      <div className="bg-white p-8 rounded-lg shadow-md">
+        <h1 className="text-2xl font-bold text-center mb-4 pt-8">
+          Data Sekolah
+        </h1>
+        <div className={`flex ${isDesktop ? "flex-row" : "flex-col"} gap-4`}>
           <div className="flex-1">
-            <SchoolFormComponent
-              editId={editId}
-              setEditId={setEditId}
-              fetchSchools={fetchSchools}
-              setError={setError}
-            />
-            {editId && (
-              <button onClick={handleCancelEdit} className="mt-4 text-blue-500 hover:text-blue-700 flex items-center">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back
-              </button>
+            {!editingSekolahId && !selectedSekolahId && (
+              <SekolahAddForm onAddSuccess={handleRefresh} />
+            )}
+            {editingSekolahId && (
+              <>
+                <button
+                  onClick={() => setEditingSekolahId(null)}
+                  className="flex items-center text-red-500 mb-2"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 19l-7-7 7-7"
+                    ></path>
+                  </svg>
+                  Back
+                </button>
+                <SekolahEditForm
+                  id={editingSekolahId}
+                  onSuccess={() => {
+                    setEditingSekolahId(null);
+                    handleRefresh();
+                  }}
+                />
+              </>
+            )}
+            {selectedSekolahId && !editingKompetensi && (
+              <>
+                <button
+                  onClick={() => setSelectedSekolahId(null)}
+                  className="flex items-center text-red-500 mb-2"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 19l-7-7 7-7"
+                    ></path>
+                  </svg>
+                  Back
+                </button>
+              </>
             )}
           </div>
           <div className="flex-1">
-            <SchoolListComponent
-              schools={schools}
-              handleEdit={handleEdit}
-              handleDelete={handleDelete}
-              editId={editId}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              handlePageChange={handlePageChange}
-            />
+            {!selectedSekolahId && (
+              <SekolahList
+                onEdit={setEditingSekolahId}
+                onViewKompetensi={setSelectedSekolahId}
+                refresh={refresh}
+                editingId={editingSekolahId}
+              />
+            )}
+            {selectedSekolahId && (
+              <>
+                <KompetensiList
+                  sekolahId={selectedSekolahId}
+                  onEdit={handleEditKompetensi}
+                  refresh={refresh} 
+                />
+                {editingKompetensi && (
+                  <>
+                    <button
+                      onClick={() => setEditingKompetensi(null)}
+                      className="flex items-center text-red-500 mb-2"
+                    >
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M15 19l-7-7 7-7"
+                        ></path>
+                      </svg>
+                      Back
+                    </button>
+                    <KompetensiEditForm
+                      sekolahId={selectedSekolahId}
+                      unitId={editingKompetensi.id}
+                      initialKode={editingKompetensi.kode}
+                      initialUnitKompetensi={[{ id: editingKompetensi.id }]}
+                      onSuccess={handleSuccess} 
+                    />
+                  </>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
