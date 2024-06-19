@@ -47,7 +47,7 @@ const KompetensiEditFormComponent: React.FC<KompetensiEditFormComponentProps> = 
                         label: unit.nama
                     }));
                     setUnitKompetensiOptions(kompetensiOptions);
-                    setSelectedUnitKompetensi(kompetensiOptions.find(u => u.value === unitId));
+                    setSelectedUnitKompetensi(kompetensiOptions.find((u: { value: string; label: string }) => u.value === unitId));
                 }
             } catch (error) {
                 console.error('Error fetching kompetensi details:', error);

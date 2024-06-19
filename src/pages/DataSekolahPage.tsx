@@ -98,6 +98,38 @@ const DataSekolahPage: React.FC = () => {
                                 />
                             </>
                         )}
+                        {selectedSekolahId && editingKompetensi && (
+                            <>
+                                <button
+                                    onClick={() => setEditingKompetensi(null)}
+                                    className="flex items-center text-red-500 mb-2"
+                                >
+                                    <svg
+                                        className="w-4 h-4 mr-2"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M15 19l-7-7 7-7"
+                                        ></path>
+                                    </svg>
+                                    Batal Edit
+                                </button>
+                                <KompetensiEditForm
+                                    sekolahId={selectedSekolahId}
+                                    unitId={editingKompetensi.id}
+                                    onSuccess={() => {
+                                        setEditingKompetensi(null);
+                                        handleSuccess();
+                                    }}
+                                />
+                            </>
+                        )}
                     </div>
                     <div className="flex-1">
                         {!selectedSekolahId && (
@@ -114,39 +146,8 @@ const DataSekolahPage: React.FC = () => {
                                     sekolahId={selectedSekolahId}
                                     onEdit={handleEditKompetensi}
                                     refresh={refresh}
+                                    editingUnitId={editingKompetensi?.id || null}
                                 />
-                                {editingKompetensi && (
-                                    <>
-                                        <button
-                                            onClick={() => setEditingKompetensi(null)}
-                                            className="flex items-center text-red-500 mb-2"
-                                        >
-                                            <svg
-                                                className="w-4 h-4 mr-2"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth="2"
-                                                    d="M15 19l-7-7 7-7"
-                                                ></path>
-                                            </svg>
-                                            Back
-                                        </button>
-                                        <KompetensiEditForm
-                                            sekolahId={selectedSekolahId}
-                                            unitId={editingKompetensi.id}
-                                            onSuccess={() => {
-                                                setEditingKompetensi(null);
-                                                handleSuccess();
-                                            }}
-                                        />
-                                    </>
-                                )}
                             </>
                         )}
                     </div>

@@ -8,9 +8,10 @@ interface KompetensiListProps {
     sekolahId: string;
     onEdit: (unitId: string, initialKode: string) => void;
     refresh: boolean;
+    editingUnitId: string | null; // Add this prop to track the currently editing unit id
 }
 
-const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refresh }) => {
+const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refresh, editingUnitId }) => {
     const [kompetensi, setKompetensi] = useState<any[]>([]);
     const [filteredKompetensi, setFilteredKompetensi] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -135,7 +136,7 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
             {filteredKompetensi.length > 0 ? (
                 <ul className="list-none">
                     {currentItems.map((item) => (
-                        <li key={item.kode} className="mb-4 p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <li key={item.kode} className={`mb-4 p-4 bg-gray-50 rounded-lg shadow-sm ${editingUnitId === item.kode ? 'border border-yellow-500' : ''}`}>
                             <div className="flex items-center justify-between">
                                 <div>
                                     <span className="block text-gray-800 font-semibold">{item.kode}</span>
