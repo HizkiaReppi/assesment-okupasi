@@ -49,7 +49,7 @@ const Navbar = () => {
     <nav className="fixed w-full z-50 bg-white shadow-md" style={{ background: "#F8F8F8", color: "black" }}>
       <div className="navbar-container flex justify-between items-center px-4 py-2">
         <div className="logo-container">
-          <img src="src/assets/logo.png" alt="Logo" className="logo" />
+          <img src="src/assets/icon.png" alt="Logo" className="logo" />
         </div>
         <div className="menu-container hidden sm:flex space-x-4">
           <Link to="/" className="menu-button hover:text-orange-500">Home</Link>
