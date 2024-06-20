@@ -117,13 +117,12 @@ const HomePage: React.FC = () => {
     try {
       const data = await getOkupasiByKode(kode);
       if (data && data.status === 'success' && data.data) {
-        // Strukturkan hasil pencarian sesuai dengan tipe yang diharapkan
         const result: School = {
           id: data.data.kode,
           nama: data.data.nama,
-          kota: '',  // Beri nilai default untuk properti yang tidak ada
-          lat: 0,    // Beri nilai default untuk properti yang tidak ada
-          lng: 0,    // Beri nilai default untuk properti yang tidak ada
+          kota: '',  
+          lat: 0,    
+          lng: 0,    
           kode: data.data.kode,
         };
         return [result];  // Kembalikan dalam array
@@ -147,7 +146,7 @@ const HomePage: React.FC = () => {
       <div className="absolute top-0 left-0 right-0 p-4 bg-gray-100 z-10">
         <SearchBar onSearch={handleSearch} />
       </div>
-      <div className="flex-grow mt-20 sm:mt-0">
+      <div className="flex-grow sm:mt-0">
         <GoogleMapComponent
           lat={center.lat}
           lng={center.lng}
