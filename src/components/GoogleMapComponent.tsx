@@ -13,12 +13,13 @@ interface Props {
   lng: number;
   selectedSchool: { lat: number, lng: number, name: string } | null;
   allSchools: School[];
+  filteredSchools: School[];  // Prop baru
   zoom: number;
   onMarkerClick: (school: School) => void;
   setCenter: (lat: number, lng: number) => void;
 }
 
-const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchool, allSchools, zoom, onMarkerClick, setCenter }) => {
+const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchool, filteredSchools, zoom, onMarkerClick, setCenter }) => {
   const [selectedSchoolInMap, setSelectedSchoolInMap] = React.useState<School | null>(null);
   const [infoWindowOpen, setInfoWindowOpen] = React.useState<boolean>(false);
 
@@ -37,9 +38,9 @@ const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchool, allScho
     <GoogleMap
       mapContainerStyle={{ width: '100%', height: '100%' }}
       center={{ lat, lng }}
-      zoom={zoom} // konstan zoom
+      zoom={zoom}
     >
-      {allSchools.map((school) => (
+      {filteredSchools.map((school) => (
         <Marker
           key={school.id}
           position={{ lat: school.lat, lng: school.lng }}
@@ -61,4 +62,3 @@ const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchool, allScho
 };
 
 export default GoogleMapComponent;
-

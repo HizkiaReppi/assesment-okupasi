@@ -3,7 +3,7 @@ import Sidebar from '../components/Sidebar';
 import GoogleMapComponent from '../components/GoogleMapComponent';
 import InfoBar from '../components/InfoBar';
 import { useJsApiLoader } from '@react-google-maps/api';
-import { getAllSekolah, getSekolahById, getAllKompetensi } from '../api/sekolah-api';
+import { getAllSekolah, getAllKompetensi } from '../api/sekolah-api';
 import { getOkupasiByKode } from '../api/okupasi-api';
 import SearchBar from '../components/SearchBar';
 
@@ -14,6 +14,7 @@ interface School {
   lat: number;
   lng: number;
   kode: string;
+  kompetensi?: Kompetensi[];  
 }
 
 interface Kompetensi {
@@ -30,6 +31,7 @@ const libraries: any[] = ['places'];
 const HomePage: React.FC = () => {
   const [selectedSchool, setSelectedSchool] = useState<{ lat: number, lng: number, name: string, id: string } | null>(null);
   const [initialSchools, setInitialSchools] = useState<School[]>([]);
+  const [filteredSchools, setFilteredSchools] = useState<School[]>([]); // State untuk sekolah yang difilter
   const [kompetensi, setKompetensi] = useState<Kompetensi[]>([]);
   const [infoBarVisible, setInfoBarVisible] = useState<boolean>(false);
   const [center, setCenter] = useState<{ lat: number, lng: number }>({ lat: -6.200000, lng: 106.816666 });
@@ -47,10 +49,12 @@ const HomePage: React.FC = () => {
           const schoolsWithCoords = await Promise.all(response.data.map(async (school: School) => {
             const address = `${school.nama}, ${school.kota}, Indonesia`;
             const coordinates = await geocodeAddress(address);
-            return { ...school, ...coordinates, name: school.nama }; 
+            const kompetensiData = await getAllKompetensi(school.id); 
+            return { ...school, ...coordinates, name: school.nama, kompetensi: kompetensiData.data }; 
           }));
 
           setInitialSchools(schoolsWithCoords);
+          setFilteredSchools(schoolsWithCoords); 
 
           if (schoolsWithCoords.length > 0) {
             const avgLat = schoolsWithCoords.reduce((sum, school) => sum + school.lat, 0) / schoolsWithCoords.length;
@@ -83,23 +87,11 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleMarkerClick = async (school: School) => {
-    try {
-      const schoolData = await getSekolahById(school.id);
-      if (schoolData && schoolData.data) {
-        const { nama, lat, lng } = schoolData.data;
-        setSelectedSchool({ id: school.id, name: nama, lat, lng });
-        setCenter({ lat, lng }); 
-
-        const kompetensiData = await getAllKompetensi(school.id);
-        setKompetensi(Array.isArray(kompetensiData.data) ? kompetensiData.data : []);
-
-        setInfoBarVisible(true);
-      }
-    } catch (err) {
-      console.error('Gagal mengambil data:', err);
-      setKompetensi([]);
-    }
+  const handleMarkerClick = (school: School) => {
+    setSelectedSchool({ id: school.id, name: school.nama, lat: school.lat, lng: school.lng });
+    setCenter({ lat: school.lat, lng: school.lng });
+    setKompetensi(school.kompetensi || []);
+    setInfoBarVisible(true);
   };
 
   const handleSidebarClick = (school: School) => {
@@ -117,25 +109,26 @@ const HomePage: React.FC = () => {
     try {
       const data = await getOkupasiByKode(kode);
       if (data && data.status === 'success' && data.data) {
-        const result: School = {
-          id: data.data.kode,
-          nama: data.data.nama,
-          kota: '',  
-          lat: 0,    
-          lng: 0,    
-          kode: data.data.kode,
-        };
-        return [result];  // Kembalikan dalam array
+        const filtered = initialSchools.filter(school => 
+          school.kompetensi && school.kompetensi.some(k => k.kode === data.data.kode)
+        );
+        setFilteredSchools(filtered);  
+        return filtered;
       } else {
         console.error('Expected an object but got:', data);
+        setFilteredSchools([]);  
         return [];
       }
     } catch (error) {
       console.error('Error fetching okupasi by kode:', error);
+      setFilteredSchools([]); 
       return [];
     }
   };
-  
+
+  const handleCloseSearchResults = () => {
+    setFilteredSchools(initialSchools);  
+  };
 
   if (!isLoaded) {
     return <div>Loading...</div>;
@@ -144,7 +137,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="relative flex flex-col sm:flex-row h-screen overflow-hidden">
       <div className="absolute top-0 left-0 right-0 p-4 bg-gray-100 z-10">
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar onSearch={handleSearch} onCloseResults={handleCloseSearchResults} /> 
       </div>
       <div className="flex-grow sm:mt-0">
         <GoogleMapComponent
@@ -152,6 +145,7 @@ const HomePage: React.FC = () => {
           lng={center.lng}
           selectedSchool={selectedSchool}
           allSchools={initialSchools}
+          filteredSchools={filteredSchools} 
           zoom={12}  
           onMarkerClick={handleMarkerClick}
           setCenter={(lat, lng) => setCenter({ lat, lng })}

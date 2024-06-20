@@ -4,6 +4,7 @@ import { getAllOkupasi } from '../api/okupasi-api';
 
 interface SearchBarProps {
   onSearch: (kode: string) => Promise<School[]>;
+  onCloseResults: () => void; // Prop baru
 }
 
 interface School {
@@ -20,7 +21,7 @@ interface Okupasi {
   nama: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onCloseResults }) => {
   const [kode, setKode] = useState('');
   const [results, setResults] = useState<School[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -66,6 +67,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
 
   const handleCloseResults = () => {
     setResults([]);
+    onCloseResults();
   };
 
   return (
