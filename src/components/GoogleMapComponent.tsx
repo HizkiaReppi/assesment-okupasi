@@ -11,17 +11,17 @@ interface School {
 interface Props {
   lat: number;
   lng: number;
-  selectedSchoolName?: string;
+  selectedSchool: { lat: number, lng: number, name: string } | null;
   allSchools: School[];
   zoom: number;
 }
 
-const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchoolName, allSchools, zoom }) => {
-  const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
+const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchool, allSchools, zoom }) => {
+  const [selectedSchoolInMap, setSelectedSchoolInMap] = useState<School | null>(null);
   const [infoWindowOpen, setInfoWindowOpen] = useState<boolean>(false);
 
   const handleMarkerClick = (school: School) => {
-    setSelectedSchool(school);
+    setSelectedSchoolInMap(school);
     setInfoWindowOpen(true);
   };
 
@@ -33,7 +33,7 @@ const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchoolName, all
     <GoogleMap
       mapContainerStyle={{ width: '100%', height: '100%' }}
       center={{ lat, lng }}
-      zoom={zoom}
+      zoom={selectedSchool ? zoom : 12}  // setting zoom
     >
       {allSchools.map((school) => (
         <Marker
@@ -42,14 +42,13 @@ const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchoolName, all
           onClick={() => handleMarkerClick(school)}
         />
       ))}
-      {selectedSchool && infoWindowOpen && (
+      {selectedSchoolInMap && infoWindowOpen && (
         <InfoWindow
-          position={{ lat: selectedSchool.lat, lng: selectedSchool.lng }}
+          position={{ lat: selectedSchoolInMap.lat, lng: selectedSchoolInMap.lng }}
           onCloseClick={handleInfoWindowClose}
         >
           <div>
-            <h2>{selectedSchoolName || selectedSchool.name}</h2>
-            <p>tes</p>
+            <h2>{selectedSchoolInMap.name}</h2>
           </div>
         </InfoWindow>
       )}

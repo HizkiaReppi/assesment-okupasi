@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaFilter } from 'react-icons/fa';
 
-// Jangan ubah interface ini!
 interface School {
   id: string;
   nama: string;

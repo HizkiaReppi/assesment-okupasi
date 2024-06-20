@@ -5,7 +5,7 @@ import { useJsApiLoader } from '@react-google-maps/api';
 import axios from 'axios';
 
 interface School {
-  id:number;
+  id: string;
   nama: string;
   kota: string;
 }
@@ -14,7 +14,7 @@ const libraries: any[] = ['places'];
 
 const HomePage: React.FC = () => {
   const [selectedSchool, setSelectedSchool] = useState<{ lat: number, lng: number, name: string } | null>(null);
-  const [initialSchools, setInitialSchools] = useState<{ lat: number, lng: number, name: string }[]>([]);
+  const [initialSchools, setInitialSchools] = useState<{ lat: number, lng: number, name: string, id: string }[]>([]);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_MAPS_API_KEY,
@@ -70,16 +70,14 @@ const HomePage: React.FC = () => {
         <GoogleMapComponent
           lat={selectedSchool ? selectedSchool.lat : (initialSchools[0]?.lat || -6.200000)}
           lng={selectedSchool ? selectedSchool.lng : (initialSchools[0]?.lng || 106.816666)}
-          selectedSchoolName={selectedSchool ? selectedSchool.name : ''}
+          selectedSchool={selectedSchool}
           allSchools={initialSchools}
           zoom={selectedSchool ? 18 : 10}
         />
       </div>
-      <Sidebar onSelectSchool={(coordinates) => setSelectedSchool(coordinates)} />
+      <Sidebar onSelectSchool={setSelectedSchool} />
     </div>
   );
 };
 
 export default HomePage;
-
-
