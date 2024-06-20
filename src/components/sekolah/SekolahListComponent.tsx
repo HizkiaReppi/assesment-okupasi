@@ -48,12 +48,12 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
         }
     };
 
-    // Handle search term change
+    // Handle search 
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };
 
-    // Handle city filter change
+    // Handle city 
     const handleCityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { value, checked } = event.target;
         setSelectedCities((prev) =>
@@ -61,19 +61,18 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
         );
     };
 
-    // Toggle filter visibility
+    // filter visibility
     const toggleFilterVisibility = () => {
         setFilterVisible(!filterVisible);
     };
 
-    // Filter items based on search term and selected cities
+    // Filter items based on search 
     const filteredItems = sekolah.filter((item) => {
         const matchesSearch = item.nama.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCity = selectedCities.length === 0 || selectedCities.includes(item.kota);
         return matchesSearch && matchesCity;
     });
 
-    // Pagination functions
     const indexOfLastItem = (currentPage + 1) * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
@@ -141,7 +140,7 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                 {currentItems.map((item) => (
                     <li
                         key={item.id}
-                        className={`mb-4 p-4 rounded-lg shadow-sm ${editingId === item.id ? 'bg-yellow-100' : 'bg-gray-50'}`} // Highlight item yang sedang diedit
+                        className={`mb-4 p-4 rounded-lg shadow-sm ${editingId === item.id ? 'bg-yellow-100' : 'bg-gray-50'}`} 
                     >
                         <span className="block text-gray-900 font-semibold">{item.nama}</span>
                         <span className="block text-gray-600">{item.kota}</span>

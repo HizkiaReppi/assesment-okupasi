@@ -5,6 +5,7 @@ import { useJsApiLoader } from '@react-google-maps/api';
 import axios from 'axios';
 
 interface School {
+  id:number;
   nama: string;
   kota: string;
 }
@@ -45,7 +46,7 @@ const HomePage: React.FC = () => {
           const schoolsWithCoords = await Promise.all(response.data.data.map(async (school: School) => {
             const address = `${school.nama}, ${school.kota}, Indonesia`;
             const coordinates = await geocodeAddress(address);
-            return { lat: coordinates.lat, lng: coordinates.lng, name: school.nama };
+            return { id: school.id, lat: coordinates.lat, lng: coordinates.lng, name: school.nama };
           }));
           setInitialSchools(schoolsWithCoords);
         } else {
@@ -80,3 +81,5 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
+
+

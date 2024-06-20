@@ -1,93 +1,55 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { GoogleMap, InfoWindow } from '@react-google-maps/api';
+import React, { useState } from 'react';
+import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 
-const containerStyle = {
-  width: '100%',
-  height: '100%',
-};
-
-interface MapProps {
+interface School {
+  id: string;
   lat: number;
   lng: number;
-  selectedSchoolName: string;
-  allSchools: { lat: number, lng: number, name: string }[];
+  name: string;
+}
+
+interface Props {
+  lat: number;
+  lng: number;
+  selectedSchoolName?: string;
+  allSchools: School[];
   zoom: number;
 }
 
-const GoogleMapComponent: React.FC<MapProps> = ({ lat, lng, selectedSchoolName, allSchools, zoom }) => {
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [infoWindowOpen, setInfoWindowOpen] = useState(true);
-  const mapRef = useRef<google.maps.Map | null>(null);
+const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchoolName, allSchools, zoom }) => {
+  const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
+  const [infoWindowOpen, setInfoWindowOpen] = useState<boolean>(false);
 
-  const onLoad = useCallback((map: google.maps.Map) => {
-    setMap(map);
-    mapRef.current = map;
-    const position = new google.maps.LatLng(lat, lng);
-    map.setCenter(position);
-    map.setZoom(zoom);
-  }, [lat, lng, zoom]);
-
-  const onUnmount = useCallback(() => {
-    setMap(null);
-    mapRef.current = null;
-  }, []);
-
-  useEffect(() => {
-    if (mapRef.current) {
-      const position = new google.maps.LatLng(lat, lng);
-      mapRef.current.setCenter(position);
-      mapRef.current.setZoom(zoom);
-      setInfoWindowOpen(true);
-    }
-  }, [lat, lng, zoom]);
-
-  const handleMarkerClick = () => {
+  const handleMarkerClick = (school: School) => {
+    setSelectedSchool(school);
     setInfoWindowOpen(true);
   };
 
-  const handleMapClick = () => {
+  const handleInfoWindowClose = () => {
     setInfoWindowOpen(false);
   };
 
-  useEffect(() => {
-    if (map) {
-      const markers = allSchools.map(school => {
-        const marker = new google.maps.Marker({
-          position: { lat: school.lat, lng: school.lng },
-          map,
-          title: school.name,
-          label: {
-            text: school.name,
-            color: 'black',
-            fontWeight: 'bold',
-          },
-        });
-
-        marker.addListener('click', handleMarkerClick);
-
-        return marker;
-      });
-
-      return () => {
-        markers.forEach(marker => marker.setMap(null));
-      };
-    }
-  }, [map, allSchools]);
-
   return (
     <GoogleMap
-      mapContainerStyle={containerStyle}
+      mapContainerStyle={{ width: '100%', height: '100%' }}
       center={{ lat, lng }}
       zoom={zoom}
-      onLoad={onLoad}
-      onUnmount={onUnmount}
-      onClick={handleMapClick}
     >
-      {infoWindowOpen && (
-        <InfoWindow position={{ lat, lng }} onCloseClick={() => setInfoWindowOpen(false)}>
+      {allSchools.map((school) => (
+        <Marker
+          key={school.id}
+          position={{ lat: school.lat, lng: school.lng }}
+          onClick={() => handleMarkerClick(school)}
+        />
+      ))}
+      {selectedSchool && infoWindowOpen && (
+        <InfoWindow
+          position={{ lat: selectedSchool.lat, lng: selectedSchool.lng }}
+          onCloseClick={handleInfoWindowClose}
+        >
           <div>
-            <h3>{selectedSchoolName}</h3>
-            <p>Koordinat: {lat}, {lng}</p>
+            <h2>{selectedSchoolName || selectedSchool.name}</h2>
+            <p>tes</p>
           </div>
         </InfoWindow>
       )}
@@ -95,4 +57,4 @@ const GoogleMapComponent: React.FC<MapProps> = ({ lat, lng, selectedSchoolName, 
   );
 };
 
-export default React.memo(GoogleMapComponent);
+export default GoogleMapComponent;

@@ -27,7 +27,7 @@ const DataOkupasiPage: React.FC = () => {
   };
 
   const handleRefresh = () => {
-    setRefresh(!refresh); // tambah redirect jika diperlukan
+    setRefresh(!refresh); 
   };
 
   const handleEditUnit = (unitId: string, initialNama: string) => {
