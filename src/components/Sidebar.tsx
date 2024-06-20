@@ -11,7 +11,7 @@ interface School {
 }
 
 interface SidebarProps {
-  onSelectSchool: (coordinates: { lat: number, lng: number, name: string } | null) => void;
+  onSelectSchool: (school: School) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
@@ -67,7 +67,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   };
 
   const handleSchoolClick = (school: School) => {
-    onSelectSchool({ lat: school.lat, lng: school.lng, name: school.nama });
+    onSelectSchool(school);
   };
 
   const handlePageChange = (direction: 'next' | 'prev') => {

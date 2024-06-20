@@ -1,25 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import GoogleMapComponent from '../components/GoogleMapComponent';
+import InfoBar from '../components/InfoBar';
 import { useJsApiLoader } from '@react-google-maps/api';
-import axios from 'axios';
+import { getAllSekolah, getSekolahById, getAllKompetensi } from '../api/sekolah-api';
 
 interface School {
   id: string;
   nama: string;
   kota: string;
+  lat: number;
+  lng: number;
+}
+
+interface Kompetensi {
+  kode: string;
+  nama: string;
+  unit_kompetensi: {
+    id: string;
+    nama: string;
+  }[];
 }
 
 const libraries: any[] = ['places'];
 
 const HomePage: React.FC = () => {
-  const [selectedSchool, setSelectedSchool] = useState<{ lat: number, lng: number, name: string } | null>(null);
-  const [initialSchools, setInitialSchools] = useState<{ lat: number, lng: number, name: string, id: string }[]>([]);
+  const [selectedSchool, setSelectedSchool] = useState<{ lat: number, lng: number, name: string, id: string } | null>(null);
+  const [initialSchools, setInitialSchools] = useState<School[]>([]);
+  const [kompetensi, setKompetensi] = useState<Kompetensi[]>([]);
+  const [infoBarVisible, setInfoBarVisible] = useState<boolean>(false);
+  const [center, setCenter] = useState<{ lat: number, lng: number }>({ lat: -6.200000, lng: 106.816666 });
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_MAPS_API_KEY,
     libraries,
   });
+
+  useEffect(() => {
+    const fetchInitialSchools = async () => {
+      try {
+        const response = await getAllSekolah();
+        if (response && Array.isArray(response.data)) {
+          const schoolsWithCoords = await Promise.all(response.data.map(async (school: School) => {
+            const address = `${school.nama}, ${school.kota}, Indonesia`;
+            const coordinates = await geocodeAddress(address);
+            return { ...school, ...coordinates, name: school.nama }; // ensure 'name' is added
+          }));
+
+          setInitialSchools(schoolsWithCoords);
+
+          // Calculate average coordinates
+          if (schoolsWithCoords.length > 0) {
+            const avgLat = schoolsWithCoords.reduce((sum, school) => sum + school.lat, 0) / schoolsWithCoords.length;
+            const avgLng = schoolsWithCoords.reduce((sum, school) => sum + school.lng, 0) / schoolsWithCoords.length;
+            setCenter({ lat: avgLat, lng: avgLng });
+          }
+        } else {
+          console.error('Expected an array but got:', response);
+        }
+      } catch (error) {
+        console.error('Error fetching initial schools:', error);
+      }
+    };
+
+    fetchInitialSchools();
+  }, []);
 
   const geocodeAddress = async (address: string) => {
     try {
@@ -36,29 +81,35 @@ const HomePage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchInitialSchools = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/api/v1/sekolah', {
-          withCredentials: true,
-        });
-        if (response.data && Array.isArray(response.data.data)) {
-          const schoolsWithCoords = await Promise.all(response.data.data.map(async (school: School) => {
-            const address = `${school.nama}, ${school.kota}, Indonesia`;
-            const coordinates = await geocodeAddress(address);
-            return { id: school.id, lat: coordinates.lat, lng: coordinates.lng, name: school.nama };
-          }));
-          setInitialSchools(schoolsWithCoords);
-        } else {
-          console.error('Expected an array but got:', response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching initial schools:', error);
-      }
-    };
+  const handleMarkerClick = async (school: School) => {
+    try {
+      const schoolData = await getSekolahById(school.id);
+      if (schoolData && schoolData.data) {
+        const { nama, lat, lng } = schoolData.data;
+        setSelectedSchool({ id: school.id, name: nama, lat, lng });
+        setCenter({ lat, lng }); // Move the map center to the marker
 
-    fetchInitialSchools();
-  }, []);
+        const kompetensiData = await getAllKompetensi(school.id);
+        setKompetensi(Array.isArray(kompetensiData.data) ? kompetensiData.data : []);
+
+        setInfoBarVisible(true);
+      }
+    } catch (err) {
+      console.error('Gagal mengambil data:', err);
+      setKompetensi([]);
+    }
+  };
+
+  const handleSidebarClick = (school: School) => {
+    setSelectedSchool({ id: school.id, name: school.nama, lat: school.lat, lng: school.lng });
+    setCenter({ lat: school.lat, lng: school.lng }); // Move the map center to the school from the sidebar
+  };
+
+  const handleCloseInfoBar = () => {
+    setInfoBarVisible(false);
+    setSelectedSchool(null);
+    setKompetensi([]);
+  };
 
   if (!isLoaded) {
     return <div>Loading...</div>;
@@ -68,14 +119,19 @@ const HomePage: React.FC = () => {
     <div className="relative flex flex-col sm:flex-row h-screen overflow-hidden">
       <div className="flex-grow">
         <GoogleMapComponent
-          lat={selectedSchool ? selectedSchool.lat : (initialSchools[0]?.lat || -6.200000)}
-          lng={selectedSchool ? selectedSchool.lng : (initialSchools[0]?.lng || 106.816666)}
+          lat={center.lat}
+          lng={center.lng}
           selectedSchool={selectedSchool}
           allSchools={initialSchools}
-          zoom={selectedSchool ? 18 : 10}
+          zoom={12}  // set a fixed zoom level
+          onMarkerClick={handleMarkerClick}
+          setCenter={(lat, lng) => setCenter({ lat, lng })}
         />
       </div>
-      <Sidebar onSelectSchool={setSelectedSchool} />
+      <Sidebar onSelectSchool={handleSidebarClick} />
+      {infoBarVisible && (
+        <InfoBar school={selectedSchool} kompetensi={kompetensi} onClose={handleCloseInfoBar} />
+      )}
     </div>
   );
 };
