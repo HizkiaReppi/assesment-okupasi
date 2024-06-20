@@ -4,6 +4,8 @@ import GoogleMapComponent from '../components/GoogleMapComponent';
 import InfoBar from '../components/InfoBar';
 import { useJsApiLoader } from '@react-google-maps/api';
 import { getAllSekolah, getSekolahById, getAllKompetensi } from '../api/sekolah-api';
+import { getOkupasiByKode } from '../api/okupasi-api';
+import SearchBar from '../components/SearchBar';
 
 interface School {
   id: string;
@@ -11,6 +13,7 @@ interface School {
   kota: string;
   lat: number;
   lng: number;
+  kode: string;
 }
 
 interface Kompetensi {
@@ -44,12 +47,11 @@ const HomePage: React.FC = () => {
           const schoolsWithCoords = await Promise.all(response.data.map(async (school: School) => {
             const address = `${school.nama}, ${school.kota}, Indonesia`;
             const coordinates = await geocodeAddress(address);
-            return { ...school, ...coordinates, name: school.nama }; // ensure 'name' is added
+            return { ...school, ...coordinates, name: school.nama }; 
           }));
 
           setInitialSchools(schoolsWithCoords);
 
-          // Calculate average coordinates
           if (schoolsWithCoords.length > 0) {
             const avgLat = schoolsWithCoords.reduce((sum, school) => sum + school.lat, 0) / schoolsWithCoords.length;
             const avgLng = schoolsWithCoords.reduce((sum, school) => sum + school.lng, 0) / schoolsWithCoords.length;
@@ -87,7 +89,7 @@ const HomePage: React.FC = () => {
       if (schoolData && schoolData.data) {
         const { nama, lat, lng } = schoolData.data;
         setSelectedSchool({ id: school.id, name: nama, lat, lng });
-        setCenter({ lat, lng }); // Move the map center to the marker
+        setCenter({ lat, lng }); 
 
         const kompetensiData = await getAllKompetensi(school.id);
         setKompetensi(Array.isArray(kompetensiData.data) ? kompetensiData.data : []);
@@ -102,7 +104,7 @@ const HomePage: React.FC = () => {
 
   const handleSidebarClick = (school: School) => {
     setSelectedSchool({ id: school.id, name: school.nama, lat: school.lat, lng: school.lng });
-    setCenter({ lat: school.lat, lng: school.lng }); // Move the map center to the school from the sidebar
+    setCenter({ lat: school.lat, lng: school.lng });
   };
 
   const handleCloseInfoBar = () => {
@@ -111,19 +113,47 @@ const HomePage: React.FC = () => {
     setKompetensi([]);
   };
 
+  const handleSearch = async (kode: string): Promise<School[]> => {
+    try {
+      const data = await getOkupasiByKode(kode);
+      if (data && data.status === 'success' && data.data) {
+        // Strukturkan hasil pencarian sesuai dengan tipe yang diharapkan
+        const result: School = {
+          id: data.data.kode,
+          nama: data.data.nama,
+          kota: '',  // Beri nilai default untuk properti yang tidak ada
+          lat: 0,    // Beri nilai default untuk properti yang tidak ada
+          lng: 0,    // Beri nilai default untuk properti yang tidak ada
+          kode: data.data.kode,
+        };
+        return [result];  // Kembalikan dalam array
+      } else {
+        console.error('Expected an object but got:', data);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching okupasi by kode:', error);
+      return [];
+    }
+  };
+  
+
   if (!isLoaded) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="relative flex flex-col sm:flex-row h-screen overflow-hidden">
-      <div className="flex-grow">
+      <div className="absolute top-0 left-0 right-0 p-4 bg-gray-100 z-10">
+        <SearchBar onSearch={handleSearch} />
+      </div>
+      <div className="flex-grow mt-20 sm:mt-0">
         <GoogleMapComponent
           lat={center.lat}
           lng={center.lng}
           selectedSchool={selectedSchool}
           allSchools={initialSchools}
-          zoom={12}  // set a fixed zoom level
+          zoom={12}  
           onMarkerClick={handleMarkerClick}
           setCenter={(lat, lng) => setCenter({ lat, lng })}
         />

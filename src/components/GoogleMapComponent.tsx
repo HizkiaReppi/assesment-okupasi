@@ -26,7 +26,7 @@ const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchool, allScho
     setSelectedSchoolInMap(school);
     setInfoWindowOpen(true);
     onMarkerClick(school);
-    setCenter(school.lat, school.lng); // Move the map center to the marker
+    setCenter(school.lat, school.lng); 
   };
 
   const handleInfoWindowClose = () => {
@@ -37,7 +37,7 @@ const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchool, allScho
     <GoogleMap
       mapContainerStyle={{ width: '100%', height: '100%' }}
       center={{ lat, lng }}
-      zoom={zoom}  // keep zoom constant
+      zoom={zoom} // konstan zoom
     >
       {allSchools.map((school) => (
         <Marker
@@ -61,3 +61,4 @@ const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchool, allScho
 };
 
 export default GoogleMapComponent;
+
