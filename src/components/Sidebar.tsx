@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FaFilter } from 'react-icons/fa';
 import SearchBar from '../components/SearchBar';
 import ReactPaginate from 'react-paginate';
@@ -27,7 +27,7 @@ interface SidebarProps {
   onSelectSchool: (school: School) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
+const Sidebar = ({ onSelectSchool }: SidebarProps) => {
   const [isOpen, setIsOpen] = useState(true);
   const [schools, setSchools] = useState<School[]>([]);
   const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
@@ -37,13 +37,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [showSchoolSearch, setShowSchoolSearch] = useState(false);
 
-  const geocodeAddress = async (address: string) => {
+  const fetchGeocode = async (address: string) => { 
     try {
       const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${import.meta.env.VITE_MAPS_API_KEY}`);
       const data = await response.json();
-      if (data && data.results && data.results.length > 0) {
-        const { lat, lng } = data.results[0].geometry.location;
-        return { lat, lng };
+      if (data.results.length > 0) {
+        return data.results[0].geometry.location;
       }
       throw new Error('Address not found');
     } catch (error) {
@@ -52,50 +51,44 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
     }
   };
 
-  useEffect(() => {
-    const fetchSchools = async () => {
-      try {
-        const response = await getAllSekolah();
-        if (response && Array.isArray(response.data)) {
-          const schoolsWithCoords = await Promise.all(response.data.map(async (school: School) => {
-            const address = `${school.nama}, ${school.kota}, Indonesia`;
-            const coordinates = await geocodeAddress(address);
-            const kompetensiData = await getAllKompetensi(school.id); 
-            return { ...school, ...coordinates, kompetensi: kompetensiData.data }; 
-          }));
-
-          setSchools(schoolsWithCoords);
-          setFilteredSchools(schoolsWithCoords);
-        } else {
-          console.error('Expected an array but got:', response);
-        }
-      } catch (error) {
-        console.error('Error fetching initial schools:', error);
+  const fetchSchools = async () => {
+    try {
+      const response = await getAllSekolah();
+      if (response && Array.isArray(response.data)) {
+        const schoolsWithCoords = await Promise.all(response.data.map(async (school: School) => {
+          const address = `${school.nama}, ${school.kota}, Indonesia`;
+          const coordinates = await fetchGeocode(address);
+          const kompetensiData = await getAllKompetensi(school.id);
+          return { ...school, ...coordinates, kompetensi: kompetensiData.data };
+        }));
+        setSchools(schoolsWithCoords);
+        setFilteredSchools(schoolsWithCoords);
+      } else {
+        console.error('Expected an array but got:', response);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching initial schools:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchSchools();
   }, []);
 
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleSchoolClick = (school: School) => {
+  const handleSchoolClick = (school: School) => { 
     onSelectSchool(school);
   };
 
-  const handleSearch = async (kode: string): Promise<void> => {
+  const handleSearch = async (kode: string) => {
     try {
       const data = await getOkupasiByKode(kode);
-      if (data && data.status === 'success' && data.data) {
-        const filtered = schools.filter(school => 
+      if (data.status === 'success' && data.data) {
+        const filtered = schools.filter(school =>
           school.kompetensi && school.kompetensi.some(k => k.kode === data.data.kode)
         );
         setFilteredSchools(filtered);
-        setCurrentPage(0); 
+        setCurrentPage(0);
       } else {
-        console.error('Expected an object but got:', data);
         setFilteredSchools([]);
       }
     } catch (error) {
@@ -104,28 +97,24 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
     }
   };
 
-  const handleSearchSchool = async (schoolName: string): Promise<void> => {
-    try {
-      const filtered = schools.filter(school => 
-        school.nama.toLowerCase().includes(schoolName.toLowerCase())
-      );
-      setFilteredSchools(filtered);
-      setCurrentPage(0); 
-    } catch (error) {
-      console.error('Error searching school by name:', error);
-      setFilteredSchools([]);
-    }
-  };
-
-  const handleBack = () => {
-    setFilteredSchools(schools);
+  const handleSearchSchool = async (schoolName: string) => { 
+    const filtered = schools.filter(school => 
+      school.nama.toLowerCase().includes(schoolName.toLowerCase())
+    );
+    setFilteredSchools(filtered);
     setCurrentPage(0);
   };
 
-  const pageCount = Math.ceil(filteredSchools.length / itemsPerPage);
-
-  const handlePageClick = (selectedItem: { selected: number }) => {
-    setCurrentPage(selectedItem.selected);
+  const handleFilterSelect = (filter: string | null) => { 
+    setSelectedFilter(filter);
+    if (filter) {
+      const filtered = schools.filter(school => school.kota === filter);
+      setFilteredSchools(filtered);
+    } else {
+      setFilteredSchools(schools);
+    }
+    setIsFilterOpen(false);
+    setCurrentPage(0);
   };
 
   const paginatedSchools = filteredSchools.slice(
@@ -133,37 +122,25 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
     (currentPage + 1) * itemsPerPage
   );
 
-  const toggleFilterMenu = () => {
-    setIsFilterOpen(!isFilterOpen);
-  };
-
-  const handleFilterSelect = (filter: string) => {
-    setSelectedFilter(filter);
-    setIsFilterOpen(false);
-    setCurrentPage(0); 
-  };
-
-  const toggleSchoolSearch = () => {
-    setShowSchoolSearch(!showSchoolSearch);
-  };
+  const pageCount = Math.ceil(filteredSchools.length / itemsPerPage);
 
   return (
     <div className="flex rounded-sm">
       <div className={`fixed top-14 right-0 h-[calc(100%-3rem)] overflow-y-auto overflow-x-hidden bg-white shadow-md z-50 ${isOpen ? 'w-80' : 'w-10'} transition-all duration-300 flex flex-col rounded-sm`}>
-        <button onClick={toggleSidebar} className="p-2 focus:outline-none">
+        <button onClick={() => setIsOpen(!isOpen)} className="p-2 focus:outline-none">
           {isOpen ? '>' : '<'}
         </button>
         {isOpen && (
           <div className="p-4 flex-grow flex flex-col">
-            <h1 className="text-2xl font-bold text-center font-sans">Cari Sekolah</h1>
-            <div className="flex items-center ">
+            <h1 className="text-2xl font-bold text-center font-sans mb-4">Cari Sekolah</h1>
+            <div className="flex items-center mb-4">
               <SearchBar onSearch={handleSearch} placeholder="Masukkan Kode Okupasi" />
-              <button onClick={toggleFilterMenu} className="p-2 border rounded">
+              <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="p-2 border rounded ml-2">
                 <FaFilter />
               </button>
             </div>
             {isFilterOpen && (
-              <div className="absolute top-12 right-4 bg-white shadow-md border rounded p-4 z-50">
+              <div className="absolute top-16 right-4 bg-white shadow-md border rounded p-4 z-50">
                 <h4 className="font-bold mb-2">Filter by Kota</h4>
                 {Array.from(new Set(schools.map(school => school.kota))).map(kota => (
                   <div key={kota} className="mb-2">
@@ -176,18 +153,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                   </div>
                 ))}
                 <button
-                  onClick={() => handleFilterSelect('')}
-                  className={`p-2 border rounded w-full text-left ${selectedFilter === '' ? 'bg-orange-500 text-white' : 'bg-gray-200'}`}
+                  onClick={() => handleFilterSelect(null)}
+                  className={`p-2 border rounded w-full text-left ${selectedFilter === null ? 'bg-orange-500 text-white' : 'bg-gray-200'}`}
                 >
                   Clear Filter
                 </button>
               </div>
             )}
-            <button onClick={toggleSchoolSearch} className="p-2 mt-4 border rounded w-full text-left bg-gray-200">
+            <button onClick={() => setShowSchoolSearch(!showSchoolSearch)} className="p-2 mt-4 border rounded w-full text-left bg-gray-200">
               {showSchoolSearch ? 'Tutup' : 'Cari Sekolah'}
             </button>
             {filteredSchools.length !== schools.length && (
-              <button onClick={handleBack} className="p-2 mt-2 border rounded w-full text-left bg-gray-200">
+              <button onClick={() => setFilteredSchools(schools)} className="p-2 mt-2 border rounded w-full text-left bg-gray-200">
                 Back
               </button>
             )}
@@ -199,14 +176,19 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
             <div className="mt-4 overflow-y-auto flex-grow">
               {paginatedSchools.length > 0 ? (
                 paginatedSchools.map(school => (
-                  <div key={school.id} className="p-2 border-b cursor-pointer" onClick={() => handleSchoolClick(school)}>
-                    <h3 className="font-bold">{school.nama}</h3>
-                    <p>{school.kota}</p>
+                  <div key={school.id} className="p-4 border-b cursor-pointer hover:bg-gray-100 transition" onClick={() => handleSchoolClick(school)}>
+                    <h3 className="font-bold text-lg">{school.nama}</h3>
+                    <p className="text-gray-600">{school.kota}</p>
                     {school.kompetensi && school.kompetensi.length > 0 && (
-                      <>
+                      <div className="mt-2 text-sm text-gray-700">
                         <p><strong>Okupasi:</strong> {school.kompetensi.map(k => k.nama).join(', ')}</p>
-                        <p><strong>Unit Kompetensi:</strong> {school.kompetensi.flatMap(k => k.unit_kompetensi.map(uk => uk.nama)).join(', ')}</p>
-                      </>
+                        <p><strong>Unit Kompetensi:</strong></p>
+                        <ul className="list-disc list-inside ml-4">
+                          {school.kompetensi.flatMap(k => k.unit_kompetensi.map(uk => (
+                            <li key={uk.id}>{uk.nama}</li>
+                          )))}
+                        </ul>
+                      </div>
                     )}
                   </div>
                 ))
@@ -216,7 +198,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
             </div>
             <div className="mt-4 mb-4">
               <ReactPaginate
-              
                 previousLabel={'Previous'}
                 nextLabel={'Next'}
                 breakLabel={'...'}
@@ -224,7 +205,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                 pageCount={pageCount}
                 marginPagesDisplayed={2}
                 pageRangeDisplayed={3}
-                onPageChange={handlePageClick}
+                onPageChange={({ selected }) => setCurrentPage(selected)}
                 containerClassName={'pagination flex justify-center mt-4'}
                 pageClassName={'page-item'}
                 pageLinkClassName={'page-link p-2 border rounded mx-1'}
