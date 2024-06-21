@@ -31,7 +31,7 @@ export const login = async (email: string, password: string) => {
 
 export const getAllUsers = async () => {
   try {
-    const response = await apiClient.get('/user');
+    const response = await apiClient.get('/user', { withCredentials: true });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -40,7 +40,7 @@ export const getAllUsers = async () => {
 
 export const getUserById = async (id: string) => {
   try {
-    const response = await apiClient.get(`/user/${id}`);
+    const response = await apiClient.get(`/user/${id}`, { withCredentials: true });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -49,17 +49,18 @@ export const getUserById = async (id: string) => {
 
 export const createUser = async (nama: string, email: string, password: string) => {
   try {
-    const response = await apiClient.post('/user', { nama, email, password });
+    const response = await apiClient.post('/user', { nama, email, password }, { withCredentials: true });
     return response.data;
   } catch (error) {
     handleError(error);
   }
 };
 
-export const updateUser = async (id: string, nama?: string, email?: string, password?: string) => {
+export const updateUser = async (id: string, email: string, password: string) => {
   try {
-    const response = await apiClient.put(`/user/${id}`, { nama, email, password });
-    return response.data;
+    const emailResponse = await apiClient.patch('/user/email', { email });
+    const passwordResponse = await apiClient.patch('/user/password', { password });
+    return { emailResponse: emailResponse.data, passwordResponse: passwordResponse.data };
   } catch (error) {
     handleError(error);
   }
@@ -67,7 +68,7 @@ export const updateUser = async (id: string, nama?: string, email?: string, pass
 
 export const deleteUser = async (id: string) => {
   try {
-    const response = await apiClient.delete(`/user/${id}`);
+    const response = await apiClient.delete(`/user/${id}`, { withCredentials: true });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -76,7 +77,7 @@ export const deleteUser = async (id: string) => {
 
 export const changeEmail = async (email: string) => {
   try {
-    const response = await apiClient.patch('/user/email', { email });
+    const response = await apiClient.patch('/user/email', { email }, { withCredentials: true });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -85,7 +86,7 @@ export const changeEmail = async (email: string) => {
 
 export const changePassword = async (password: string) => {
   try {
-    const response = await apiClient.patch('/user/password', { password });
+    const response = await apiClient.patch('/user/password', { password }, { withCredentials: true });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -100,3 +101,4 @@ export const logout = async () => {
     handleError(error);
   }
 };
+

@@ -58,7 +58,7 @@ const Navbar = () => {
               <Link to="/data-sekolah" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Data Sekolah</Link>
               <Link to="/data-okupasi" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Data Okupasi</Link>
               {isSuperAdmin && (
-                <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Add User</Link>
+                <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">User Settings</Link>
               )}
               <button className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center" onClick={handleLogout}>
                 <FaDoorClosed className="mr-2" /> Logout
