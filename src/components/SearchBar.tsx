@@ -4,7 +4,7 @@ import { getAllOkupasi } from '../api/okupasi-api';
 
 interface SearchBarProps {
   onSearch: (searchTerm: string) => Promise<void>;
-  placeholder?: string; // Added this line
+  placeholder?: string; 
 }
 
 interface Okupasi {

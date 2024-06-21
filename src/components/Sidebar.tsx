@@ -93,7 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
           school.kompetensi && school.kompetensi.some(k => k.kode === data.data.kode)
         );
         setFilteredSchools(filtered);
-        setCurrentPage(0); // Reset to the first page when search is performed
+        setCurrentPage(0); 
       } else {
         console.error('Expected an object but got:', data);
         setFilteredSchools([]);
@@ -110,7 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
         school.nama.toLowerCase().includes(schoolName.toLowerCase())
       );
       setFilteredSchools(filtered);
-      setCurrentPage(0); // Reset to the first page when search is performed
+      setCurrentPage(0); 
     } catch (error) {
       console.error('Error searching school by name:', error);
       setFilteredSchools([]);
@@ -119,7 +119,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
 
   const handleBack = () => {
     setFilteredSchools(schools);
-    setCurrentPage(0); // Reset to the first page when back is clicked
+    setCurrentPage(0);
   };
 
   const pageCount = Math.ceil(filteredSchools.length / itemsPerPage);
@@ -140,7 +140,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   const handleFilterSelect = (filter: string) => {
     setSelectedFilter(filter);
     setIsFilterOpen(false);
-    setCurrentPage(0); // Reset to the first page when filter changes
+    setCurrentPage(0); 
   };
 
   const toggleSchoolSearch = () => {
