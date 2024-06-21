@@ -3,7 +3,8 @@ import { FaSearch } from 'react-icons/fa';
 import { getAllOkupasi } from '../api/okupasi-api';
 
 interface SearchBarProps {
-  onSearch: (kode: string) => Promise<void>;
+  onSearch: (searchTerm: string) => Promise<void>;
+  placeholder?: string; // Added this line
 }
 
 interface Okupasi {

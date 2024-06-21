@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaFilter } from 'react-icons/fa';
 import SearchBar from '../components/SearchBar';
+import ReactPaginate from 'react-paginate';
 import { getAllSekolah, getAllKompetensi } from '../api/sekolah-api';
 import { getOkupasiByKode } from '../api/okupasi-api';
 
@@ -29,10 +30,12 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [schools, setSchools] = useState<School[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 6;
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+  const [showSchoolSearch, setShowSchoolSearch] = useState(false);
 
   const geocodeAddress = async (address: string) => {
     try {
@@ -62,6 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
           }));
 
           setSchools(schoolsWithCoords);
+          setFilteredSchools(schoolsWithCoords);
         } else {
           console.error('Expected an array but got:', response);
         }
@@ -81,17 +85,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
     onSelectSchool(school);
   };
 
-  const handlePageChange = (direction: 'next' | 'prev') => {
-    setCurrentPage((prevPage) => {
-      if (direction === 'next') {
-        return prevPage + 1;
-      } else if (direction === 'prev') {
-        return prevPage - 1;
-      }
-      return prevPage;
-    });
-  };
-
   const handleSearch = async (kode: string): Promise<void> => {
     try {
       const data = await getOkupasiByKode(kode);
@@ -99,30 +92,46 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
         const filtered = schools.filter(school => 
           school.kompetensi && school.kompetensi.some(k => k.kode === data.data.kode)
         );
-        setSchools(filtered);
-        setCurrentPage(1); // Reset to the first page when search is performed
+        setFilteredSchools(filtered);
+        setCurrentPage(0); // Reset to the first page when search is performed
       } else {
         console.error('Expected an object but got:', data);
-        setSchools([]);
+        setFilteredSchools([]);
       }
     } catch (error) {
       console.error('Error fetching okupasi by kode:', error);
-      setSchools([]);
+      setFilteredSchools([]);
     }
   };
 
-  const handleCloseSearchResults = () => {
-    setSchools([]);
+  const handleSearchSchool = async (schoolName: string): Promise<void> => {
+    try {
+      const filtered = schools.filter(school => 
+        school.nama.toLowerCase().includes(schoolName.toLowerCase())
+      );
+      setFilteredSchools(filtered);
+      setCurrentPage(0); // Reset to the first page when search is performed
+    } catch (error) {
+      console.error('Error searching school by name:', error);
+      setFilteredSchools([]);
+    }
   };
 
-  const filteredSchools = schools.filter(school => (selectedFilter ? school.kota === selectedFilter : true));
+  const handleBack = () => {
+    setFilteredSchools(schools);
+    setCurrentPage(0); // Reset to the first page when back is clicked
+  };
+
+  const pageCount = Math.ceil(filteredSchools.length / itemsPerPage);
+
+  const handlePageClick = (selectedItem: { selected: number }) => {
+    setCurrentPage(selectedItem.selected);
+  };
 
   const paginatedSchools = filteredSchools.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
+    (currentPage + 1) * itemsPerPage
   );
-
-  const totalPages = Math.ceil(filteredSchools.length / itemsPerPage);
 
   const toggleFilterMenu = () => {
     setIsFilterOpen(!isFilterOpen);
@@ -131,19 +140,24 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   const handleFilterSelect = (filter: string) => {
     setSelectedFilter(filter);
     setIsFilterOpen(false);
-    setCurrentPage(1); // Reset to the first page when filter changes
+    setCurrentPage(0); // Reset to the first page when filter changes
+  };
+
+  const toggleSchoolSearch = () => {
+    setShowSchoolSearch(!showSchoolSearch);
   };
 
   return (
-    <div className="flex">
-      <div className={`fixed top-16 right-0 h-[calc(100%-4rem)] bg-white shadow-md z-50 ${isOpen ? 'w-80' : 'w-10'} transition-all duration-300`}>
+    <div className="flex rounded-sm">
+      <div className={`fixed top-14 right-0 h-[calc(100%-3rem)] overflow-y-auto overflow-x-hidden bg-white shadow-md z-50 ${isOpen ? 'w-80' : 'w-10'} transition-all duration-300 flex flex-col rounded-sm`}>
         <button onClick={toggleSidebar} className="p-2 focus:outline-none">
           {isOpen ? '>' : '<'}
         </button>
         {isOpen && (
-          <div className="p-4">
-            <div className="flex items-center mb-4">
-              <SearchBar onSearch={handleSearch} />
+          <div className="p-4 flex-grow flex flex-col">
+            <h1 className="text-2xl font-bold text-center font-sans">Cari Sekolah</h1>
+            <div className="flex items-center ">
+              <SearchBar onSearch={handleSearch} placeholder="Masukkan Kode Okupasi" />
               <button onClick={toggleFilterMenu} className="p-2 border rounded">
                 <FaFilter />
               </button>
@@ -169,7 +183,20 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                 </button>
               </div>
             )}
-            <div className="mt-4 overflow-y-auto h-[calc(100vh-20rem)]">
+            <button onClick={toggleSchoolSearch} className="p-2 mt-4 border rounded w-full text-left bg-gray-200">
+              {showSchoolSearch ? 'Tutup' : 'Cari Sekolah'}
+            </button>
+            {filteredSchools.length !== schools.length && (
+              <button onClick={handleBack} className="p-2 mt-2 border rounded w-full text-left bg-gray-200">
+                Back
+              </button>
+            )}
+            {showSchoolSearch && (
+              <div className="mt-4">
+                <SearchBar onSearch={handleSearchSchool} placeholder="Cari Nama Sekolah" />
+              </div>
+            )}
+            <div className="mt-4 overflow-y-auto flex-grow">
               {paginatedSchools.length > 0 ? (
                 paginatedSchools.map(school => (
                   <div key={school.id} className="p-2 border-b cursor-pointer" onClick={() => handleSchoolClick(school)}>
@@ -187,21 +214,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                 <p>No schools found.</p>
               )}
             </div>
-            <div className="flex justify-between mt-4">
-              <button
-                onClick={() => handlePageChange('prev')}
-                disabled={currentPage === 1}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded disabled:opacity-50"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => handlePageChange('next')}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded disabled:opacity-50"
-              >
-                Next
-              </button>
+            <div className="mt-4 mb-4">
+              <ReactPaginate
+              
+                previousLabel={'Previous'}
+                nextLabel={'Next'}
+                breakLabel={'...'}
+                breakClassName={'break-me'}
+                pageCount={pageCount}
+                marginPagesDisplayed={2}
+                pageRangeDisplayed={3}
+                onPageChange={handlePageClick}
+                containerClassName={'pagination flex justify-center mt-4'}
+                pageClassName={'page-item'}
+                pageLinkClassName={'page-link p-2 border rounded mx-1'}
+                previousLinkClassName={'page-link p-2 border rounded mx-1'}
+                nextLinkClassName={'page-link p-2 border rounded mx-1'}
+                breakLinkClassName={'page-link p-2 border rounded mx-1'}
+                activeLinkClassName={'bg-gray-500 text-white'}
+                disabledLinkClassName={'opacity-50 cursor-not-allowed'}
+              />
             </div>
           </div>
         )}

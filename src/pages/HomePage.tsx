@@ -29,7 +29,7 @@ const libraries: any[] = ['places'];
 const HomePage: React.FC = () => {
   const [selectedSchool, setSelectedSchool] = useState<{ lat: number, lng: number, name: string, id: string } | null>(null);
   const [initialSchools, setInitialSchools] = useState<School[]>([]);
-  const [filteredSchools, setFilteredSchools] = useState<School[]>([]); // State untuk sekolah yang difilter
+  const [filteredSchools, setFilteredSchools] = useState<School[]>([]); 
   const [kompetensi, setKompetensi] = useState<Kompetensi[]>([]);
   const [infoBarVisible, setInfoBarVisible] = useState<boolean>(false);
   const [center, setCenter] = useState<{ lat: number, lng: number }>({ lat: -6.200000, lng: 106.816666 });
@@ -130,3 +130,4 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
+
