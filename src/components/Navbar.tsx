@@ -49,7 +49,9 @@ const Navbar = () => {
     <nav className="fixed w-full z-50 bg-white shadow-md">
       <div className="flex justify-between items-center px-6 py-4">
         <div className="flex items-center">
-          <img src="src/assets/icon.png" alt="Logo" className="h-10" />
+          <Link to="/">
+            <img src="src/assets/icon.png" alt="Logo" className="h-10" />
+          </Link>
         </div>
         <div className="hidden sm:flex space-x-6">
           <Link to="/" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Home</Link>
