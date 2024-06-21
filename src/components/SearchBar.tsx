@@ -1,5 +1,5 @@
 import React, { useState, useEffect, FormEvent } from 'react';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch, FaTimes } from 'react-icons/fa';
 import { getAllOkupasi } from '../api/okupasi-api';
 
 interface SearchBarProps {
@@ -12,7 +12,7 @@ interface Okupasi {
   nama: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Masukkan Kode Okupasi" }) => {
   const [kode, setKode] = useState('');
   const [okupasiList, setOkupasiList] = useState<Okupasi[]>([]);
   const [filteredOkupasi, setFilteredOkupasi] = useState<Okupasi[]>([]);
@@ -48,18 +48,32 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     setFilteredOkupasi([]);
   };
 
+  const handleClear = () => {
+    setKode('');
+    setFilteredOkupasi([]);
+  };
+
   return (
     <div className="w-full p-2 flex items-center">
       <div className="relative w-full">
         <form onSubmit={handleSubmit} className="flex items-center space-x-2 w-full">
           <input
             type="text"
-            placeholder="Masukkan Kode Okupasi"
+            placeholder={placeholder}
             value={kode}
             onChange={(e) => setKode(e.target.value)}
             required
             className="border border-gray-500 p-2 rounded-lg flex-grow focus:outline-none focus:border-black"
           />
+          {kode && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="absolute right-10 p-2 text-gray-500 hover:text-black focus:outline-none"
+            >
+              <FaTimes />
+            </button>
+          )}
           <button
             type="submit"
             className="border border-black text-black p-2 rounded hover:bg-black hover:text-white focus:outline-none"

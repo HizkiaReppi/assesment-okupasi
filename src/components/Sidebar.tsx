@@ -25,57 +25,24 @@ interface Kompetensi {
 
 interface SidebarProps {
   onSelectSchool: (school: School) => void;
+  setFilteredSchools: (schools: School[]) => void;
+  schools: School[];
 }
 
-const Sidebar = ({ onSelectSchool }: SidebarProps) => {
+const Sidebar = ({ onSelectSchool, setFilteredSchools, schools }: SidebarProps) => {
   const [isOpen, setIsOpen] = useState(true);
-  const [schools, setSchools] = useState<School[]>([]);
-  const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
+  const [filteredSchools, setFilteredSchoolsState] = useState<School[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 6;
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [showSchoolSearch, setShowSchoolSearch] = useState(false);
 
-  const fetchGeocode = async (address: string) => { 
-    try {
-      const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${import.meta.env.VITE_MAPS_API_KEY}`);
-      const data = await response.json();
-      if (data.results.length > 0) {
-        return data.results[0].geometry.location;
-      }
-      throw new Error('Address not found');
-    } catch (error) {
-      console.error('Geocoding failed:', error);
-      throw error;
-    }
-  };
-
-  const fetchSchools = async () => {
-    try {
-      const response = await getAllSekolah();
-      if (response && Array.isArray(response.data)) {
-        const schoolsWithCoords = await Promise.all(response.data.map(async (school: School) => {
-          const address = `${school.nama}, ${school.kota}, Indonesia`;
-          const coordinates = await fetchGeocode(address);
-          const kompetensiData = await getAllKompetensi(school.id);
-          return { ...school, ...coordinates, kompetensi: kompetensiData.data };
-        }));
-        setSchools(schoolsWithCoords);
-        setFilteredSchools(schoolsWithCoords);
-      } else {
-        console.error('Expected an array but got:', response);
-      }
-    } catch (error) {
-      console.error('Error fetching initial schools:', error);
-    }
-  };
-
   useEffect(() => {
-    fetchSchools();
-  }, []);
+    setFilteredSchoolsState(schools);
+  }, [schools]);
 
-  const handleSchoolClick = (school: School) => { 
+  const handleSchoolClick = (school: School) => {
     onSelectSchool(school);
   };
 
@@ -86,34 +53,46 @@ const Sidebar = ({ onSelectSchool }: SidebarProps) => {
         const filtered = schools.filter(school =>
           school.kompetensi && school.kompetensi.some(k => k.kode === data.data.kode)
         );
+        setFilteredSchoolsState(filtered);
         setFilteredSchools(filtered);
         setCurrentPage(0);
       } else {
+        setFilteredSchoolsState([]);
         setFilteredSchools([]);
       }
     } catch (error) {
       console.error('Error fetching okupasi by kode:', error);
+      setFilteredSchoolsState([]);
       setFilteredSchools([]);
     }
   };
 
-  const handleSearchSchool = async (schoolName: string) => { 
+  const handleSearchSchool = async (schoolName: string) => {
     const filtered = schools.filter(school => 
       school.nama.toLowerCase().includes(schoolName.toLowerCase())
     );
+    setFilteredSchoolsState(filtered);
     setFilteredSchools(filtered);
     setCurrentPage(0);
   };
 
-  const handleFilterSelect = (filter: string | null) => { 
+  const handleFilterSelect = (filter: string | null) => {
     setSelectedFilter(filter);
     if (filter) {
       const filtered = schools.filter(school => school.kota === filter);
+      setFilteredSchoolsState(filtered);
       setFilteredSchools(filtered);
     } else {
+      setFilteredSchoolsState(schools);
       setFilteredSchools(schools);
     }
     setIsFilterOpen(false);
+    setCurrentPage(0);
+  };
+
+  const handleBackClick = () => {
+    setFilteredSchoolsState(schools);
+    setFilteredSchools(schools);
     setCurrentPage(0);
   };
 
@@ -164,7 +143,7 @@ const Sidebar = ({ onSelectSchool }: SidebarProps) => {
               {showSchoolSearch ? 'Tutup' : 'Cari Sekolah'}
             </button>
             {filteredSchools.length !== schools.length && (
-              <button onClick={() => setFilteredSchools(schools)} className="p-2 mt-2 border rounded w-full text-left bg-gray-200">
+              <button onClick={handleBackClick} className="p-2 mt-2 border rounded w-full text-left bg-gray-200">
                 Back
               </button>
             )}
@@ -176,7 +155,11 @@ const Sidebar = ({ onSelectSchool }: SidebarProps) => {
             <div className="mt-4 overflow-y-auto flex-grow">
               {paginatedSchools.length > 0 ? (
                 paginatedSchools.map(school => (
-                  <div key={school.id} className="p-4 border-b cursor-pointer hover:bg-gray-100 transition" onClick={() => handleSchoolClick(school)}>
+                  <div
+                    key={school.id}
+                    className="p-4 border-b cursor-pointer hover:bg-gray-100 transition"
+                    onClick={() => handleSchoolClick(school)}
+                  >
                     <h3 className="font-bold text-lg">{school.nama}</h3>
                     <p className="text-gray-600">{school.kota}</p>
                     {school.kompetensi && school.kompetensi.length > 0 && (

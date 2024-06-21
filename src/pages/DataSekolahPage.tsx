@@ -79,7 +79,7 @@ const DataSekolahPage: React.FC = () => {
                                         setEditingSekolahId(null);
                                         handleRefresh();
                                     }}
-                                    onError={handleError}
+                                    // onError={handleError}
                                 />
                             </>
                         )}

@@ -11,8 +11,8 @@ interface School {
   kota: string;
   lat: number;
   lng: number;
-  kode: string;
-  kompetensi?: Kompetensi[];  
+  kode?: string; // Jadikan kode sebagai properti opsional jika belum
+  kompetensi?: Kompetensi[];
 }
 
 interface Kompetensi {
@@ -30,6 +30,7 @@ const HomePage: React.FC = () => {
   const [selectedSchool, setSelectedSchool] = useState<{ lat: number, lng: number, name: string, id: string } | null>(null);
   const [initialSchools, setInitialSchools] = useState<School[]>([]);
   const [filteredSchools, setFilteredSchools] = useState<School[]>([]); 
+  const [clickedSchoolId, setClickedSchoolId] = useState<string | null>(null);
   const [kompetensi, setKompetensi] = useState<Kompetensi[]>([]);
   const [infoBarVisible, setInfoBarVisible] = useState<boolean>(false);
   const [center, setCenter] = useState<{ lat: number, lng: number }>({ lat: -6.200000, lng: 106.816666 });
@@ -87,6 +88,7 @@ const HomePage: React.FC = () => {
 
   const handleMarkerClick = (school: School) => {
     setSelectedSchool({ id: school.id, name: school.nama, lat: school.lat, lng: school.lng });
+    setClickedSchoolId(school.id);
     setCenter({ lat: school.lat, lng: school.lng });
     setKompetensi(school.kompetensi || []);
     setInfoBarVisible(true);
@@ -94,12 +96,14 @@ const HomePage: React.FC = () => {
 
   const handleSidebarClick = (school: School) => {
     setSelectedSchool({ id: school.id, name: school.nama, lat: school.lat, lng: school.lng });
+    setClickedSchoolId(school.id);
     setCenter({ lat: school.lat, lng: school.lng });
   };
 
   const handleCloseInfoBar = () => {
     setInfoBarVisible(false);
     setSelectedSchool(null);
+    setClickedSchoolId(null);
     setKompetensi([]);
   };
 
@@ -119,9 +123,14 @@ const HomePage: React.FC = () => {
           zoom={12}  
           onMarkerClick={handleMarkerClick}
           setCenter={(lat, lng) => setCenter({ lat, lng })}
+          clickedSchoolId={clickedSchoolId}
         />
       </div>
-      <Sidebar onSelectSchool={handleSidebarClick} />
+      <Sidebar
+        onSelectSchool={handleSidebarClick}
+        setFilteredSchools={setFilteredSchools}
+        schools={initialSchools}
+      />
       {infoBarVisible && (
         <InfoBar school={selectedSchool} kompetensi={kompetensi} onClose={handleCloseInfoBar} />
       )}
