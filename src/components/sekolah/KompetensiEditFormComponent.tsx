@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Select from 'react-select';
+import Select, { components, OptionProps } from 'react-select';
 import { getOkupasiByKode, getAllOkupasi } from '../../api/okupasi-api';
 import { editKompetensi, getAllKompetensi } from '../../api/sekolah-api';
 
@@ -7,13 +7,14 @@ interface KompetensiEditFormComponentProps {
     sekolahId: string;
     unitId: string;
     onSuccess: () => void;
+    onError: (message: string | string[]) => void;
 }
 
-const KompetensiEditFormComponent: React.FC<KompetensiEditFormComponentProps> = ({ sekolahId, unitId, onSuccess }) => {
+const KompetensiEditFormComponent: React.FC<KompetensiEditFormComponentProps> = ({ sekolahId, unitId, onSuccess, onError }) => {
     const [okupasiOptions, setOkupasiOptions] = useState<any[]>([]);
     const [selectedOkupasi, setSelectedOkupasi] = useState<any | null>(null);
     const [unitKompetensiOptions, setUnitKompetensiOptions] = useState<any[]>([]);
-    const [selectedUnitKompetensi, setSelectedUnitKompetensi] = useState<any | null>(null);
+    const [selectedUnits, setSelectedUnits] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchAllOkupasi = async () => {
@@ -21,17 +22,18 @@ const KompetensiEditFormComponent: React.FC<KompetensiEditFormComponentProps> = 
                 const data = await getAllOkupasi();
                 setOkupasiOptions(data.data.map((item: any) => ({ value: item.kode, label: `${item.kode} - ${item.nama}` })));
             } catch (error) {
+                onError('Error fetching okupasi.');
                 console.error('Error fetching okupasi:', error);
             }
         };
         fetchAllOkupasi();
-    }, []);
+    }, [onError]);
 
     useEffect(() => {
         const fetchKompetensi = async () => {
             try {
                 const data = await getAllKompetensi(sekolahId);
-                const existingKompetensi = data.data.find((item: any) => 
+                const existingKompetensi = data.data.find((item: any) =>
                     item.unit_kompetensi.some((unit: any) => unit.id === unitId)
                 );
 
@@ -47,15 +49,16 @@ const KompetensiEditFormComponent: React.FC<KompetensiEditFormComponentProps> = 
                         label: unit.nama
                     }));
                     setUnitKompetensiOptions(kompetensiOptions);
-                    setSelectedUnitKompetensi(kompetensiOptions.find((u: { value: string; label: string }) => u.value === unitId));
+                    setSelectedUnits(kompetensiOptions.filter((u: { value: string; label: string }) => u.value === unitId));
                 }
             } catch (error) {
+                onError('Error fetching kompetensi details.');
                 console.error('Error fetching kompetensi details:', error);
             }
         };
 
         fetchKompetensi();
-    }, [sekolahId, unitId]);
+    }, [sekolahId, unitId, onError]);
 
     useEffect(() => {
         if (selectedOkupasi) {
@@ -64,6 +67,7 @@ const KompetensiEditFormComponent: React.FC<KompetensiEditFormComponentProps> = 
                     const data = await getOkupasiByKode(selectedOkupasi.value);
                     setUnitKompetensiOptions(data.data.unit_kompetensi.map((unit: any) => ({ value: unit.id, label: unit.nama })));
                 } catch (error) {
+                    onError('Error fetching unit kompetensi.');
                     console.error('Error fetching unit kompetensi:', error);
                 }
             };
@@ -71,12 +75,17 @@ const KompetensiEditFormComponent: React.FC<KompetensiEditFormComponentProps> = 
         } else {
             setUnitKompetensiOptions([]);
         }
-    }, [selectedOkupasi]);
+    }, [selectedOkupasi, onError]);
+
+    const handleUnitChange = (selectedOptions: any) => {
+        setSelectedUnits(selectedOptions);
+    };
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        if (!selectedOkupasi || !selectedUnitKompetensi) {
-            console.error('Both Okupasi and Unit Kompetensi must be selected');
+        if (!selectedOkupasi || selectedUnits.length === 0) {
+            onError('Both Okupasi and at least one Unit Kompetensi must be selected');
+            console.error('Both Okupasi and at least one Unit Kompetensi must be selected');
             return;
         }
 
@@ -84,15 +93,29 @@ const KompetensiEditFormComponent: React.FC<KompetensiEditFormComponentProps> = 
             console.log('Submitting updated Kompetensi:', {
                 sekolahId,
                 kode: selectedOkupasi.value,
-                unit_kompetensi: [{ id: selectedUnitKompetensi.value }]
+                unit_kompetensi: selectedUnits.map((unit: any) => ({ id: unit.value }))
             });
 
-            const response = await editKompetensi(sekolahId, selectedOkupasi.value, [{ id: selectedUnitKompetensi.value }]);
-            console.log('Response from editKompetensi:', response);
+            await editKompetensi(sekolahId, selectedOkupasi.value, selectedUnits.map((unit: any) => ({ id: unit.value })));
             onSuccess();
-        } catch (error) {
+        } catch (error: any) {
+            const serverErrorMessage = error.response?.data?.errors?.map((err: any) => err.message) || 'Failed to update kompetensi.';
+            onError(serverErrorMessage);
             console.error('Failed to update kompetensi:', error);
         }
+    };
+
+    const Option = (props: OptionProps<any>) => {
+        return (
+            <components.Option {...props}>
+                <input
+                    type="checkbox"
+                    checked={props.isSelected}
+                    onChange={() => null}
+                />{' '}
+                <label>{props.label}</label>
+            </components.Option>
+        );
     };
 
     return (
@@ -111,10 +134,14 @@ const KompetensiEditFormComponent: React.FC<KompetensiEditFormComponentProps> = 
             <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Unit Kompetensi:</label>
                 <Select
-                    value={selectedUnitKompetensi}
-                    onChange={(option) => setSelectedUnitKompetensi(option)}
+                    value={selectedUnits}
+                    onChange={handleUnitChange}
                     options={unitKompetensiOptions}
                     placeholder="Select Unit Kompetensi"
+                    isMulti
+                    closeMenuOnSelect={false}
+                    hideSelectedOptions={false}
+                    components={{ Option }}
                     className="mb-3"
                 />
             </div>

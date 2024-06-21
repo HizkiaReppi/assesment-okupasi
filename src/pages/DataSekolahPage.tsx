@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SekolahAddForm from "../components/sekolah/SekolahAddFormComponent";
 import SekolahEditForm from "../components/sekolah/SekolahEditFormComponent";
 import SekolahList from "../components/sekolah/SekolahListComponent";
@@ -6,6 +6,7 @@ import KompetensiAddForm from "../components/sekolah/KompetensiAddComponent";
 import KompetensiEditForm from "../components/sekolah/KompetensiEditFormComponent";
 import KompetensiList from "../components/sekolah/KompetensiListFormComponent";
 import useIsDesktop from "../hooks/useIsDesktop"; // untuk handle layout
+import ErrorNotification from "../components/ErrorNotification";
 
 const DataSekolahPage: React.FC = () => {
     const [selectedSekolahId, setSelectedSekolahId] = useState<string | null>(null);
@@ -15,7 +16,12 @@ const DataSekolahPage: React.FC = () => {
         kode: string;
     } | null>(null);
     const [refresh, setRefresh] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const isDesktop = useIsDesktop();
+
+    useEffect(() => {
+        // Perform the refresh action whenever refresh state changes
+    }, [refresh]);
 
     const handleSuccess = () => {
         console.log("Kompetensi updated successfully.");
@@ -23,15 +29,21 @@ const DataSekolahPage: React.FC = () => {
     };
 
     const handleRefresh = () => {
-        setRefresh(!refresh);
+        setRefresh(prevRefresh => !prevRefresh);
     };
 
     const handleEditKompetensi = (unitId: string, initialKode: string) => {
         setEditingKompetensi({ id: unitId, kode: initialKode });
     };
 
+    const handleError = (message: string | string[]) => {
+        const errorMessage = Array.isArray(message) ? message.join(", ") : message;
+        setErrorMessage(errorMessage);
+    };
+
     return (
         <div className="bg-gray-100 min-h-screen p-6">
+            {errorMessage && <ErrorNotification message={errorMessage} onClose={() => setErrorMessage(null)} />}
             <div className="bg-white p-8 rounded-lg shadow-md">
                 <h1 className="text-2xl font-bold text-center mb-4 pt-8">Data Sekolah</h1>
                 <div className={`flex ${isDesktop ? "flex-row" : "flex-col"} gap-4`}>
@@ -67,6 +79,7 @@ const DataSekolahPage: React.FC = () => {
                                         setEditingSekolahId(null);
                                         handleRefresh();
                                     }}
+                                    onError={handleError}
                                 />
                             </>
                         )}
@@ -95,6 +108,7 @@ const DataSekolahPage: React.FC = () => {
                                 <KompetensiAddForm
                                     sekolahId={selectedSekolahId}
                                     onSuccess={handleSuccess}
+                                    onError={handleError}
                                 />
                             </>
                         )}
@@ -127,6 +141,7 @@ const DataSekolahPage: React.FC = () => {
                                         setEditingKompetensi(null);
                                         handleSuccess();
                                     }}
+                                    onError={handleError}
                                 />
                             </>
                         )}
