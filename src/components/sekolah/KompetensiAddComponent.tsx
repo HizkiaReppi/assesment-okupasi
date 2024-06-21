@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Select from 'react-select';
+import Select, { components, OptionProps } from 'react-select';
 import { getOkupasiByKode, getAllOkupasi } from '../../api/okupasi-api';
 import { addKompetensi } from '../../api/sekolah-api';
 
@@ -42,6 +42,10 @@ const KompetensiAddComponent: React.FC<KompetensiAddComponentProps> = ({ sekolah
         }
     }, [selectedOkupasi]);
 
+    const handleUnitChange = (selectedOptions: any) => {
+        setSelectedUnits(selectedOptions);
+    };
+
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (!selectedOkupasi || selectedUnits.length === 0) {
@@ -49,13 +53,26 @@ const KompetensiAddComponent: React.FC<KompetensiAddComponentProps> = ({ sekolah
             return;
         }
         try {
-            await addKompetensi(sekolahId, selectedOkupasi.value, selectedUnits.map((unit) => ({ id: unit.value })));
+            await addKompetensi(sekolahId, selectedOkupasi.value, selectedUnits.map((unit: any) => ({ id: unit.value })));
             setSelectedOkupasi(null);
             setSelectedUnits([]);
             onSuccess();
         } catch (error) {
             console.error('Error adding kompetensi:', error);
         }
+    };
+
+    const Option = (props: OptionProps<any>) => {
+        return (
+            <components.Option {...props}>
+                <input
+                    type="checkbox"
+                    checked={props.isSelected}
+                    onChange={() => null}
+                />{' '}
+                <label>{props.label}</label>
+            </components.Option>
+        );
     };
 
     return (
@@ -76,10 +93,13 @@ const KompetensiAddComponent: React.FC<KompetensiAddComponentProps> = ({ sekolah
                     <label className="block text-gray-700 mb-2">Pilih Unit Kompetensi:</label>
                     <Select
                         value={selectedUnits}
-                        onChange={(selectedOptions) => setSelectedUnits([...selectedOptions])}
+                        onChange={handleUnitChange}
                         options={unitKompetensiOptions}
                         placeholder="Cari Unit Kompetensi..."
                         isMulti
+                        closeMenuOnSelect={false}
+                        hideSelectedOptions={false}
+                        components={{ Option }}
                         className="mb-3"
                     />
                 </div>
