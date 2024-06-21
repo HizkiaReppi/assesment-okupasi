@@ -1,27 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 
 interface School {
   id: string;
   lat: number;
   lng: number;
-  name: string;
+  nama: string;
+  kota: string;
 }
 
 interface Props {
   lat: number;
   lng: number;
   selectedSchool: { lat: number, lng: number, name: string } | null;
-  allSchools: School[];
-  filteredSchools: School[];  // Prop baru
+  filteredSchools: School[];
   zoom: number;
   onMarkerClick: (school: School) => void;
   setCenter: (lat: number, lng: number) => void;
 }
 
 const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchool, filteredSchools, zoom, onMarkerClick, setCenter }) => {
-  const [selectedSchoolInMap, setSelectedSchoolInMap] = React.useState<School | null>(null);
-  const [infoWindowOpen, setInfoWindowOpen] = React.useState<boolean>(false);
+  const [selectedSchoolInMap, setSelectedSchoolInMap] = useState<School | null>(null);
+  const [infoWindowOpen, setInfoWindowOpen] = useState<boolean>(false);
 
   const handleMarkerClick = (school: School) => {
     setSelectedSchoolInMap(school);
@@ -53,7 +53,8 @@ const GoogleMapComponent: React.FC<Props> = ({ lat, lng, selectedSchool, filtere
           onCloseClick={handleInfoWindowClose}
         >
           <div>
-            <h2>{selectedSchoolInMap.name}</h2>
+            <h2>{selectedSchoolInMap.nama}</h2>
+            <p>{selectedSchoolInMap.kota}</p>
           </div>
         </InfoWindow>
       )}

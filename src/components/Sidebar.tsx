@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { FaFilter } from 'react-icons/fa';
+import SearchBar from '../components/SearchBar';
+import { getAllSekolah, getAllKompetensi } from '../api/sekolah-api';
+import { getOkupasiByKode } from '../api/okupasi-api';
 
 interface School {
   id: string;
@@ -8,6 +10,16 @@ interface School {
   kota: string;
   lat: number;
   lng: number;
+  kompetensi?: Kompetensi[];
+}
+
+interface Kompetensi {
+  kode: string;
+  nama: string;
+  unit_kompetensi: {
+    id: string;
+    nama: string;
+  }[];
 }
 
 interface SidebarProps {
@@ -17,7 +29,6 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [schools, setSchools] = useState<School[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -41,21 +52,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   useEffect(() => {
     const fetchSchools = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/v1/sekolah', {
-          withCredentials: true,
-        });
-        if (response.data && Array.isArray(response.data.data)) {
-          const schoolsWithCoords = await Promise.all(response.data.data.map(async (school: School) => {
+        const response = await getAllSekolah();
+        if (response && Array.isArray(response.data)) {
+          const schoolsWithCoords = await Promise.all(response.data.map(async (school: School) => {
             const address = `${school.nama}, ${school.kota}, Indonesia`;
             const coordinates = await geocodeAddress(address);
-            return { ...school, ...coordinates };
+            const kompetensiData = await getAllKompetensi(school.id); 
+            return { ...school, ...coordinates, kompetensi: kompetensiData.data }; 
           }));
+
           setSchools(schoolsWithCoords);
         } else {
-          console.error('Expected an array but got:', response.data);
+          console.error('Expected an array but got:', response);
         }
       } catch (error) {
-        console.error('Error fetching schools:', error);
+        console.error('Error fetching initial schools:', error);
       }
     };
 
@@ -81,9 +92,30 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
     });
   };
 
-  const filteredSchools = schools
-    .filter(school => school.nama.toLowerCase().includes(searchTerm.toLowerCase()))
-    .filter(school => (selectedFilter ? school.kota === selectedFilter : true));
+  const handleSearch = async (kode: string): Promise<void> => {
+    try {
+      const data = await getOkupasiByKode(kode);
+      if (data && data.status === 'success' && data.data) {
+        const filtered = schools.filter(school => 
+          school.kompetensi && school.kompetensi.some(k => k.kode === data.data.kode)
+        );
+        setSchools(filtered);
+        setCurrentPage(1); // Reset to the first page when search is performed
+      } else {
+        console.error('Expected an object but got:', data);
+        setSchools([]);
+      }
+    } catch (error) {
+      console.error('Error fetching okupasi by kode:', error);
+      setSchools([]);
+    }
+  };
+
+  const handleCloseSearchResults = () => {
+    setSchools([]);
+  };
+
+  const filteredSchools = schools.filter(school => (selectedFilter ? school.kota === selectedFilter : true));
 
   const paginatedSchools = filteredSchools.slice(
     (currentPage - 1) * itemsPerPage,
@@ -110,45 +142,45 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
         </button>
         {isOpen && (
           <div className="p-4">
-            <div className="flex items-center justify-between mb-4">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="p-2 border rounded w-full"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <button onClick={toggleFilterMenu} className="ml-2 p-2 border rounded">
+            <div className="flex items-center mb-4">
+              <SearchBar onSearch={handleSearch} />
+              <button onClick={toggleFilterMenu} className="p-2 border rounded">
                 <FaFilter />
               </button>
-              {isFilterOpen && (
-                <div className="absolute top-12 right-4 bg-white shadow-md border rounded p-4">
-                  <h4 className="font-bold mb-2">Filter by Kota</h4>
-                  {Array.from(new Set(schools.map(school => school.kota))).map(kota => (
-                    <div key={kota} className="mb-2">
-                      <button
-                        onClick={() => handleFilterSelect(kota)}
-                        className={`p-2 border rounded w-full text-left ${selectedFilter === kota ? 'bg-orange-500 text-white' : 'bg-gray-200'}`}
-                      >
-                        {kota}
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    onClick={() => handleFilterSelect('')}
-                    className={`p-2 border rounded w-full text-left ${selectedFilter === '' ? 'bg-orange-500 text-white' : 'bg-gray-200'}`}
-                  >
-                    Clear Filter
-                  </button>
-                </div>
-              )}
             </div>
+            {isFilterOpen && (
+              <div className="absolute top-12 right-4 bg-white shadow-md border rounded p-4 z-50">
+                <h4 className="font-bold mb-2">Filter by Kota</h4>
+                {Array.from(new Set(schools.map(school => school.kota))).map(kota => (
+                  <div key={kota} className="mb-2">
+                    <button
+                      onClick={() => handleFilterSelect(kota)}
+                      className={`p-2 border rounded w-full text-left ${selectedFilter === kota ? 'bg-orange-500 text-white' : 'bg-gray-200'}`}
+                    >
+                      {kota}
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={() => handleFilterSelect('')}
+                  className={`p-2 border rounded w-full text-left ${selectedFilter === '' ? 'bg-orange-500 text-white' : 'bg-gray-200'}`}
+                >
+                  Clear Filter
+                </button>
+              </div>
+            )}
             <div className="mt-4 overflow-y-auto h-[calc(100vh-20rem)]">
               {paginatedSchools.length > 0 ? (
                 paginatedSchools.map(school => (
                   <div key={school.id} className="p-2 border-b cursor-pointer" onClick={() => handleSchoolClick(school)}>
                     <h3 className="font-bold">{school.nama}</h3>
                     <p>{school.kota}</p>
+                    {school.kompetensi && school.kompetensi.length > 0 && (
+                      <>
+                        <p><strong>Okupasi:</strong> {school.kompetensi.map(k => k.nama).join(', ')}</p>
+                        <p><strong>Unit Kompetensi:</strong> {school.kompetensi.flatMap(k => k.unit_kompetensi.map(uk => uk.nama)).join(', ')}</p>
+                      </>
+                    )}
                   </div>
                 ))
               ) : (

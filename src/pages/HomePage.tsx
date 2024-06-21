@@ -4,8 +4,6 @@ import GoogleMapComponent from '../components/GoogleMapComponent';
 import InfoBar from '../components/InfoBar';
 import { useJsApiLoader } from '@react-google-maps/api';
 import { getAllSekolah, getAllKompetensi } from '../api/sekolah-api';
-import { getOkupasiByKode } from '../api/okupasi-api';
-import SearchBar from '../components/SearchBar';
 
 interface School {
   id: string;
@@ -105,40 +103,12 @@ const HomePage: React.FC = () => {
     setKompetensi([]);
   };
 
-  const handleSearch = async (kode: string): Promise<School[]> => {
-    try {
-      const data = await getOkupasiByKode(kode);
-      if (data && data.status === 'success' && data.data) {
-        const filtered = initialSchools.filter(school => 
-          school.kompetensi && school.kompetensi.some(k => k.kode === data.data.kode)
-        );
-        setFilteredSchools(filtered);  
-        return filtered;
-      } else {
-        console.error('Expected an object but got:', data);
-        setFilteredSchools([]);  
-        return [];
-      }
-    } catch (error) {
-      console.error('Error fetching okupasi by kode:', error);
-      setFilteredSchools([]); 
-      return [];
-    }
-  };
-
-  const handleCloseSearchResults = () => {
-    setFilteredSchools(initialSchools);  
-  };
-
   if (!isLoaded) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="relative flex flex-col sm:flex-row h-screen overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 p-4 bg-gray-100 z-10">
-        <SearchBar onSearch={handleSearch} onCloseResults={handleCloseSearchResults} /> 
-      </div>
       <div className="flex-grow sm:mt-0">
         <GoogleMapComponent
           lat={center.lat}
