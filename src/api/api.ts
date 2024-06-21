@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Gunakan variabel lingkungan untuk base URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const apiClient = axios.create({
@@ -8,7 +7,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,  // Pastikan cookies dikirim dengan setiap permintaan
+  withCredentials: true,  
 });
 
 const handleError = (error: unknown) => {
@@ -23,7 +22,7 @@ const handleError = (error: unknown) => {
 
 export const login = async (email: string, password: string) => {
   try {
-    const response = await apiClient.post('/user/login', { email, password });
+    const response = await apiClient.post('/user/login', { email, password } , { withCredentials: true });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -95,7 +94,7 @@ export const changePassword = async (password: string) => {
 
 export const logout = async () => {
   try {
-    const response = await apiClient.post('/user/logout');
+    const response = await apiClient.post('/user/logout', { withCredentials: true });
     return response.data;
   } catch (error) {
     handleError(error);

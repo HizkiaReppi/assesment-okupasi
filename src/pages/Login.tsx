@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { login } from '../api/api';
 import { useAuth } from '../context/AuthContext';
@@ -10,7 +9,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
   const { setIsLoggedIn } = useAuth();
 
   const togglePasswordVisibility = () => {
@@ -25,8 +23,7 @@ const Login = () => {
       const response = await login(email, password);
       if (response) {
         setIsLoggedIn(true);
-        navigate('/home');
-      } else {
+        // navigate('/home'); 
         setError('Login failed. Please check your email and password.');
       }
     } catch (err) {
@@ -38,16 +35,10 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-[#fef7f7]">
-      <div className="bg-white p-4 sm:p-8 rounded-lg shadow-lg text-center w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6">Masuk</h2>
-        <img src="src/assets/google-logo.png" alt="Google Logo" className="w-12 mx-auto mb-6" />
-        <div className="flex items-center justify-center mb-6">
-          <div className="w-1/4 h-px bg-gray-300"></div>
-          <span className="mx-2 text-gray-500">atau</span>
-          <div className="w-1/4 h-px bg-gray-300"></div>
-        </div>
-        <form className="space-y-4" onSubmit={handleLogin}>
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300">
+      <div className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg p-8 sm:p-12 rounded-lg shadow-2xl text-center w-full max-w-md border border-white border-opacity-30">
+        <h2 className="text-2xl font-bold mb-10 text-gray-800">LOGIN / MASUK</h2>
+        <form className="space-y-6" onSubmit={handleLogin}>
           {error && <div className="text-red-500">{error}</div>}
           <div className="relative">
             <input 
@@ -55,7 +46,7 @@ const Login = () => {
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
               required 
-              className="w-full p-3 border rounded-lg bg-[#fef7f7] focus:outline-none focus:border-[#d1815b]"
+              className="w-full p-4 border border-gray-400 rounded-lg bg-white bg-opacity-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
               placeholder="Email"
             />
           </div>
@@ -65,30 +56,37 @@ const Login = () => {
               value={password} 
               onChange={(e) => setPassword(e.target.value)} 
               required 
-              className="w-full p-3 border rounded-lg bg-[#fef7f7] focus:outline-none focus:border-[#d1815b]"
-              placeholder="Kata Sandi"
+              className="w-full p-4 border border-gray-400 rounded-lg bg-white bg-opacity-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+              placeholder="Password"
             />
             <div 
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600"
               onClick={togglePasswordVisibility}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </div>
           </div>
+          {/* <div className="flex items-center justify-between text-gray-600 mb-6">
+            <label className="flex items-center">
+              <input type="checkbox" className="form-checkbox h-4 w-4 text-gray-600" />
+              <span className="ml-2">Remember me</span>
+            </label>
+            <a href="#" className="hover:underline">Forgot Password?</a>
+          </div> */}
           <button 
             type="submit" 
-            className={`w-full bg-[#d1815b] text-white p-3 rounded-lg font-semibold hover:bg-[#b86842] transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`w-full bg-gray-700 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={loading}
           >
-            {loading ? 'Memuat...' : 'Masuk'}
+            {loading ? 'Memuat...' : 'Login'}
           </button>
         </form>
-        <div className="mt-4 text-[#d1815b] cursor-pointer hover:underline">
+        {/* <div className="mt-4 text-gray-600 cursor-pointer hover:underline">
           Lupa kata sandi?
         </div>
-        <div className="mt-4 text-gray-700">
-          Sudah punya akun? <Link to="/signup" className="text-[#d1815b] hover:underline">Daftar disini</Link>
-        </div>
+        <div className="mt-4 text-gray-600">
+          Sudah punya akun? <Link to="/signup" className="text-gray-600 hover:underline">Daftar disini</Link>
+        </div> */}
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import "./Navbar.css";
 import { FaDoorOpen, FaBars, FaDoorClosed } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext'; 
+import { logout } from '../api/api';  
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,7 +33,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:3000/api/v1/user/logout', {}, { withCredentials: true });
+      await logout(); 
       setIsLoggedIn(false);
       sessionStorage.removeItem('isLoggedIn'); 
       navigate('/login');
@@ -46,58 +46,57 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed w-full z-50 bg-white shadow-md" style={{ background: "#F8F8F8", color: "black" }}>
-      <div className="navbar-container flex justify-between items-center px-4 py-2">
-        <div className="logo-container">
-          <img src="src/assets/icon.png" alt="Logo" className="logo" />
+    <nav className="fixed w-full z-50 bg-white shadow-md">
+      <div className="flex justify-between items-center px-6 py-4">
+        <div className="flex items-center">
+          <img src="src/assets/icon.png" alt="Logo" className="h-10" />
         </div>
-        <div className="menu-container hidden sm:flex space-x-4">
-          <Link to="/" className="menu-button hover:text-orange-500">Home</Link>
+        <div className="hidden sm:flex space-x-6">
+          <Link to="/" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Home</Link>
           {isLoggedIn && (
             <>
-              <Link to="/data-sekolah" className="menu-button hover:text-orange-500">Data Sekolah</Link>
-              <Link to="/data-okupasi" className="menu-button hover:text-orange-500">Data Okupasi</Link>
+              <Link to="/data-sekolah" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Data Sekolah</Link>
+              <Link to="/data-okupasi" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Data Okupasi</Link>
               {isSuperAdmin && (
-                <Link to="/signup" className="menu-button hover:text-orange-500">Add User</Link>
+                <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Add User</Link>
               )}
-              <button className="menu-button flex items-center hover:text-orange-500" onClick={handleLogout}>
+              <button className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center" onClick={handleLogout}>
                 <FaDoorClosed className="mr-2" /> Logout
               </button>
             </>
           )}
           {!isLoggedIn && (
-            <Link to="/login" className="menu-button flex items-center hover:text-orange-500">
+            <Link to="/login" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center">
               <FaDoorOpen className="mr-2" /> Login
             </Link>
           )}
         </div>
-
-        <div className="hamburger sm:hidden flex" onClick={toggleMenu}>
-          <FaBars />
+        <div className="sm:hidden flex" onClick={toggleMenu}>
+          <FaBars className="text-gray-800 hover:text-orange-700 transition duration-300"/>
         </div>
-        {menuOpen && (
-          <div className="menu-mobile sm:hidden flex flex-col space-y-2 mt-2">
-            <Link to="/" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Home</Link>
-            {isLoggedIn && (
-              <>
-                <Link to="/data-sekolah" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Data Sekolah</Link>
-                <Link to="/data-okupasi" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Data Okupasi</Link>
-                {isSuperAdmin && (
-                  <Link to="/signup" className="menu-button hover:text-orange-500" onClick={toggleMenu}>Add User</Link>
-                )}
-                <button className="menu-button flex items-center hover:text-orange-500" onClick={handleLogout}>
-                  <FaDoorClosed className="mr-2" /> Logout
-                </button>
-              </>
-            )}
-            {!isLoggedIn && (
-              <Link to="/login" className="menu-button flex items-center hover:text-orange-500" onClick={toggleMenu}>
-                <FaDoorOpen className="mr-2" /> Login
-              </Link>
-            )}
-          </div>
-        )}
       </div>
+      {menuOpen && (
+        <div className="bg-white w-full absolute top-16 left-0 right-0 shadow-md z-10 flex flex-col items-center space-y-4 py-4">
+          <Link to="/" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Home</Link>
+          {isLoggedIn && (
+            <>
+              <Link to="/data-sekolah" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Data Sekolah</Link>
+              <Link to="/data-okupasi" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Data Okupasi</Link>
+              {isSuperAdmin && (
+                <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Add User</Link>
+              )}
+              <button className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center" onClick={handleLogout}>
+                <FaDoorClosed className="mr-2" /> Logout
+              </button>
+            </>
+          )}
+          {!isLoggedIn && (
+            <Link to="/login" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center" onClick={toggleMenu}>
+              <FaDoorOpen className="mr-2" /> Login
+            </Link>
+          )}
+        </div>
+      )}
     </nav>
   );
 };

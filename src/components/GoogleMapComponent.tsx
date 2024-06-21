@@ -24,7 +24,7 @@ interface Props {
 const GoogleMapComponent: React.FC<Props> = ({
   lat,
   lng,
-  selectedSchool,
+  // selectedSchool,
   filteredSchools,
   allSchools,
   zoom,

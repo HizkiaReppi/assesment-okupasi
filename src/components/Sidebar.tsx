@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaFilter } from 'react-icons/fa';
 import SearchBar from '../components/SearchBar';
 import ReactPaginate from 'react-paginate';
-import { getAllSekolah, getAllKompetensi } from '../api/sekolah-api';
+// import { getAllSekolah, getAllKompetensi } from '../api/sekolah-api';
 import { getOkupasiByKode } from '../api/okupasi-api';
 
 interface School {
@@ -106,7 +106,7 @@ const Sidebar = ({ onSelectSchool, setFilteredSchools, schools }: SidebarProps) 
   return (
     <div className="flex rounded-sm">
       <div className={`fixed top-14 right-0 h-[calc(100%-3rem)] overflow-y-auto overflow-x-hidden bg-white shadow-md z-50 ${isOpen ? 'w-80' : 'w-10'} transition-all duration-300 flex flex-col rounded-sm`}>
-        <button onClick={() => setIsOpen(!isOpen)} className="p-2 focus:outline-none">
+        <button onClick={() => setIsOpen(!isOpen)} className="flex ml-2 p-2 font-extrabold focus:outline-none">
           {isOpen ? '>' : '<'}
         </button>
         {isOpen && (

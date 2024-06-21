@@ -40,20 +40,20 @@ const MainMenu = () => {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row h-screen">
+    <div className="flex flex-col sm:flex-row h-screen bg-gradient-to-br from-gray-100 to-gray-300">
       <div
-        className="w-full sm:w-2/3 h-1/3 sm:h-full flex flex-col justify-center items-center bg-gray-300 relative overflow-hidden no-hover:hover mt-16 sm:mt-0"
+        className="w-full sm:w-2/3 h-1/3 sm:h-full flex flex-col justify-center items-center bg-white relative overflow-hidden mt-16 sm:mt-0 border-r border-gray-300"
         onMouseMove={(e) => handleMouseMove(e, 'peta')}
         onMouseLeave={handleMouseLeave}
       >
         <div className="relative z-10 text-center px-4 pb-2">
-          <h1 className="text-4xl font-bold">PETA OKUPASI</h1>
-          <p className="mt-4 mb-4 max-w-md">
-            Temukan informasi terkait okupasi sekolah kejuruan yang ada di daerah Tondano dan Tomohon
+          <h1 className="text-4xl font-bold text-gray-800">PETA OKUPASI</h1>
+          <p className="mt-4 mb-4 max-w-md text-gray-600">
+            Temukan informasi terkait okupasi sekolah kejuruan yang ada di daerah <span className="font-bold">Sulawesi Utara</span>
           </p>
           <button
             onClick={() => handleClick('/home')}
-            className="px-6 py-3 bg-orange-700 text-white text-lg font-semibold rounded-lg shadow-lg transform transition duration-300 hover:bg-orange-800 hover:scale-105"
+            className="px-6 py-3 bg-gray-800 text-white text-lg font-semibold rounded-lg shadow-lg transform transition duration-300 hover:bg-gray-900 hover:scale-105"
           >
             Getting Started
           </button>
@@ -61,14 +61,14 @@ const MainMenu = () => {
         {renderHoverImage('peta', hoverImagePeta)}
       </div>
       <div
-        className="w-full sm:w-1/6 h-1/3 sm:h-full flex flex-col justify-center items-center bg-[#B49494] relative overflow-hidden no-hover:hover"
+        className="w-full sm:w-1/6 h-1/3 sm:h-full flex flex-col justify-center items-center bg-gray-200 relative overflow-hidden border-r border-gray-300"
         onMouseMove={(e) => handleMouseMove(e, 'sekolah')}
         onMouseLeave={handleMouseLeave}
       >
         <div className="relative z-10 text-center px-4">
           <button
             onClick={() => handleClick('/home')}
-            className="text-4xl font-bold text-black hover:text-orange-500"
+            className="text-4xl font-bold text-gray-800 hover:text-gray-600"
           >
             Cari Sekolah
           </button>
@@ -76,14 +76,14 @@ const MainMenu = () => {
         {renderHoverImage('sekolah', hoverImageSekolah)}
       </div>
       <div
-        className="w-full sm:w-1/6 h-1/3 sm:h-full flex flex-col justify-center items-center bg-[#C0ADAD] relative overflow-hidden no-hover:hover"
+        className="w-full sm:w-1/6 h-1/3 sm:h-full flex flex-col justify-center items-center bg-gray-300 relative overflow-hidden"
         onMouseMove={(e) => handleMouseMove(e, 'data')}
         onMouseLeave={handleMouseLeave}
       >
         <div className="relative z-10 text-center px-4">
           <button
             onClick={() => handleClick('/cek-data')}
-            className="text-4xl font-bold text-black hover:text-orange-500"
+            className="text-4xl font-bold text-gray-800 hover:text-gray-600"
           >
             Data
           </button>
