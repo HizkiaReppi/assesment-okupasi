@@ -132,12 +132,12 @@ const Sidebar = ({ onSelectSchool, setFilteredSchools, schools, onBackClick }: S
   };
 
   const handleClearFilter = () => {
-    onBackClick(); // Panggil fungsi onBackClick dari props
+    onBackClick(); 
     setSelectedFilter(null);
   };
 
   const handleBackClick = () => {
-    onBackClick();  // Panggil fungsi onBackClick dari props
+    onBackClick();  
     setFilteredSchoolsState([]);
     setFilteredSchools([]);
     setSearchResults([]);

@@ -49,7 +49,7 @@ const HomePage: React.FC = () => {
           }));
 
           setInitialSchools(schoolsWithCoords);
-          setFilteredSchools([]); // Set filteredSchools to empty initially
+          setFilteredSchools([]); 
 
           if (schoolsWithCoords.length > 0) {
             const avgLat = schoolsWithCoords.reduce((sum, school) => sum + school.lat, 0) / schoolsWithCoords.length;
@@ -93,7 +93,7 @@ const HomePage: React.FC = () => {
   };
 
   const handleBackClick = () => {
-    setFilteredSchools([]);  // Clear the filteredSchools to remove markers
+    setFilteredSchools([]);  
     setSelectedSchool(null);
   };
 
@@ -107,7 +107,7 @@ const HomePage: React.FC = () => {
         <GoogleMapComponent
           lat={center.lat}
           lng={center.lng}
-          filteredSchools={filteredSchools}  // Send filteredSchools to GoogleMapComponent
+          filteredSchools={filteredSchools}  
           zoom={12}
           onMarkerClick={handleMarkerClick}
           selectedSchool={selectedSchool}
@@ -117,7 +117,7 @@ const HomePage: React.FC = () => {
         onSelectSchool={handleSidebarClick}
         setFilteredSchools={setFilteredSchools}
         schools={initialSchools}
-        onBackClick={handleBackClick} // Add onBackClick to Sidebar
+        onBackClick={handleBackClick} 
       />
     </div>
   );
