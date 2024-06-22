@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Select from 'react-select';
+import Select, { components } from 'react-select';
 import { useFormContext } from '../context/FormContext';
 import { getAllSekolahStatByKodeOkupasi } from '../api/sekolah-api';
 
@@ -8,11 +8,27 @@ interface SearchBarProps {
   placeholder?: string;
   fetchData: () => Promise<any[]>;
   initialValue?: string;
+  searchBarValue: string;
+  setSearchBarValue: (value: string) => void;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Search...", fetchData, initialValue }) => {
+const MenuList = (props: any) => {
+  return (
+    <components.MenuList {...props}>
+      <div
+        onWheel={(e) => {
+          e.stopPropagation();
+        }}
+        style={{ maxHeight: '200px', overflowY: 'auto' }}
+      >
+        {props.children}
+      </div>
+    </components.MenuList>
+  );
+};
+
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Search...", fetchData, initialValue, searchBarValue, setSearchBarValue }) => {
   const [options, setOptions] = useState<any[]>([]);
-  const [selectedOption, setSelectedOption] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const { setKodeOkupasi, setSchools } = useFormContext();
 
@@ -27,7 +43,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Search..
 
         if (initialValue) {
           const initialOption = formattedOptions.find(option => option.value === initialValue);
-          setSelectedOption(initialOption);
+          setSearchBarValue(initialOption ? initialOption.value : '');
         }
       } else {
         console.error('Data fetched is not an array:', data);
@@ -62,7 +78,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Search..
   };
 
   const handleChange = (option: any) => {
-    setSelectedOption(option);
+    setSearchBarValue(option ? option.value : '');
     if (option) {
       handleSearch(option.value);
     }
@@ -87,18 +103,19 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Search..
       onChange={handleChange}
       onMenuOpen={loadOptions}
       placeholder={placeholder}
-      value={selectedOption}
+      value={options.find(option => option.value === searchBarValue) || null}
       className="w-full mb-2"
+      components={{ MenuList }}
       styles={{
         menu: (provided) => ({
           ...provided,
           zIndex: 9999,
           maxHeight: '200px',
-          overflowY: 'auto',
         }),
         control: (provided) => ({
           ...provided,
           borderColor: '#ccc',
+          zIndex: 9999,
         }),
         option: (provided, state) => ({
           ...provided,
@@ -108,7 +125,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Search..
             backgroundColor: 'lightgray',
           },
         }),
+        menuPortal: base => ({ ...base, zIndex: 9999 }),
       }}
+      menuPortalTarget={document.body}
     />
   );
 };

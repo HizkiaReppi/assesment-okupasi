@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import { getAllOkupasi } from '../api/okupasi-api';
 import { useFormContext } from '../context/FormContext';
@@ -9,7 +9,7 @@ const FormPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { setKodeOkupasi, setSchools, kodeOkupasi } = useFormContext();
   const [selectedKode, setSelectedKode] = useState<string>(kodeOkupasi || '');
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleSearch = async () => {
     if (!selectedKode) return;
@@ -19,7 +19,7 @@ const FormPage = () => {
       if (data.status === 'success') {
         setSchools(data.data);
         setKodeOkupasi(selectedKode);
-        navigate('/home'); // Navigate to /home after successful search
+        navigate('/home');
       } else {
         setSchools([]);
       }
@@ -38,24 +38,29 @@ const FormPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <h1 className="text-2xl font-bold mb-4">Cari Kode Okupasi</h1>
-      <div className="w-full max-w-md">
-        <SearchBar 
-          placeholder="Masukkan Kode Okupasi"
-          fetchData={fetchOkupasi} 
-          initialValue={kodeOkupasi} 
-          onSearch={setSelectedKode}
-        />
-        <div className="flex justify-center">
-          <button
-            onClick={handleSearch}
-            className="w-1/3 py-2 px-4 mt-2 bg-gradient-to-r from-gray-700 to-gray-900 text-white font-semibold rounded-lg shadow-md hover:from-gray-800 hover:to-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-opacity-75"
-          >
-            Search
-          </button>
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300">
+      <div className="bg-white p-8 sm:p-12 rounded-lg shadow-2xl w-full max-w-md border border-gray-200">
+        <h2 className="text-2xl font-bold mb-10 text-gray-800 text-center">Cari Kode Okupasi</h2>
+        <div className="space-y-6">
+          <SearchBar 
+            placeholder="Masukkan Kode Okupasi"
+            fetchData={fetchOkupasi} 
+            initialValue={kodeOkupasi} 
+            onSearch={setSelectedKode}
+            searchBarValue={selectedKode} // Added this line
+            setSearchBarValue={setSelectedKode} // Added this line
+          />
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={handleSearch}
+              className={`w-full py-3 px-6 bg-gray-700 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 transition duration-300 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Memuat...' : 'Search'}
+            </button>
+          </div>
+          {isLoading && <p className="mt-4 text-center text-gray-500">Loading...</p>}
         </div>
-        {isLoading && <p>Loading...</p>}
       </div>
     </div>
   );

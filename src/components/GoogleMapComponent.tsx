@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 
 interface Kompetensi {

@@ -49,7 +49,6 @@ const HomePage: React.FC = () => {
           }));
 
           setInitialSchools(schoolsWithCoords);
-          setFilteredSchools([]); 
 
           if (schoolsWithCoords.length > 0) {
             const avgLat = schoolsWithCoords.reduce((sum, school) => sum + school.lat, 0) / schoolsWithCoords.length;

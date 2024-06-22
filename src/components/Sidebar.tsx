@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaFilter, FaTimes } from 'react-icons/fa';
 import SearchBar from '../components/SearchBar';
 import ReactPaginate from 'react-paginate';
@@ -27,11 +27,13 @@ interface School {
 
 interface SidebarProps {
   onSelectSchool: (school: School) => void;
+  setFilteredSchools: (schools: School[]) => void;
+  schools: School[];
   onBackClick: () => void;
 }
 
-const Sidebar = ({ onSelectSchool, onBackClick }: SidebarProps) => {
-  const { schools, setSchools, kodeOkupasi, setKodeOkupasi } = useFormContext();
+const Sidebar = ({ onSelectSchool, setFilteredSchools, schools, onBackClick }: SidebarProps) => {
+  const { kodeOkupasi, setKodeOkupasi } = useFormContext();
   const [isOpen, setIsOpen] = useState(true);
   const [filteredSchools, setFilteredSchoolsState] = useState<School[]>([]);
   const [searchResults, setSearchResults] = useState<School[]>([]);
@@ -42,10 +44,29 @@ const Sidebar = ({ onSelectSchool, onBackClick }: SidebarProps) => {
   const [showSchoolSearch, setShowSchoolSearch] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [schoolName, setSchoolName] = useState<string>('');
+  const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
+  const [searchBarValue, setSearchBarValue] = useState<string>('');
+  const [filterPage, setFilterPage] = useState(0);
+
+  const filterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setFilteredSchoolsState(schools);
+    // Ensure that the sidebar starts with an empty list of schools
+    setFilteredSchoolsState([]);
   }, [schools]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setIsFilterOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const geocodeAddress = async (address: string) => {
     try {
@@ -64,6 +85,7 @@ const Sidebar = ({ onSelectSchool, onBackClick }: SidebarProps) => {
 
   const handleSchoolClick = (school: School) => {
     onSelectSchool(school);
+    setSelectedSchool(school); // Set the selected school
   };
 
   const handleSearch = async (selectedKode: string) => {
@@ -88,23 +110,24 @@ const Sidebar = ({ onSelectSchool, onBackClick }: SidebarProps) => {
           })
         );
 
+        // Sort results based on kecocokan in descending order
         result.sort((a, b) => parseFloat(b.kecocokan) - parseFloat(a.kecocokan));
 
         setSearchResults(result);
         setFilteredSchoolsState(result);
-        setSchools(result);
+        setFilteredSchools(result);
         setKodeOkupasi(selectedKode);
         setCurrentPage(0);
       } else {
         setSearchResults([]);
         setFilteredSchoolsState([]);
-        setSchools([]);
+        setFilteredSchools([]);
       }
     } catch (error) {
       console.error('Error fetching sekolah stat by kode okupasi:', error);
       setSearchResults([]);
       setFilteredSchoolsState([]);
-      setSchools([]);
+      setFilteredSchools([]);
     }
     setIsSearching(false);
   };
@@ -115,14 +138,13 @@ const Sidebar = ({ onSelectSchool, onBackClick }: SidebarProps) => {
     }
   }, [kodeOkupasi]);
 
-  // Search school name
   const handleSearchSchool = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = e.target.value.toLowerCase();
     setSchoolName(searchTerm);
 
     if (searchTerm === '') {
-      setFilteredSchoolsState(schools);
-      setSearchResults(schools);
+      setFilteredSchoolsState([]);
+      setSearchResults([]);
     } else {
       const filtered = schools.filter(school =>
         school.nama.toLowerCase().includes(searchTerm)
@@ -135,8 +157,8 @@ const Sidebar = ({ onSelectSchool, onBackClick }: SidebarProps) => {
 
   const clearSchoolNameSearch = () => {
     setSchoolName('');
-    setFilteredSchoolsState(schools);
-    setSearchResults(schools);
+    setFilteredSchoolsState([]);
+    setSearchResults([]);
     setCurrentPage(0);
   };
 
@@ -147,25 +169,28 @@ const Sidebar = ({ onSelectSchool, onBackClick }: SidebarProps) => {
       setFilteredSchoolsState(filtered);
       setSearchResults(filtered);
     } else {
-      setFilteredSchoolsState(schools);
-      setSearchResults(schools);
+      setFilteredSchoolsState([]);
+      setSearchResults([]);
     }
-    setIsFilterOpen(false);
+    setFilterPage(0); // Reset the filter pagination
     setCurrentPage(0);
   };
 
   const handleClearFilter = () => {
     setSelectedFilter(null);
-    setFilteredSchoolsState(schools);
-    setSearchResults(schools);
+    setFilteredSchoolsState([]);
+    setSearchResults([]);
+    setFilterPage(0); // Reset the filter pagination
     setCurrentPage(0);
   };
 
   const handleBackClick = () => {
     onBackClick();
     setFilteredSchoolsState([]);
-    setSchools([]);
     setSearchResults([]);
+    setSelectedSchool(null);
+    setKodeOkupasi('');
+    setSearchBarValue(''); // Clear the search bar value
     setCurrentPage(0);
     setIsSearching(false);
   };
@@ -185,6 +210,14 @@ const Sidebar = ({ onSelectSchool, onBackClick }: SidebarProps) => {
     return [];
   };
 
+  const filteredKota = Array.from(new Set(schools.map(school => school.kota)));
+  const itemsPerFilterPage = 10;
+  const paginatedKota = filteredKota.slice(
+    filterPage * itemsPerFilterPage,
+    (filterPage + 1) * itemsPerFilterPage
+  );
+  const filterPageCount = Math.ceil(filteredKota.length / itemsPerFilterPage);
+
   return (
     <div className="flex rounded-sm">
       <div className={`fixed top-14 right-0 h-[calc(100%-3rem)] overflow-y-auto overflow-x-hidden bg-white shadow-md z-50 ${isOpen ? 'w-80' : 'w-10'} transition-all duration-300 flex flex-col rounded-sm`}>
@@ -193,21 +226,23 @@ const Sidebar = ({ onSelectSchool, onBackClick }: SidebarProps) => {
         </button>
         {isOpen && (
           <div className="p-4 flex-grow flex flex-col">
-            <div className="flex items-center mb=4">
+            <div className="flex items-center mb-4">
               <SearchBar
                 placeholder="Masukkan Kode Okupasi"
                 fetchData={fetchOkupasi}
-                initialValue={kodeOkupasi}
+                initialValue={searchBarValue}
                 onSearch={setKodeOkupasi}
+                searchBarValue={searchBarValue}
+                setSearchBarValue={setSearchBarValue}
               />
               <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="p-2 border rounded ml-2">
                 <FaFilter />
               </button>
             </div>
             {isFilterOpen && (
-              <div className="absolute top-16 right-4 bg-white shadow-md border rounded p-4 z-50">
+              <div ref={filterRef} className="absolute top-14 right-14 bg-white shadow-md border rounded p-4 z-50">
                 <h4 className="font-bold mb-2">Filter by Kota</h4>
-                {Array.from(new Set(schools.map(school => school.kota))).map(kota => (
+                {paginatedKota.map(kota => (
                   <div key={kota} className="mb-2">
                     <button
                       onClick={() => handleFilterSelect(kota)}
@@ -219,10 +254,28 @@ const Sidebar = ({ onSelectSchool, onBackClick }: SidebarProps) => {
                 ))}
                 <button
                   onClick={handleClearFilter}
-                  className={`p-2 border rounded w-full text-left ${selectedFilter === null ? 'bg-orange-500 text-white' : 'bg-gray-200'}`}
+                  className="p-2 border rounded w-full text-left bg-gray-200"
                 >
                   Clear Filter
                 </button>
+                <ReactPaginate
+                  previousLabel={'Previous'}
+                  nextLabel={'Next'}
+                  breakLabel={'...'}
+                  breakClassName={'break-me'}
+                  pageCount={filterPageCount}
+                  marginPagesDisplayed={2}
+                  pageRangeDisplayed={3}
+                  onPageChange={({ selected }) => setFilterPage(selected)}
+                  containerClassName={'pagination flex justify-center mt-4'}
+                  pageClassName={'page-item'}
+                  pageLinkClassName={'page-link p-2 border rounded mx-1'}
+                  previousLinkClassName={'page-link p-2 border rounded mx-1'}
+                  nextLinkClassName={'page-link p-2 border rounded mx-1'}
+                  breakLinkClassName={'page-link p-2 border rounded mx-1'}
+                  activeLinkClassName={'bg-gray-500 text-white'}
+                  disabledLinkClassName={'opacity-50 cursor-not-allowed'}
+                />
               </div>
             )}
             <button onClick={() => setShowSchoolSearch(!showSchoolSearch)} className="p-2 mt-4 border rounded w-full text-left bg-gray-200">
