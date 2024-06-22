@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { FaFilter } from 'react-icons/fa';
+import { FaFilter, FaTimes } from 'react-icons/fa';
 import SearchBar from '../components/SearchBar';
 import ReactPaginate from 'react-paginate';
-import { getAllSekolahStatByKodeOkupasi, getAllKompetensi } from '../api/sekolah-api'; // Pastikan path ini sesuai
+import { getAllKompetensi, getAllSekolahStatByKodeOkupasi } from '../api/sekolah-api';
+import { getAllOkupasi } from '../api/okupasi-api';
+import { useFormContext } from '../context/FormContext';
 
 interface Kompetensi {
   kode: string;
@@ -25,12 +27,11 @@ interface School {
 
 interface SidebarProps {
   onSelectSchool: (school: School) => void;
-  setFilteredSchools: (schools: School[]) => void;
-  schools: School[];
-  onBackClick: () => void; // Tambahkan properti onBackClick
+  onBackClick: () => void;
 }
 
-const Sidebar = ({ onSelectSchool, setFilteredSchools, schools, onBackClick }: SidebarProps) => {
+const Sidebar = ({ onSelectSchool, onBackClick }: SidebarProps) => {
+  const { schools, setSchools, kodeOkupasi, setKodeOkupasi } = useFormContext();
   const [isOpen, setIsOpen] = useState(true);
   const [filteredSchools, setFilteredSchoolsState] = useState<School[]>([]);
   const [searchResults, setSearchResults] = useState<School[]>([]);
@@ -40,6 +41,7 @@ const Sidebar = ({ onSelectSchool, setFilteredSchools, schools, onBackClick }: S
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [showSchoolSearch, setShowSchoolSearch] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [schoolName, setSchoolName] = useState<string>('');
 
   useEffect(() => {
     setFilteredSchoolsState(schools);
@@ -64,16 +66,16 @@ const Sidebar = ({ onSelectSchool, setFilteredSchools, schools, onBackClick }: S
     onSelectSchool(school);
   };
 
-  const handleSearch = async (kode: string) => {
+  const handleSearch = async (selectedKode: string) => {
     setIsSearching(true);
     try {
-      const data = await getAllSekolahStatByKodeOkupasi(kode);
+      const data = await getAllSekolahStatByKodeOkupasi(selectedKode);
       if (data.status === 'success' && data.data) {
         const result = await Promise.all(
           data.data.map(async (school: any) => {
             const address = `${school.nama}, ${school.kota}, Indonesia`;
             const coordinates = await geocodeAddress(address);
-            const kompetensiData = await getAllKompetensi(school.id); 
+            const kompetensiData = await getAllKompetensi(school.id);
             return {
               id: school.id,
               nama: school.nama,
@@ -81,7 +83,7 @@ const Sidebar = ({ onSelectSchool, setFilteredSchools, schools, onBackClick }: S
               lat: coordinates.lat,
               lng: coordinates.lng,
               kecocokan: parseFloat(school.kecocokan).toFixed(2),
-              kompetensi: kompetensiData.data 
+              kompetensi: kompetensiData.data
             };
           })
         );
@@ -90,69 +92,98 @@ const Sidebar = ({ onSelectSchool, setFilteredSchools, schools, onBackClick }: S
 
         setSearchResults(result);
         setFilteredSchoolsState(result);
-        setFilteredSchools(result);
+        setSchools(result);
+        setKodeOkupasi(selectedKode);
         setCurrentPage(0);
       } else {
         setSearchResults([]);
         setFilteredSchoolsState([]);
-        setFilteredSchools([]);
+        setSchools([]);
       }
     } catch (error) {
       console.error('Error fetching sekolah stat by kode okupasi:', error);
       setSearchResults([]);
       setFilteredSchoolsState([]);
-      setFilteredSchools([]);
+      setSchools([]);
     }
+    setIsSearching(false);
   };
 
-  const handleSearchSchool = async (schoolName: string) => {
-    setIsSearching(true);
-    const filtered = schools.filter(school =>
-      school.nama.toLowerCase().includes(schoolName.toLowerCase())
-    );
-    setSearchResults(filtered);
-    setFilteredSchoolsState(filtered);
-    setFilteredSchools(filtered);
+  useEffect(() => {
+    if (kodeOkupasi) {
+      handleSearch(kodeOkupasi);
+    }
+  }, [kodeOkupasi]);
+
+  // Search school name
+  const handleSearchSchool = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchTerm = e.target.value.toLowerCase();
+    setSchoolName(searchTerm);
+
+    if (searchTerm === '') {
+      setFilteredSchoolsState(schools);
+      setSearchResults(schools);
+    } else {
+      const filtered = schools.filter(school =>
+        school.nama.toLowerCase().includes(searchTerm)
+      );
+      setFilteredSchoolsState(filtered);
+      setSearchResults(filtered);
+    }
+    setCurrentPage(0);
+  };
+
+  const clearSchoolNameSearch = () => {
+    setSchoolName('');
+    setFilteredSchoolsState(schools);
+    setSearchResults(schools);
     setCurrentPage(0);
   };
 
   const handleFilterSelect = (filter: string | null) => {
     setSelectedFilter(filter);
     if (filter) {
-      const filtered = schools.filter(school => school.kota === filter);
+      const filtered = schools.filter(school => school.kota.toLowerCase().includes(filter.toLowerCase()));
       setFilteredSchoolsState(filtered);
-      setFilteredSchools(filtered);
+      setSearchResults(filtered);
     } else {
       setFilteredSchoolsState(schools);
-      setFilteredSchools(schools);
+      setSearchResults(schools);
     }
     setIsFilterOpen(false);
     setCurrentPage(0);
   };
 
   const handleClearFilter = () => {
-    onBackClick(); 
     setSelectedFilter(null);
+    setFilteredSchoolsState(schools);
+    setSearchResults(schools);
+    setCurrentPage(0);
   };
 
   const handleBackClick = () => {
-    onBackClick();  
+    onBackClick();
     setFilteredSchoolsState([]);
-    setFilteredSchools([]);
+    setSchools([]);
     setSearchResults([]);
     setCurrentPage(0);
     setIsSearching(false);
   };
 
-  const paginatedSchools = isSearching ? filteredSchools.slice(
-    currentPage * itemsPerPage,
-    (currentPage + 1) * itemsPerPage
-  ) : schools.slice(
+  const paginatedSchools = filteredSchools.slice(
     currentPage * itemsPerPage,
     (currentPage + 1) * itemsPerPage
   );
 
-  const pageCount = Math.ceil((isSearching ? filteredSchools.length : schools.length) / itemsPerPage);
+  const pageCount = Math.ceil(filteredSchools.length / itemsPerPage);
+
+  const fetchOkupasi = async () => {
+    const data = await getAllOkupasi();
+    if (data && Array.isArray(data.data)) {
+      return data.data;
+    }
+    return [];
+  };
 
   return (
     <div className="flex rounded-sm">
@@ -163,7 +194,12 @@ const Sidebar = ({ onSelectSchool, setFilteredSchools, schools, onBackClick }: S
         {isOpen && (
           <div className="p-4 flex-grow flex flex-col">
             <div className="flex items-center mb=4">
-              <SearchBar onSearch={handleSearch} placeholder="Masukkan Kode Okupasi" />
+              <SearchBar
+                placeholder="Masukkan Kode Okupasi"
+                fetchData={fetchOkupasi}
+                initialValue={kodeOkupasi}
+                onSearch={setKodeOkupasi}
+              />
               <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="p-2 border rounded ml-2">
                 <FaFilter />
               </button>
@@ -199,7 +235,22 @@ const Sidebar = ({ onSelectSchool, setFilteredSchools, schools, onBackClick }: S
             )}
             {showSchoolSearch && (
               <div className="mt-4">
-                <SearchBar onSearch={handleSearchSchool} placeholder="Cari Nama Sekolah" />
+                {/* Pencarian sekolah berdasarkan nama */}
+                <div className="flex items-center mb-4 relative">
+                  <input
+                    type="text"
+                    value={schoolName}
+                    onChange={handleSearchSchool}
+                    placeholder="Cari Nama Sekolah"
+                    className="p-2 border rounded w-full"
+                  />
+                  {schoolName && (
+                    <FaTimes
+                      className="absolute right-2 cursor-pointer text-gray-500"
+                      onClick={clearSchoolNameSearch}
+                    />
+                  )}
+                </div>
               </div>
             )}
             <div className="mt-4 overflow-y-auto flex-grow">

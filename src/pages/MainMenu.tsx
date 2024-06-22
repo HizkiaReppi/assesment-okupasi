@@ -1,15 +1,13 @@
-import { useState } from 'react';
+import { useState, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import hoverImagePeta from '../assets/FullMap.png'; 
-import hoverImageSekolah from '../assets/CariSekolah.jpg'; 
-import hoverImageData from '../assets/programmer.jpg'; 
 
 const MainMenu = () => {
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, section: string) => {
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>, section: string) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setHoverPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     setHoveredSection(section);
@@ -39,56 +37,34 @@ const MainMenu = () => {
     );
   };
 
+  const baseFontSize = 16;
+  const goldenRatio = 1.618;
+
+  const h1FontSize = baseFontSize * Math.pow(goldenRatio, 3);
+  const pFontSize = baseFontSize;
+  const buttonFontSize = baseFontSize * goldenRatio;
+
   return (
     <div className="flex flex-col sm:flex-row h-screen bg-gradient-to-br from-gray-100 to-gray-300">
       <div
-        className="w-full sm:w-2/3 h-1/3 sm:h-full flex flex-col justify-center items-center bg-white relative overflow-hidden mt-16 sm:mt-0 border-r border-gray-300"
+        className="w-full h-full flex flex-col justify-center items-center bg-white relative overflow-hidden border-r border-gray-300"
         onMouseMove={(e) => handleMouseMove(e, 'peta')}
         onMouseLeave={handleMouseLeave}
       >
         <div className="relative z-10 text-center px-4 pb-2">
-          <h1 className="text-4xl font-bold text-gray-800">PETA OKUPASI</h1>
-          <p className="mt-4 mb-4 max-w-md text-gray-600">
+          <h1 className="font-bold text-gray-800" style={{ fontSize: `${h1FontSize}px`, marginBottom: `${baseFontSize * goldenRatio}px` }}>PETA OKUPASI</h1>
+          <p className="mb-4 max-w-md text-gray-600" style={{ fontSize: `${pFontSize}px`, marginBottom: `${baseFontSize}px` }}>
             Temukan informasi terkait okupasi sekolah kejuruan yang ada di daerah <span className="font-bold">Sulawesi Utara</span>
           </p>
           <button
-            onClick={() => handleClick('/home')}
-            className="px-6 py-3 bg-gray-800 text-white text-lg font-semibold rounded-lg shadow-lg transform transition duration-300 hover:bg-gray-900 hover:scale-105"
+            onClick={() => handleClick('/form')}
+            className="px-6 py-3 bg-gray-800 text-white font-semibold rounded-lg shadow-lg transform transition duration-300 hover:bg-gray-900 hover:scale-105"
+            style={{ fontSize: `${buttonFontSize}px` }}
           >
-            Getting Started
+            Cari Okupasi
           </button>
         </div>
         {renderHoverImage('peta', hoverImagePeta)}
-      </div>
-      <div
-        className="w-full sm:w-1/6 h-1/3 sm:h-full flex flex-col justify-center items-center bg-gray-200 relative overflow-hidden border-r border-gray-300"
-        onMouseMove={(e) => handleMouseMove(e, 'sekolah')}
-        onMouseLeave={handleMouseLeave}
-      >
-        <div className="relative z-10 text-center px-4">
-          <button
-            onClick={() => handleClick('/home')}
-            className="text-4xl font-bold text-gray-800 hover:text-gray-600"
-          >
-            Cari Sekolah
-          </button>
-        </div>
-        {renderHoverImage('sekolah', hoverImageSekolah)}
-      </div>
-      <div
-        className="w-full sm:w-1/6 h-1/3 sm:h-full flex flex-col justify-center items-center bg-gray-300 relative overflow-hidden"
-        onMouseMove={(e) => handleMouseMove(e, 'data')}
-        onMouseLeave={handleMouseLeave}
-      >
-        <div className="relative z-10 text-center px-4">
-          <button
-            onClick={() => handleClick('/cek-data')}
-            className="text-4xl font-bold text-gray-800 hover:text-gray-600"
-          >
-            Data
-          </button>
-        </div>
-        {renderHoverImage('data', hoverImageData)}
       </div>
     </div>
   );
