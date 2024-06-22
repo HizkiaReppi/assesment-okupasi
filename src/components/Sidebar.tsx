@@ -73,7 +73,7 @@ const Sidebar = ({ onSelectSchool, setFilteredSchools, schools, onBackClick }: S
           data.data.map(async (school: any) => {
             const address = `${school.nama}, ${school.kota}, Indonesia`;
             const coordinates = await geocodeAddress(address);
-            const kompetensiData = await getAllKompetensi(school.id); // Fetch kompetensi data for each school
+            const kompetensiData = await getAllKompetensi(school.id); 
             return {
               id: school.id,
               nama: school.nama,
@@ -81,12 +81,11 @@ const Sidebar = ({ onSelectSchool, setFilteredSchools, schools, onBackClick }: S
               lat: coordinates.lat,
               lng: coordinates.lng,
               kecocokan: parseFloat(school.kecocokan).toFixed(2),
-              kompetensi: kompetensiData.data // Assign kompetensi data
+              kompetensi: kompetensiData.data 
             };
           })
         );
 
-        // Sort by kecocokan in descending order
         result.sort((a, b) => parseFloat(b.kecocokan) - parseFloat(a.kecocokan));
 
         setSearchResults(result);
@@ -163,7 +162,6 @@ const Sidebar = ({ onSelectSchool, setFilteredSchools, schools, onBackClick }: S
         </button>
         {isOpen && (
           <div className="p-4 flex-grow flex flex-col">
-            <h1 className="text-2xl font-bold text-center font-sans mb-4">Cari Sekolah</h1>
             <div className="flex items-center mb=4">
               <SearchBar onSearch={handleSearch} placeholder="Masukkan Kode Okupasi" />
               <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="p-2 border rounded ml-2">
