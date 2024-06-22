@@ -1,49 +1,71 @@
 import React, { useState } from 'react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 
+interface Kompetensi {
+  kode: string;
+  nama: string;
+  unit_kompetensi: {
+    id: string;
+    nama: string;
+  }[];
+}
+
 interface School {
   id: string;
   lat: number;
   lng: number;
   nama: string;
   kota: string;
+  kecocokan?: string;
+  kompetensi?: Kompetensi[];
 }
 
 interface Props {
   lat: number;
   lng: number;
-  selectedSchool: { lat: number, lng: number, name: string } | null;
-  filteredSchools: School[];
-  allSchools: School[];
   zoom: number;
+  filteredSchools: School[];
   onMarkerClick: (school: School) => void;
-  setCenter: (lat: number, lng: number) => void;
-  clickedSchoolId: string | null;
+  selectedSchool: School | null;
 }
 
 const GoogleMapComponent: React.FC<Props> = ({
   lat,
   lng,
-  // selectedSchool,
-  filteredSchools,
-  allSchools,
   zoom,
+  filteredSchools,
   onMarkerClick,
-  setCenter,
-  clickedSchoolId,
+  selectedSchool,
 }) => {
-  const [selectedSchoolInMap, setSelectedSchoolInMap] = useState<School | null>(null);
   const [infoWindowOpen, setInfoWindowOpen] = useState<boolean>(false);
 
   const handleMarkerClick = (school: School) => {
-    setSelectedSchoolInMap(school);
-    setInfoWindowOpen(true);
     onMarkerClick(school);
-    setCenter(school.lat, school.lng);
+    setInfoWindowOpen(true);
   };
 
   const handleInfoWindowClose = () => {
     setInfoWindowOpen(false);
+  };
+
+  const getMarkerIcon = (kecocokan: string | undefined) => {
+    const percent = kecocokan ? parseFloat(kecocokan) : 0;
+    if (percent > 75) {
+      return {
+        url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+        scaledSize: new google.maps.Size(60, 60),
+      };
+    } else if (percent < 50) {
+      return {
+        url: 'https://maps.google.com/mapfiles/kml/paddle/wht-blank.png',
+        scaledSize: new google.maps.Size(30, 30),
+      };
+    } else {
+      return {
+        url: 'https://maps.google.com/mapfiles/kml/paddle/wht-blank.png',
+        scaledSize: new google.maps.Size(30, 30),
+      };
+    }
   };
 
   return (
@@ -52,34 +74,42 @@ const GoogleMapComponent: React.FC<Props> = ({
       center={{ lat, lng }}
       zoom={zoom}
     >
-      {allSchools.map((school) => {
-        const isFiltered = filteredSchools.some((filteredSchool) => filteredSchool.id === school.id);
-        const isSelected = clickedSchoolId === school.id;
-
-        return (
-          <Marker
-            key={school.id}
-            position={{ lat: school.lat, lng: school.lng }}
-            onClick={() => handleMarkerClick(school)}
-            icon={{
-              url: isSelected
-                ? 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
-                : isFiltered
-                ? 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-                : 'https://maps.google.com/mapfiles/kml/paddle/wht-blank.png', // Ikon abu-abu sederhana
-              scaledSize: new google.maps.Size(isSelected ? 50 : isFiltered ? 40 : 20, isSelected ? 50 : isFiltered ? 40 : 20),
-            }}
-          />
-        );
-      })}
-      {selectedSchoolInMap && infoWindowOpen && (
+      {filteredSchools.map((school) => (
+        <Marker
+          key={school.id}
+          position={{ lat: school.lat, lng: school.lng }}
+          onClick={() => handleMarkerClick(school)}
+          icon={getMarkerIcon(school.kecocokan)}
+        />
+      ))}
+      {selectedSchool && infoWindowOpen && (
         <InfoWindow
-          position={{ lat: selectedSchoolInMap.lat, lng: selectedSchoolInMap.lng }}
+          position={{ lat: selectedSchool.lat, lng: selectedSchool.lng }}
           onCloseClick={handleInfoWindowClose}
         >
-          <div>
-            <h2>{selectedSchoolInMap.nama}</h2>
-            <p>{selectedSchoolInMap.kota}</p>
+          <div className="max-w-xs max-h-48 overflow-y-auto p-4 bg-white shadow-lg rounded-lg">
+            <h2 className="text-lg font-bold mb-2 text-gray-900">{selectedSchool.nama}</h2>
+            <p className="text-sm text-gray-800 mb-2">{selectedSchool.kota}</p>
+            {selectedSchool.kecocokan && (
+              <p className="text-sm text-gray-800 mb-2">
+                <strong>Kecocokan:</strong> {selectedSchool.kecocokan}%
+              </p>
+            )}
+            {selectedSchool.kompetensi && selectedSchool.kompetensi.length > 0 && (
+              <div>
+                <p className="text-sm text-gray-800 mb-1">
+                  <strong>Okupasi:</strong> {selectedSchool.kompetensi.map(k => k.nama).join(', ')}
+                </p>
+                <p className="text-sm text-gray-800 mb-1">
+                  <strong>Unit Kompetensi:</strong>
+                </p>
+                <ul className="list-disc pl-5 text-sm text-gray-800">
+                  {selectedSchool.kompetensi.flatMap(k => k.unit_kompetensi.map(uk => (
+                    <li key={uk.id} className="mb-1">{uk.nama}</li>
+                  )))}
+                </ul>
+              </div>
+            )}
           </div>
         </InfoWindow>
       )}

@@ -4,7 +4,7 @@ import { getAllOkupasi } from '../api/okupasi-api';
 
 interface SearchBarProps {
   onSearch: (searchTerm: string) => Promise<void>;
-  placeholder?: string; 
+  placeholder?: string;
 }
 
 interface Okupasi {
@@ -13,7 +13,7 @@ interface Okupasi {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Masukkan Kode Okupasi" }) => {
-  const [kode, setKode] = useState('');
+  const [kode, setKode] = useState<string>('');
   const [okupasiList, setOkupasiList] = useState<Okupasi[]>([]);
   const [filteredOkupasi, setFilteredOkupasi] = useState<Okupasi[]>([]);
 

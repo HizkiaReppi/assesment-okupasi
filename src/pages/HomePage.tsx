@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import GoogleMapComponent from '../components/GoogleMapComponent';
-import InfoBar from '../components/InfoBar';
 import { useJsApiLoader } from '@react-google-maps/api';
 import { getAllSekolah, getAllKompetensi } from '../api/sekolah-api';
 
@@ -11,7 +10,7 @@ interface School {
   kota: string;
   lat: number;
   lng: number;
-  kode?: string; // Jadikan kode sebagai properti opsional jika belum
+  kecocokan?: string;
   kompetensi?: Kompetensi[];
 }
 
@@ -27,12 +26,9 @@ interface Kompetensi {
 const libraries: any[] = ['places'];
 
 const HomePage: React.FC = () => {
-  const [selectedSchool, setSelectedSchool] = useState<{ lat: number, lng: number, name: string, id: string } | null>(null);
+  const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [initialSchools, setInitialSchools] = useState<School[]>([]);
-  const [filteredSchools, setFilteredSchools] = useState<School[]>([]); 
-  const [clickedSchoolId, setClickedSchoolId] = useState<string | null>(null);
-  const [kompetensi, setKompetensi] = useState<Kompetensi[]>([]);
-  const [infoBarVisible, setInfoBarVisible] = useState<boolean>(false);
+  const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
   const [center, setCenter] = useState<{ lat: number, lng: number }>({ lat: -6.200000, lng: 106.816666 });
 
   const { isLoaded } = useJsApiLoader({
@@ -48,12 +44,12 @@ const HomePage: React.FC = () => {
           const schoolsWithCoords = await Promise.all(response.data.map(async (school: School) => {
             const address = `${school.nama}, ${school.kota}, Indonesia`;
             const coordinates = await geocodeAddress(address);
-            const kompetensiData = await getAllKompetensi(school.id); 
-            return { ...school, ...coordinates, name: school.nama, kompetensi: kompetensiData.data }; 
+            const kompetensiData = await getAllKompetensi(school.id);
+            return { ...school, ...coordinates, kompetensi: kompetensiData.data };
           }));
 
           setInitialSchools(schoolsWithCoords);
-          setFilteredSchools(schoolsWithCoords); 
+          setFilteredSchools([]); // Set filteredSchools to empty initially
 
           if (schoolsWithCoords.length > 0) {
             const avgLat = schoolsWithCoords.reduce((sum, school) => sum + school.lat, 0) / schoolsWithCoords.length;
@@ -87,24 +83,18 @@ const HomePage: React.FC = () => {
   };
 
   const handleMarkerClick = (school: School) => {
-    setSelectedSchool({ id: school.id, name: school.nama, lat: school.lat, lng: school.lng });
-    setClickedSchoolId(school.id);
+    setSelectedSchool(school);
     setCenter({ lat: school.lat, lng: school.lng });
-    setKompetensi(school.kompetensi || []);
-    setInfoBarVisible(true);
   };
 
   const handleSidebarClick = (school: School) => {
-    setSelectedSchool({ id: school.id, name: school.nama, lat: school.lat, lng: school.lng });
-    setClickedSchoolId(school.id);
+    setSelectedSchool(school);
     setCenter({ lat: school.lat, lng: school.lng });
   };
 
-  const handleCloseInfoBar = () => {
-    setInfoBarVisible(false);
+  const handleBackClick = () => {
+    setFilteredSchools([]);  // Clear the filteredSchools to remove markers
     setSelectedSchool(null);
-    setClickedSchoolId(null);
-    setKompetensi([]);
   };
 
   if (!isLoaded) {
@@ -117,26 +107,20 @@ const HomePage: React.FC = () => {
         <GoogleMapComponent
           lat={center.lat}
           lng={center.lng}
-          selectedSchool={selectedSchool}
-          allSchools={initialSchools}
-          filteredSchools={filteredSchools} 
-          zoom={12}  
+          filteredSchools={filteredSchools}  // Send filteredSchools to GoogleMapComponent
+          zoom={12}
           onMarkerClick={handleMarkerClick}
-          setCenter={(lat, lng) => setCenter({ lat, lng })}
-          clickedSchoolId={clickedSchoolId}
+          selectedSchool={selectedSchool}
         />
       </div>
       <Sidebar
         onSelectSchool={handleSidebarClick}
         setFilteredSchools={setFilteredSchools}
         schools={initialSchools}
+        onBackClick={handleBackClick} // Add onBackClick to Sidebar
       />
-      {infoBarVisible && (
-        <InfoBar school={selectedSchool} kompetensi={kompetensi} onClose={handleCloseInfoBar} />
-      )}
     </div>
   );
 };
 
 export default HomePage;
-

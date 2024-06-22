@@ -25,8 +25,6 @@ const InfoBar: React.FC<InfoBarProps> = ({ school, kompetensi, onClose }) => {
           ✕
         </button>
         <h2 className="text-xl font-bold mb-2">{school.name}</h2>
-        {/* <p><strong>Lat:</strong> {school.lat}</p>
-        <p><strong>Lng:</strong> {school.lng}</p> */}
         <h3 className="text-lg font-semibold mt-4">Okupasi :</h3>
         <ul className="list-disc pl-5">
           {kompetensi.map(komp => (
