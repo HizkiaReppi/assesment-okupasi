@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAllSekolah, deleteSekolahById } from '../../api/sekolah-api';
+import { FaSearch, FaArrowLeft } from "react-icons/fa";
 
 interface SekolahListProps {
     onEdit: (id: string) => void;
@@ -11,11 +12,12 @@ interface SekolahListProps {
 const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, refresh, editingId }) => {
     const [sekolah, setSekolah] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [currentPage, setCurrentPage] = useState<number>(0);
-    const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+    const [currentPage, setCurrentPage] = useState<number>(1);
     const [searchTerm, setSearchTerm] = useState<string>('');
+    const [inputSearchTerm, setInputSearchTerm] = useState<string>('');
     const [selectedCities, setSelectedCities] = useState<string[]>([]);
     const [filterVisible, setFilterVisible] = useState<boolean>(false);
+    const itemsPerPage = 5;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -48,38 +50,53 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
         }
     };
 
-    // Handle search 
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(event.target.value);
+        setInputSearchTerm(event.target.value);
+        setCurrentPage(1); // Reset to the first page on search change
     };
 
-    // Handle city 
     const handleCityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { value, checked } = event.target;
         setSelectedCities((prev) =>
             checked ? [...prev, value] : prev.filter((city) => city !== value)
         );
+        setCurrentPage(1); // Reset to the first page on filter change
     };
 
-    // filter visibility
     const toggleFilterVisibility = () => {
         setFilterVisible(!filterVisible);
     };
 
-    // Filter items based on search 
+    const handleSearchClick = () => {
+        setSearchTerm(inputSearchTerm);
+        setCurrentPage(1);
+    };
+
+    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter') {
+            handleSearchClick();
+        }
+    };
+
+    const handleBackClick = () => {
+        setInputSearchTerm('');
+        setSearchTerm('');
+        setCurrentPage(1);
+    };
+
+    const handlePageClick = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
+
     const filteredItems = sekolah.filter((item) => {
         const matchesSearch = item.nama.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCity = selectedCities.length === 0 || selectedCities.includes(item.kota);
         return matchesSearch && matchesCity;
     });
 
-    const indexOfLastItem = (currentPage + 1) * itemsPerPage;
+    const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
-
-    const changePage = (pageNumber: number) => {
-        setCurrentPage(pageNumber);
-    };
 
     const uniqueCities = Array.from(new Set(sekolah.map((item) => item.kota)));
 
@@ -87,18 +104,39 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
         return <p>Loading...</p>;
     }
 
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
     return (
         <div className="mb-6 p-4 bg-white rounded-lg shadow-md">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Daftar Sekolah</h2>
-            <div className="mb-4">
-                <label htmlFor="search" className="block text-gray-700">Search by Name:</label>
-                <input
-                    type="text"
-                    id="search"
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    className="mt-1 p-2 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm"
-                />
+            {searchTerm && (
+                <div className="mb-4">
+                    <button
+                        onClick={handleBackClick}
+                        className="flex items-center mb-2 p-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                    >
+                        <FaArrowLeft className="mr-2" /> Back
+                    </button>
+                </div>
+            )}
+            <div className="mb-4 flex">
+                <div className="flex-grow">
+                    <label htmlFor="search" className="block text-gray-700">Search by Name:</label>
+                    <input
+                        type="text"
+                        id="search"
+                        value={inputSearchTerm}
+                        onChange={handleSearchChange}
+                        onKeyDown={handleKeyPress}
+                        className="mt-1 p-2 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm"
+                    />
+                </div>
+                <button
+                    onClick={handleSearchClick}
+                    className="ml-2 mt-6 p-4 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                >
+                    <FaSearch />
+                </button>
             </div>
             <div className="mb-4">
                 <button onClick={toggleFilterVisibility} className="text-gray-700 flex items-center">
@@ -126,15 +164,10 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                     </div>
                 )}
             </div>
-            <div>
-                <label htmlFor="itemsPerPage">Items per Page:</label>
-                <input
-                    type="number"
-                    className='ml-2 font-bold'
-                    id="itemsPerPage"
-                    value={itemsPerPage}
-                    onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                />
+            <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-4">
+                    Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredItems.length)} of {filteredItems.length} items
+                </p>
             </div>
             <ul className="list-none">
                 {currentItems.map((item) => (
@@ -158,12 +191,32 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                     </li>
                 ))}
             </ul>
-            <div className="flex justify-center mt-4">
-                {Array.from({ length: Math.ceil(filteredItems.length / itemsPerPage) }, (_, i) => (
-                    <button key={i} onClick={() => changePage(i)} className={`px-3 py-1 mx-1 ${currentPage === i ? 'bg-blue-700 text-white' : 'bg-blue-300'}`}>
-                        {i + 1}
-                    </button>
-                ))}
+            <div className="mt-4 flex justify-between">
+                <button
+                    onClick={() => handlePageClick(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`relative overflow-hidden text-sm px-3 py-1 rounded-md ${currentPage === 1 ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'}`}
+                >
+                    Previous
+                </button>
+                <div className="flex space-x-2">
+                    {Array.from({ length: totalPages }, (_, i) => (
+                        <button
+                            key={i}
+                            onClick={() => handlePageClick(i + 1)}
+                            className={`px-3 py-1 rounded-md ${currentPage === i + 1 ? 'bg-gray-700 text-white' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'}`}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+                </div>
+                <button
+                    onClick={() => handlePageClick(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`relative overflow-hidden text-sm px-3 py-1 rounded-md ${currentPage === totalPages ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'}`}
+                >
+                    Next
+                </button>
             </div>
         </div>
     );

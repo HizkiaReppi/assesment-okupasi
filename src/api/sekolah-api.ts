@@ -31,7 +31,7 @@ export const addSekolah = async (nama: string, kota: string) => {
 };
 
 // Get All Sekolah
-export const getAllSekolah = async (search?: number, limit?: number, page?: number, kota?: string) => {
+export const getAllSekolah = async (search?: string, limit?: number, page?: number, kota?: string) => {
   try {
     const params: any = { search, limit, page };
     if (kota) {
