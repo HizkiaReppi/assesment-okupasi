@@ -1,4 +1,3 @@
-// Sidebar.tsx
 import React, { useState, useEffect, useRef } from "react";
 import { FaFilter, FaTimes } from "react-icons/fa";
 import SearchBar from "../components/SearchBar";

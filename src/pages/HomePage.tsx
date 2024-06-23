@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import GoogleMapComponent from '../components/GoogleMapComponent';
 import Loading from '../components/Loading';
@@ -31,7 +31,7 @@ const HomePage: React.FC = () => {
   const [initialSchools, setInitialSchools] = useState<School[]>([]);
   const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
   const [center, setCenter] = useState<{ lat: number, lng: number }>({ lat: -6.200000, lng: 106.816666 });
-  const [loading, setLoading] = useState<boolean>(true); // State untuk melacak status pemuatan
+  const [loading, setLoading] = useState<boolean>(true);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_MAPS_API_KEY,
@@ -63,7 +63,7 @@ const HomePage: React.FC = () => {
       } catch (error) {
         console.error('Error fetching initial schools:', error);
       } finally {
-        setLoading(false); // Set loading ke false setelah selesai memuat data
+        setLoading(false);
       }
     };
 
@@ -85,14 +85,24 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleMarkerClick = (school: School) => {
-    setSelectedSchool(school);
-    setCenter({ lat: school.lat, lng: school.lng });
+  const handleMarkerClick = (school: School | null) => {
+    setSelectedSchool(null); 
+    setTimeout(() => {
+      setSelectedSchool(school);
+      if (school) {
+        setCenter({ lat: school.lat, lng: school.lng });
+      }
+    }, 0);
   };
 
   const handleSidebarClick = (school: School) => {
-    setSelectedSchool(school);
-    setCenter({ lat: school.lat, lng: school.lng });
+    setSelectedSchool(null); 
+    setTimeout(() => {
+      if (selectedSchool?.id !== school.id) {
+        setSelectedSchool(school);
+        setCenter({ lat: school.lat, lng: school.lng });
+      }
+    }, 0);
   };
 
   const handleBackClick = () => {

@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import { useEffect, useRef } from 'react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 
 interface Kompetensi {
@@ -25,7 +25,7 @@ interface Props {
   lng: number;
   zoom: number;
   filteredSchools: School[];
-  onMarkerClick: (school: School) => void;
+  onMarkerClick: (school: School | null) => void;
   selectedSchool: School | null;
 }
 
@@ -37,16 +37,14 @@ const GoogleMapComponent: React.FC<Props> = ({
   onMarkerClick,
   selectedSchool,
 }) => {
-  const [infoWindowOpen, setInfoWindowOpen] = useState<boolean>(false);
+  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
 
-  const handleMarkerClick = (school: School) => {
-    onMarkerClick(school);
-    setInfoWindowOpen(true);
-  };
-
-  const handleInfoWindowClose = () => {
-    setInfoWindowOpen(false);
-  };
+  useEffect(() => {
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+      infoWindowRef.current = null;
+    }
+  }, [selectedSchool]);
 
   const getMarkerIcon = (kecocokan: string | undefined) => {
     const percent = kecocokan ? parseFloat(kecocokan) : 0;
@@ -78,14 +76,21 @@ const GoogleMapComponent: React.FC<Props> = ({
         <Marker
           key={school.id}
           position={{ lat: school.lat, lng: school.lng }}
-          onClick={() => handleMarkerClick(school)}
+          onClick={() => onMarkerClick(school)}
           icon={getMarkerIcon(school.kecocokan)}
         />
       ))}
-      {selectedSchool && infoWindowOpen && (
+      {selectedSchool && (
         <InfoWindow
+          key={selectedSchool.id}
           position={{ lat: selectedSchool.lat, lng: selectedSchool.lng }}
-          onCloseClick={handleInfoWindowClose}
+          onCloseClick={() => onMarkerClick(null)}
+          onLoad={(infoWindow) => {
+            if (infoWindowRef.current) {
+              infoWindowRef.current.close();
+            }
+            infoWindowRef.current = infoWindow;
+          }}
         >
           <div className="max-w-xs max-h-48 overflow-y-auto p-4 bg-white shadow-lg rounded-lg">
             <h2 className="text-lg font-bold mb-2 text-gray-900">{selectedSchool.nama}</h2>
