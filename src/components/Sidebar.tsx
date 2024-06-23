@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaFilter, FaTimes, FaSearch } from "react-icons/fa";
 import SearchBar from "../components/SearchBar";
-import { getAllKompetensi, getAllSekolahStatByKodeOkupasi } from "../api/sekolah-api";
-import { getAllOkupasi } from "../api/okupasi-api";
 import { useFormContext } from "../context/FormContext";
+import { fetchSchoolsByOkupasi, fetchOkupasi } from "../hooks/sidebarApiHooks";
 
 interface Kompetensi {
   kode: string;
@@ -75,25 +74,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
   }, []);
 
-  const geocodeAddress = async (address: string) => {
-    try {
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-          address
-        )}&key=${import.meta.env.VITE_MAPS_API_KEY}`
-      );
-      const data = await response.json();
-      if (data && data.results && data.results.length > 0) {
-        const { lat, lng } = data.results[0].geometry.location;
-        return { lat, lng };
-      }
-      throw new Error("Address not found");
-    } catch (error) {
-      console.error("Geocoding failed:", error);
-      throw error;
-    }
-  };
-
   const handleSchoolClick = (school: School) => {
     onSelectSchool(school);
     setSelectedSchool(school);
@@ -104,44 +84,14 @@ const Sidebar: React.FC<SidebarProps> = ({
     setFilteredSchoolsState([]);
     setFilteredSchools([]);
     try {
-      const data = await getAllSekolahStatByKodeOkupasi(selectedKode, searchQuery);
-      const okupasiData = await getAllOkupasi();
-      const selectedOkupasi = okupasiData.data.find(
-        (okupasi: any) => okupasi.kode === selectedKode
-      );
+      const { result, selectedOkupasi } = await fetchSchoolsByOkupasi(selectedKode, searchQuery);
 
-      if (data.status === "success" && data.data) {
-        const result = await Promise.all(
-          data.data.map(async (school: any) => {
-            const address = `${school.nama}, ${school.kota}, Indonesia`;
-            const coordinates = await geocodeAddress(address);
-            const kompetensiData = await getAllKompetensi(school.id);
-            return {
-              id: school.id,
-              nama: school.nama,
-              kota: school.kota,
-              lat: coordinates.lat,
-              lng: coordinates.lng,
-              kecocokan: parseFloat(school.kecocokan).toFixed(2),
-              kompetensi: kompetensiData.data,
-            };
-          })
-        );
-
-        result.sort((a, b) => parseFloat(b.kecocokan) - parseFloat(a.kecocokan));
-
-        console.log("Total results:", result.length);
-        setSearchResults(result);
-        setFilteredSchoolsState(result);
-        setFilteredSchools(result);
-        setKodeOkupasi(selectedKode);
-        setOkupasiName(selectedOkupasi ? selectedOkupasi.nama : "");
-        setCurrentPage(1); // Reset pagination to first page
-      } else {
-        setSearchResults([]);
-        setFilteredSchoolsState([]);
-        setFilteredSchools([]);
-      }
+      setSearchResults(result);
+      setFilteredSchoolsState(result);
+      setFilteredSchools(result);
+      setKodeOkupasi(selectedKode);
+      setOkupasiName(selectedOkupasi ? selectedOkupasi.nama : "");
+      setCurrentPage(1); // Reset pagination to first page
     } catch (error) {
       console.error("Error fetching sekolah stat by kode okupasi:", error);
       setSearchResults([]);
@@ -229,14 +179,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
-  };
-
-  const fetchOkupasi = async () => {
-    const data = await getAllOkupasi();
-    if (data && Array.isArray(data.data)) {
-      return data.data;
-    }
-    return [];
   };
 
   const filteredKota = Array.from(new Set(searchResults.map((school) => school.kota)));
