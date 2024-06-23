@@ -7,7 +7,6 @@ interface OkupasiEditFormProps {
 }
 
 const OkupasiEditForm: React.FC<OkupasiEditFormProps> = ({ kode, onSuccess }) => {
-  const [newKode, setNewKode] = useState<string>(kode);
   const [nama, setNama] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +18,6 @@ const OkupasiEditForm: React.FC<OkupasiEditFormProps> = ({ kode, onSuccess }) =>
         const data = await getOkupasiByKode(kode);
         if (data && data.data) {
           setNama(data.data.nama);
-          setNewKode(data.data.kode);
         }
       } catch (err) {
         setError('Error fetching okupasi data.');
@@ -35,10 +33,14 @@ const OkupasiEditForm: React.FC<OkupasiEditFormProps> = ({ kode, onSuccess }) =>
     e.preventDefault();
     try {
       setLoading(true);
-      await updateOkupasi(kode, newKode, nama);
-      onSuccess();
+      const response = await updateOkupasi(kode, kode, nama); // Menggunakan kode yang sama untuk update
+      if (response && response.status === 'success') {
+        onSuccess();
+      } else {
+        setError('Error updating okupasi. Response: ' + JSON.stringify(response));
+      }
     } catch (err) {
-      setError('Error updating okupasi.');
+      setError('Error updating okupasi. Check the console for more details.');
     } finally {
       setLoading(false);
     }
@@ -57,10 +59,9 @@ const OkupasiEditForm: React.FC<OkupasiEditFormProps> = ({ kode, onSuccess }) =>
         <input
           type="text"
           id="kode"
-          value={newKode}
-          onChange={(e) => setNewKode(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-md"
-          required
+          value={kode}
+          disabled
+          className="w-full p-2 border border-gray-300 rounded-md bg-gray-200 cursor-not-allowed"
         />
       </div>
       <div className="mb-4">

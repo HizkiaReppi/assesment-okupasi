@@ -100,12 +100,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     setSelectedSchool(school); 
   };
 
-  const handleSearch = async (selectedKode: string) => {
+  const handleSearch = async (selectedKode: string, searchQuery: string = "", page: number = 1) => {
     setIsSearching(true);
     setFilteredSchoolsState([]);
     setFilteredSchools([]);
     try {
-      const data = await getAllSekolahStatByKodeOkupasi(selectedKode);
+      const data = await getAllSekolahStatByKodeOkupasi(selectedKode, searchQuery, itemsPerPage, page);
       const okupasiData = await getAllOkupasi();
       const selectedOkupasi = okupasiData.data.find(
         (okupasi: any) => okupasi.kode === selectedKode
@@ -138,7 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         setFilteredSchools(result);
         setKodeOkupasi(selectedKode);
         setOkupasiName(selectedOkupasi ? selectedOkupasi.nama : "");
-        setCurrentPage(0);
+        setCurrentPage(page - 1);
       } else {
         setSearchResults([]);
         setFilteredSchoolsState([]);
@@ -160,23 +160,13 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [kodeOkupasi]);
 
   const handleSearchSchool = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const searchTerm = e.target.value.toLowerCase();
-    setSchoolName(searchTerm);
-
-    const filtered = searchResults.filter((school) =>
-      school.nama.toLowerCase().includes(searchTerm)
-    );
-
-    setFilteredSchoolsState(filtered);
-    setFilteredSchools(filtered);
-    setCurrentPage(0);
+    setSchoolName(e.target.value);
+    handleSearch(kodeOkupasi!, e.target.value);
   };
 
   const clearSchoolNameSearch = () => {
     setSchoolName("");
-    setFilteredSchoolsState(searchResults);
-    setFilteredSchools(searchResults);
-    setCurrentPage(0);
+    handleSearch(kodeOkupasi!);
   };
 
   const handleFilterSelect = (filter: string | null) => {
@@ -419,7 +409,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 previousLinkClassName={"page-link p-2 border rounded-full mx-1"}
                 nextLinkClassName={"page-link p-2 border rounded-full mx-1"}
                 breakLinkClassName={"page-link p-2 border rounded-full mx-1"}
-                activeLinkClassName={"bg-orange-500 text-white"}
+                activeLinkClassName={"bg-gray-500 text-white"}
                 disabledLinkClassName={"opacity-50 cursor-not-allowed"}
               />
             </div>
