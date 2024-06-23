@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaFilter, FaTimes, FaSearch } from "react-icons/fa";
 import SearchBar from "../components/SearchBar";
-import ReactPaginate from "react-paginate";
 import { getAllKompetensi, getAllSekolahStatByKodeOkupasi } from "../api/sekolah-api";
 import { getAllOkupasi } from "../api/okupasi-api";
 import { useFormContext } from "../context/FormContext";
@@ -42,13 +41,13 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [isOpen, setIsOpen] = useState(true);
   const [filteredSchools, setFilteredSchoolsState] = useState<School[]>([]);
   const [searchResults, setSearchResults] = useState<School[]>([]);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const itemsPerPage = 6;
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [showSchoolSearch, setShowSchoolSearch] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [schoolName, setSchoolName] = useState<string>("");
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [searchBarValue, setSearchBarValue] = useState<string>("");
   const [filterPage, setFilterPage] = useState(0);
@@ -97,15 +96,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const handleSchoolClick = (school: School) => {
     onSelectSchool(school);
-    setSelectedSchool(school); 
+    setSelectedSchool(school);
   };
 
-  const handleSearch = async (selectedKode: string, searchQuery: string = "", page: number = 1) => {
+  const handleSearch = async (selectedKode: string, searchQuery: string = "") => {
     setIsSearching(true);
     setFilteredSchoolsState([]);
     setFilteredSchools([]);
     try {
-      const data = await getAllSekolahStatByKodeOkupasi(selectedKode, searchQuery, itemsPerPage, page);
+      const data = await getAllSekolahStatByKodeOkupasi(selectedKode, searchQuery);
       const okupasiData = await getAllOkupasi();
       const selectedOkupasi = okupasiData.data.find(
         (okupasi: any) => okupasi.kode === selectedKode
@@ -129,16 +128,15 @@ const Sidebar: React.FC<SidebarProps> = ({
           })
         );
 
-        result.sort(
-          (a, b) => parseFloat(b.kecocokan) - parseFloat(a.kecocokan)
-        );
+        result.sort((a, b) => parseFloat(b.kecocokan) - parseFloat(a.kecocokan));
 
+        console.log("Total results:", result.length);
         setSearchResults(result);
         setFilteredSchoolsState(result);
         setFilteredSchools(result);
         setKodeOkupasi(selectedKode);
         setOkupasiName(selectedOkupasi ? selectedOkupasi.nama : "");
-        setCurrentPage(page - 1);
+        setCurrentPage(1); // Reset pagination to first page
       } else {
         setSearchResults([]);
         setFilteredSchoolsState([]);
@@ -160,15 +158,16 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [kodeOkupasi]);
 
   const handleSearchSchool = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSchoolName(e.target.value);
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset to first page when search query changes
   };
 
   const executeSchoolSearch = () => {
-    handleSearch(kodeOkupasi!, schoolName);
+    handleSearch(kodeOkupasi!, searchQuery);
   };
 
   const clearSchoolNameSearch = () => {
-    setSchoolName("");
+    setSearchQuery("");
     handleSearch(kodeOkupasi!);
   };
 
@@ -184,16 +183,16 @@ const Sidebar: React.FC<SidebarProps> = ({
       setFilteredSchoolsState(searchResults);
       setFilteredSchools(searchResults);
     }
-    setFilterPage(0); 
-    setCurrentPage(0);
+    setFilterPage(0);
+    setCurrentPage(1); // Reset pagination to first page
   };
 
   const handleClearFilter = () => {
     setSelectedFilter(null);
     setFilteredSchoolsState(searchResults);
     setFilteredSchools(searchResults);
-    setFilterPage(0); 
-    setCurrentPage(0);
+    setFilterPage(0);
+    setCurrentPage(1); // Reset pagination to first page
   };
 
   const handleBackClick = () => {
@@ -203,16 +202,16 @@ const Sidebar: React.FC<SidebarProps> = ({
     setSelectedSchool(null);
     setKodeOkupasi("");
     setSearchBarValue("");
-    setCurrentPage(0);
+    setCurrentPage(1);
     setIsSearching(false);
-    setOkupasiName(""); 
+    setOkupasiName("");
     setShowSchoolSearch(false);
     setIsFilterOpen(false);
   };
 
   const handleToggleSchoolSearch = () => {
     if (showSchoolSearch) {
-      setSchoolName("");
+      setSearchQuery("");
       handleSearch(kodeOkupasi!);
     }
     setShowSchoolSearch(!showSchoolSearch);
@@ -222,12 +221,15 @@ const Sidebar: React.FC<SidebarProps> = ({
     return str.length > n ? str.substring(0, n) + "..." : str;
   };
 
-  const paginatedSchools = filteredSchools.slice(
-    currentPage * itemsPerPage,
-    (currentPage + 1) * itemsPerPage
-  );
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredSchools.slice(indexOfFirstItem, indexOfLastItem);
 
-  const pageCount = Math.ceil(filteredSchools.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredSchools.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
 
   const fetchOkupasi = async () => {
     const data = await getAllOkupasi();
@@ -237,9 +239,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     return [];
   };
 
-  const filteredKota = Array.from(
-    new Set(searchResults.map((school) => school.kota))
-  );
+  const filteredKota = Array.from(new Set(searchResults.map((school) => school.kota)));
   const itemsPerFilterPage = 10;
   const paginatedKota = filteredKota.slice(
     filterPage * itemsPerFilterPage,
@@ -254,10 +254,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           isOpen ? "w-80" : "w-10"
         } transition-all duration-300 flex flex-col rounded-sm`}
       >
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex ml-2 p-2 font-extrabold focus:outline-none"
-        >
+        <button onClick={() => setIsOpen(!isOpen)} className="flex ml-2 p-2 font-extrabold focus:outline-none">
           {isOpen ? ">" : "<"}
         </button>
         {isOpen && (
@@ -289,49 +286,45 @@ const Sidebar: React.FC<SidebarProps> = ({
             {isFilterOpen && (
               <div
                 ref={filterRef}
-                className="absolute top-14 right-14 bg-white shadow-md border rounded p-4 z-50"
+                className="absolute top-14 right-14 bg-white shadow-md border rounded p-4 z-50 w-60"
               >
                 <h4 className="font-bold mb-2">Filter by Kota</h4>
-                {paginatedKota.map((kota) => (
-                  <div key={kota} className="mb-2">
-                    <button
-                      onClick={() => handleFilterSelect(kota)}
-                      className={`p-2 border rounded w-full text-left ${
-                        selectedFilter === kota
-                          ? "bg-orange-500 text-white"
-                          : "bg-gray-200"
-                      }`}
-                    >
-                      {kota}
-                    </button>
-                  </div>
-                ))}
+                <div className="max-h-40 overflow-y-auto">
+                  {paginatedKota.map((kota) => (
+                    <div key={kota} className="mb-2">
+                      <button
+                        onClick={() => handleFilterSelect(kota)}
+                        className={`p-2 border rounded w-full text-left ${
+                          selectedFilter === kota ? "bg-orange-500 text-white" : "bg-gray-200"
+                        }`}
+                      >
+                        {kota}
+                      </button>
+                    </div>
+                  ))}
+                </div>
                 <button
                   onClick={handleClearFilter}
                   className="p-2 border rounded w-full text-left bg-gray-200"
                 >
                   Clear Filter
                 </button>
-                <ReactPaginate
-                  previousLabel={"Previous"}
-                  nextLabel={"Next"}
-                  breakLabel={"..."}
-                  breakClassName={"break-me"}
-                  pageCount={filterPageCount}
-                  marginPagesDisplayed={2}
-                  pageRangeDisplayed={3}
-                  onPageChange={({ selected }) => setFilterPage(selected)}
-                  containerClassName={"pagination flex justify-center mt-4"}
-                  pageClassName={"page-item"}
-                  pageLinkClassName={"page-link p-2 border rounded-full mx-1"}
-                  previousLinkClassName={
-                    "page-link p-2 border rounded-full mx-1"
-                  }
-                  nextLinkClassName={"page-link p-2 border rounded-full mx-1"}
-                  breakLinkClassName={"page-link p-2 border rounded-full mx-1"}
-                  activeLinkClassName={"bg-orange-500 text-white"}
-                  disabledLinkClassName={"opacity-50 cursor-not-allowed"}
-                />
+                <div className="flex justify-between mt-4">
+                  <button
+                    onClick={() => setFilterPage(filterPage - 1)}
+                    disabled={filterPage === 0}
+                    className="p-2 border rounded bg-gray-200 hover:bg-gray-300 transition"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setFilterPage(filterPage + 1)}
+                    disabled={filterPage >= filterPageCount - 1}
+                    className="p-2 border rounded bg-gray-200 hover:bg-gray-300 transition"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             )}
             {(searchResults.length > 0 || isSearching) && (
@@ -349,18 +342,17 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
               {showSchoolSearch ? "Tutup" : "Cari Sekolah"}
             </button>
-
             {showSchoolSearch && (
               <div className="mt-4 relative">
                 <div className="flex items-center mb-4">
                   <input
                     type="text"
-                    value={schoolName}
+                    value={searchQuery}
                     onChange={handleSearchSchool}
                     placeholder="Cari Nama Sekolah"
                     className="p-2 border rounded w-full"
                   />
-                  {schoolName && (
+                  {searchQuery && (
                     <FaTimes
                       className="absolute right-12 cursor-pointer text-gray-500"
                       onClick={clearSchoolNameSearch}
@@ -376,8 +368,8 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             )}
             <div className="mt-4 overflow-y-auto flex-grow">
-              {paginatedSchools.length > 0 ? (
-                paginatedSchools.map((school) => (
+              {currentItems.length > 0 ? (
+                currentItems.map((school) => (
                   <div
                     key={school.id}
                     className="p-4 border-b cursor-pointer hover:bg-gray-100 transition"
@@ -386,9 +378,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <h3 className="font-bold text-lg">{truncate(school.nama, 20)}</h3>
                     <p className="text-gray-600">{truncate(school.kota, 20)}</p>
                     {school.kecocokan && (
-                      <p className="text-gray-500">
-                        Kecocokan: {school.kecocokan}%
-                      </p>
+                      <p className="text-gray-500">Kecocokan: {school.kecocokan}%</p>
                     )}
                   </div>
                 ))
@@ -396,25 +386,36 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <p>No schools found.</p>
               )}
             </div>
-            <div className="mt-4 mb-4">
-              <ReactPaginate
-                previousLabel={"Previous"}
-                nextLabel={"Next"}
-                breakLabel={"..."}
-                breakClassName={"break-me"}
-                pageCount={pageCount}
-                marginPagesDisplayed={2}
-                pageRangeDisplayed={3}
-                onPageChange={({ selected }) => setCurrentPage(selected)}
-                containerClassName={"pagination flex justify-center mt-4"}
-                pageClassName={"page-item"}
-                pageLinkClassName={"page-link p-2 border rounded-full mx-1"}
-                previousLinkClassName={"page-link p-2 border rounded-full mx-1"}
-                nextLinkClassName={"page-link p-2 border rounded-full mx-1"}
-                breakLinkClassName={"page-link p-2 border rounded-full mx-1"}
-                activeLinkClassName={"bg-orange-500 text-white"}
-                disabledLinkClassName={"opacity-50 cursor-not-allowed"}
-              />
+            <div className="flex justify-center mt-4 mb-4">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                  currentPage === 1 ? "bg-gray-200 text-gray-400" : "bg-gray-300 text-gray-800 hover:bg-gray-400"
+                }`}
+              >
+                Previous
+              </button>
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => handlePageChange(index + 1)}
+                  className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                    currentPage === index + 1 ? "bg-orange-500 text-white" : "bg-gray-300 text-gray-800 hover:bg-gray-400"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                  currentPage === totalPages ? "bg-gray-200 text-gray-400" : "bg-gray-300 text-gray-800 hover:bg-gray-400"
+                }`}
+              >
+                Next
+              </button>
             </div>
           </div>
         )}
