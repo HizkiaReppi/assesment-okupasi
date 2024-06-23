@@ -11,21 +11,23 @@ const OkupasiList: React.FC<OkupasiListProps> = ({ onEdit, onViewUnits, refresh 
     const [okupasi, setOkupasi] = useState<any[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
+    const [totalItems, setTotalItems] = useState(0);
     const itemsPerPage = 10;
 
     useEffect(() => {
         const fetchData = async () => {
             console.log('Fetching all Okupasi');
-            const data = await getAllOkupasi();
-            if (Array.isArray(data.data)) {
+            const data = await getAllOkupasi(searchQuery, itemsPerPage, currentPage);
+            if (data && data.status === 'success') {
                 setOkupasi(data.data);
+                setTotalItems(data.total_result);
             } else {
-                console.error('Data is not an array:', data);
+                console.error('Data is not valid:', data);
             }
         };
 
         fetchData();
-    }, [refresh]);
+    }, [refresh, searchQuery, currentPage]);
 
     const handleDelete = async (kode: string) => {
         console.log('Deleting Okupasi with kode:', kode);
@@ -42,27 +44,20 @@ const OkupasiList: React.FC<OkupasiListProps> = ({ onEdit, onViewUnits, refresh 
         setCurrentPage(1); // Reset to first page when search query changes
     };
 
-    const filteredOkupasi = okupasi.filter((item) =>
-        item.kode.toLowerCase().includes(searchQuery.toLowerCase()) || item.nama.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredOkupasi.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = okupasi;
 
-    const totalPages = Math.ceil(filteredOkupasi.length / itemsPerPage);
-
-    const handleNextPage = () => {
-        if (currentPage < totalPages) {
-            setCurrentPage(currentPage + 1);
-        }
-    };
-
-    const handlePrevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+    }
 
     return (
         <div className="mb-6 p-4 bg-white rounded-lg shadow-md">
@@ -75,7 +70,7 @@ const OkupasiList: React.FC<OkupasiListProps> = ({ onEdit, onViewUnits, refresh 
                 className="mb-4 p-2 border border-gray-300 rounded-md w-full"
             />
             <p className="text-sm text-gray-600 mb-4">
-                Total Items: {filteredOkupasi.length} | Page: {currentPage} of {totalPages}
+                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, totalItems)} of {totalItems} items
             </p>
             <ul className="list-none">
                 {currentItems.map((item) => (
@@ -107,18 +102,33 @@ const OkupasiList: React.FC<OkupasiListProps> = ({ onEdit, onViewUnits, refresh 
                     </li>
                 ))}
             </ul>
-            <div className="mt-4 flex justify-between">
+            <div className="mt-4 flex justify-center">
                 <button
-                    onClick={handlePrevPage}
+                    onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className={`relative overflow-hidden text-sm px-3 py-1 rounded-md ${currentPage === 1 ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'}`}
+                    className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                        currentPage === 1 ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'
+                    }`}
                 >
                     Previous
                 </button>
+                {pageNumbers.map((number) => (
+                    <button
+                        key={number}
+                        onClick={() => handlePageChange(number)}
+                        className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                            currentPage === number ? 'bg-orange-500 text-white' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'
+                        }`}
+                    >
+                        {number}
+                    </button>
+                ))}
                 <button
-                    onClick={handleNextPage}
+                    onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className={`relative overflow-hidden text-sm px-3 py-1 rounded-md ${currentPage === totalPages ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'}`}
+                    className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                        currentPage === totalPages ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'
+                    }`}
                 >
                     Next
                 </button>

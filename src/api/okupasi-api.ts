@@ -42,9 +42,16 @@ export const addOkupasi = async (kode: string, nama: string, unitKompetensi: { n
 };
 
 // Get All Okupasi
-export const getAllOkupasi = async () => {
+export const getAllOkupasi = async (search = '', limit = 10, page = 1) => {
   try {
-    const response = await apiClient.get('/okupasi', { withCredentials: true });
+    const response = await apiClient.get('/okupasi', {
+      params: {
+        search,
+        limit,
+        page,
+      },
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     handleError(error);
