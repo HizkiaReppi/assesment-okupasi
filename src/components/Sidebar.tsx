@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaFilter, FaTimes } from "react-icons/fa";
+import { FaFilter, FaTimes, FaSearch } from "react-icons/fa";
 import SearchBar from "../components/SearchBar";
 import ReactPaginate from "react-paginate";
 import { getAllKompetensi, getAllSekolahStatByKodeOkupasi } from "../api/sekolah-api";
@@ -161,7 +161,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const handleSearchSchool = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSchoolName(e.target.value);
-    handleSearch(kodeOkupasi!, e.target.value);
+  };
+
+  const executeSchoolSearch = () => {
+    handleSearch(kodeOkupasi!, schoolName);
   };
 
   const clearSchoolNameSearch = () => {
@@ -205,6 +208,18 @@ const Sidebar: React.FC<SidebarProps> = ({
     setOkupasiName(""); 
     setShowSchoolSearch(false);
     setIsFilterOpen(false);
+  };
+
+  const handleToggleSchoolSearch = () => {
+    if (showSchoolSearch) {
+      setSchoolName("");
+      handleSearch(kodeOkupasi!);
+    }
+    setShowSchoolSearch(!showSchoolSearch);
+  };
+
+  const truncate = (str: string, n: number) => {
+    return str.length > n ? str.substring(0, n) + "..." : str;
   };
 
   const paginatedSchools = filteredSchools.slice(
@@ -328,7 +343,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               </button>
             )}
             <button
-              onClick={() => setShowSchoolSearch(!showSchoolSearch)}
+              onClick={handleToggleSchoolSearch}
               className="p-2 mt-4 border rounded-full w-full text-center bg-gray-300  hover:bg-gray-500 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
               disabled={!kodeOkupasi || isSearching}
             >
@@ -336,8 +351,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             </button>
 
             {showSchoolSearch && (
-              <div className="mt-4">
-                <div className="flex items-center mb-4 relative">
+              <div className="mt-4 relative">
+                <div className="flex items-center mb-4">
                   <input
                     type="text"
                     value={schoolName}
@@ -347,10 +362,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                   />
                   {schoolName && (
                     <FaTimes
-                      className="absolute right-2 cursor-pointer text-gray-500"
+                      className="absolute right-12 cursor-pointer text-gray-500"
                       onClick={clearSchoolNameSearch}
                     />
                   )}
+                  <button
+                    onClick={executeSchoolSearch}
+                    className="p-2 border rounded ml-2 bg-gray-200 hover:bg-gray-300 transition"
+                  >
+                    <FaSearch />
+                  </button>
                 </div>
               </div>
             )}
@@ -362,30 +383,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                     className="p-4 border-b cursor-pointer hover:bg-gray-100 transition"
                     onClick={() => handleSchoolClick(school)}
                   >
-                    <h3 className="font-bold text-lg">{school.nama}</h3>
-                    <p className="text-gray-600">{school.kota}</p>
+                    <h3 className="font-bold text-lg">{truncate(school.nama, 20)}</h3>
+                    <p className="text-gray-600">{truncate(school.kota, 20)}</p>
                     {school.kecocokan && (
                       <p className="text-gray-500">
                         Kecocokan: {school.kecocokan}%
                       </p>
-                    )}
-                    {school.kompetensi && school.kompetensi.length > 0 && (
-                      <div className="mt-2 text-sm text-gray-700">
-                        <p>
-                          <strong>Okupasi:</strong>{" "}
-                          {school.kompetensi.map((k) => k.nama).join(", ")}
-                        </p>
-                        <p>
-                          <strong>Unit Kompetensi:</strong>
-                        </p>
-                        <ul className="list-disc list-inside ml-4">
-                          {school.kompetensi.flatMap((k) =>
-                            k.unit_kompetensi.map((uk: any) => (
-                              <li key={uk.id}>{uk.nama}</li>
-                            ))
-                          )}
-                        </ul>
-                      </div>
                     )}
                   </div>
                 ))
@@ -409,7 +412,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 previousLinkClassName={"page-link p-2 border rounded-full mx-1"}
                 nextLinkClassName={"page-link p-2 border rounded-full mx-1"}
                 breakLinkClassName={"page-link p-2 border rounded-full mx-1"}
-                activeLinkClassName={"bg-gray-500 text-white"}
+                activeLinkClassName={"bg-orange-500 text-white"}
                 disabledLinkClassName={"opacity-50 cursor-not-allowed"}
               />
             </div>
