@@ -47,8 +47,8 @@ const FormPage = () => {
             fetchData={fetchOkupasi} 
             initialValue={kodeOkupasi} 
             onSearch={setSelectedKode}
-            searchBarValue={selectedKode} // Added this line
-            setSearchBarValue={setSelectedKode} // Added this line
+            searchBarValue={selectedKode} // Menampilkan nama dan kode di input
+            setSearchBarValue={setSelectedKode}
           />
           <div className="flex justify-center mt-4">
             <button

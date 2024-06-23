@@ -1,11 +1,9 @@
+// Sidebar.tsx
 import React, { useState, useEffect, useRef } from "react";
 import { FaFilter, FaTimes } from "react-icons/fa";
 import SearchBar from "../components/SearchBar";
 import ReactPaginate from "react-paginate";
-import {
-  getAllKompetensi,
-  getAllSekolahStatByKodeOkupasi,
-} from "../api/sekolah-api";
+import { getAllKompetensi, getAllSekolahStatByKodeOkupasi } from "../api/sekolah-api";
 import { getAllOkupasi } from "../api/okupasi-api";
 import { useFormContext } from "../context/FormContext";
 
@@ -60,7 +58,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   const filterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Ensure that the sidebar starts with an empty list of schools
     setFilteredSchoolsState([]);
   }, [schools]);
 
@@ -101,11 +98,13 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const handleSchoolClick = (school: School) => {
     onSelectSchool(school);
-    setSelectedSchool(school); // Set the selected school
+    setSelectedSchool(school); 
   };
 
   const handleSearch = async (selectedKode: string) => {
     setIsSearching(true);
+    setFilteredSchoolsState([]);
+    setFilteredSchools([]);
     try {
       const data = await getAllSekolahStatByKodeOkupasi(selectedKode);
       const okupasiData = await getAllOkupasi();
@@ -131,7 +130,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           })
         );
 
-        // Sort results based on kecocokan in descending order
         result.sort(
           (a, b) => parseFloat(b.kecocokan) - parseFloat(a.kecocokan)
         );
@@ -194,7 +192,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       setFilteredSchoolsState(searchResults);
       setFilteredSchools(searchResults);
     }
-    setFilterPage(0); // Reset the filter pagination
+    setFilterPage(0); 
     setCurrentPage(0);
   };
 
@@ -202,7 +200,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     setSelectedFilter(null);
     setFilteredSchoolsState(searchResults);
     setFilteredSchools(searchResults);
-    setFilterPage(0); // Reset the filter pagination
+    setFilterPage(0); 
     setCurrentPage(0);
   };
 
@@ -212,12 +210,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     setSearchResults([]);
     setSelectedSchool(null);
     setKodeOkupasi("");
-    setSearchBarValue(""); // Clear the search bar value
+    setSearchBarValue("");
     setCurrentPage(0);
     setIsSearching(false);
-    setOkupasiName(""); // Clear the okupasi name
-    setShowSchoolSearch(false); // Hide school search
-    setIsFilterOpen(false); // Close filter
+    setOkupasiName(""); 
+    setShowSchoolSearch(false);
+    setIsFilterOpen(false);
   };
 
   const paginatedSchools = filteredSchools.slice(
@@ -262,11 +260,11 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="p-4 flex-grow flex flex-col">
             {kodeOkupasi && (
               <h3 className="text-lg font-bold mb-4">
-                Kode Okupasi: {kodeOkupasi} - {okupasiName}
+                Okupasi : {kodeOkupasi} - {okupasiName}
               </h3>
             )}
             <div className="flex items-center mb-4">
-              {!isSearching && !searchResults.length && (
+              {!isSearching && (
                 <SearchBar
                   placeholder="Masukkan Kode Okupasi"
                   fetchData={fetchOkupasi}
@@ -279,7 +277,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 className="p-2 border rounded ml-2"
-                disabled={!kodeOkupasi || isSearching || !searchResults.length}
+                disabled={!kodeOkupasi || isSearching}
               >
                 <FaFilter />
               </button>
@@ -340,18 +338,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                 Batalkan Pencarian
               </button>
             )}
-            {searchResults.length > 0 && (
-              <button
-                onClick={() => setShowSchoolSearch(!showSchoolSearch)}
-                className="p-2 mt-4 border rounded-full w-full text-center bg-gray-300  hover:bg-gray-500 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
-                disabled={!kodeOkupasi || isSearching}
-              >
-                {showSchoolSearch ? "Tutup" : "Cari Sekolah"}
-              </button>
-            )}
+            <button
+              onClick={() => setShowSchoolSearch(!showSchoolSearch)}
+              className="p-2 mt-4 border rounded-full w-full text-center bg-gray-300  hover:bg-gray-500 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+              disabled={!kodeOkupasi || isSearching}
+            >
+              {showSchoolSearch ? "Tutup" : "Cari Sekolah"}
+            </button>
+
             {showSchoolSearch && (
               <div className="mt-4">
-                {/* Pencarian sekolah berdasarkan nama */}
                 <div className="flex items-center mb-4 relative">
                   <input
                     type="text"

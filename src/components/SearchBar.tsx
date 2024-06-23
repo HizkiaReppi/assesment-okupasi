@@ -1,149 +1,108 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import Select, { components, StylesConfig } from 'react-select';
-import { useFormContext } from '../context/FormContext';
-import { getAllSekolahStatByKodeOkupasi } from '../api/sekolah-api';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaTimes } from 'react-icons/fa';
 
 interface SearchBarProps {
-  onSearch?: (kode: string) => void;
-  placeholder?: string;
+  placeholder: string;
   fetchData: () => Promise<any[]>;
-  initialValue?: string;
+  initialValue: string;
+  onSearch: (value: string) => void;
   searchBarValue: string;
   setSearchBarValue: (value: string) => void;
 }
 
-const MenuList = (props: any) => {
-  return (
-    <components.MenuList {...props}>
-      <div
-        onWheel={(e) => {
-          e.stopPropagation();
-        }}
-        style={{ maxHeight: '200px', overflowY: 'auto' }}
-      >
-        {props.children}
-      </div>
-    </components.MenuList>
-  );
-};
-
-const customStyles: StylesConfig<any, false> = {
-  control: (provided) => ({
-    ...provided,
-    borderColor: '#ccc',
-    borderRadius: '8px',
-    padding: '2px 8px',
-    boxShadow: 'none',
-    '&:hover': {
-      borderColor: '#aaa',
-    },
-  }),
-  menu: (provided) => ({
-    ...provided,
-    zIndex: 9999,
-    maxHeight: '200px',
-    borderRadius: '8px',
-  }),
-  option: (provided, state) => ({
-    ...provided,
-    backgroundColor: state.isSelected ? '#4a90e2' : state.isFocused ? '#d9e6f2' : 'white',
-    color: state.isSelected ? 'white' : 'black',
-    '&:hover': {
-      backgroundColor: state.isSelected ? '#4a90e2' : '#f0f4f7',
-      color: state.isSelected ? 'white' : 'black',
-    },
-  }),
-  menuPortal: (base) => ({
-    ...base,
-    zIndex: 9999,
-  }),
-};
-
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Search...", fetchData, initialValue, searchBarValue, setSearchBarValue }) => {
-  const [options, setOptions] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const { setKodeOkupasi, setSchools } = useFormContext();
-
-  const loadOptions = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await fetchData();
-      if (Array.isArray(data)) {
-        const sortedData = data.sort((a: any, b: any) => a.nama.localeCompare(b.nama));
-        const formattedOptions = sortedData.map((item: any) => ({ value: item.kode, label: `${item.nama} - ${item.kode}` }));
-        setOptions(formattedOptions);
-
-        if (initialValue) {
-          const initialOption = formattedOptions.find(option => option.value === initialValue);
-          setSearchBarValue(initialOption ? initialOption.value : '');
-        }
-      } else {
-        console.error('Data fetched is not an array:', data);
-      }
-    } catch (error) {
-      console.error('Error loading options:', error);
-    }
-    setLoading(false);
-  }, [fetchData, initialValue, setSearchBarValue]);
+const SearchBar: React.FC<SearchBarProps> = ({
+  placeholder,
+  fetchData,
+  initialValue,
+  onSearch,
+  searchBarValue,
+  setSearchBarValue,
+}) => {
+  const [data, setData] = useState<any[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<string>(initialValue);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    loadOptions();
-  }, [loadOptions]);
+    const fetchDataAsync = async () => {
+      const result = await fetchData();
+      setData(result);
+    };
+    fetchDataAsync();
+  }, [fetchData]);
 
-  const handleSearch = useCallback(async (selectedKode: string) => {
-    setLoading(true);
-    try {
-      const data = await getAllSekolahStatByKodeOkupasi(selectedKode);
-      if (data.status === 'success') {
-        setSchools(data.data);
-        setKodeOkupasi(selectedKode);
-        if (onSearch) {
-          onSearch(selectedKode);
-        }
-      } else {
-        setSchools([]);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
       }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-    setLoading(false);
-  }, [setSchools, setKodeOkupasi, onSearch]);
+    };
 
-  const handleChange = (option: any) => {
-    if (option && option.value !== searchBarValue) {
-      setSearchBarValue(option.value);
-      handleSearch(option.value);
-    } else if (!option) {
-      setSearchBarValue('');
-      setSchools([]);
-    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchBarValue(e.target.value);
+    setSelectedItem(e.target.value);
+    setIsDropdownOpen(true);
   };
 
-  const handleInputChange = (inputValue: string) => {
-    if (inputValue === '') {
-      loadOptions();
-    } else {
-      const filteredOptions = options.filter((option) =>
-        option.label.toLowerCase().includes(inputValue.toLowerCase())
-      );
-      setOptions(filteredOptions);
-    }
+  const handleItemClick = (item: any) => {
+    const displayValue = `${item.nama} (${item.kode})`;
+    setSelectedItem(displayValue);
+    setSearchBarValue(displayValue);
+    onSearch(item.kode);
+    setIsDropdownOpen(false);
+  };
+
+  const clearInput = () => {
+    setSelectedItem('');
+    setSearchBarValue('');
+    onSearch('');
+    setIsDropdownOpen(false);
   };
 
   return (
-    <Select
-      isLoading={loading}
-      options={options}
-      onInputChange={handleInputChange}
-      onChange={handleChange}
-      onMenuOpen={loadOptions}
-      placeholder={placeholder}
-      value={options.find(option => option.value === searchBarValue) || null}
-      className="w-full mb-2"
-      components={{ MenuList }}
-      styles={customStyles}
-      menuPortalTarget={document.body}
-    />
+    <div className="relative w-full" ref={dropdownRef}>
+      <div className="flex items-center relative">
+        <input
+          type="text"
+          placeholder={placeholder}
+          value={selectedItem}
+          onChange={handleInputChange}
+          className="p-3 pl-4 pr-10 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          onFocus={() => setIsDropdownOpen(true)}
+        />
+        {selectedItem && (
+          <FaTimes
+            className="absolute right-3 cursor-pointer text-gray-500 hover:text-gray-700"
+            onClick={clearInput}
+          />
+        )}
+      </div>
+      {isDropdownOpen && (
+        <div className="absolute mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto w-full z-10">
+          {data
+            .filter(item => 
+              item.nama.toLowerCase().includes(searchBarValue.toLowerCase()) ||
+              item.kode.toLowerCase().includes(searchBarValue.toLowerCase())
+            )
+            .slice(0, 5)
+            .map(item => (
+              <div
+                key={item.kode}
+                onClick={() => handleItemClick(item)}
+                className="p-3 cursor-pointer hover:bg-gray-100 transition duration-300"
+              >
+                {item.nama} ({item.kode})
+              </div>
+            ))}
+        </div>
+      )}
+    </div>
   );
 };
 
