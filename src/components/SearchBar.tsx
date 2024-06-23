@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import Select, { components } from 'react-select';
+import React, { useState, useEffect, useCallback } from 'react';
+import Select, { components, StylesConfig } from 'react-select';
 import { useFormContext } from '../context/FormContext';
 import { getAllSekolahStatByKodeOkupasi } from '../api/sekolah-api';
 
@@ -27,12 +27,44 @@ const MenuList = (props: any) => {
   );
 };
 
+const customStyles: StylesConfig<any, false> = {
+  control: (provided) => ({
+    ...provided,
+    borderColor: '#ccc',
+    borderRadius: '8px',
+    padding: '2px 8px',
+    boxShadow: 'none',
+    '&:hover': {
+      borderColor: '#aaa',
+    },
+  }),
+  menu: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+    maxHeight: '200px',
+    borderRadius: '8px',
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isSelected ? '#4a90e2' : state.isFocused ? '#d9e6f2' : 'white',
+    color: state.isSelected ? 'white' : 'black',
+    '&:hover': {
+      backgroundColor: state.isSelected ? '#4a90e2' : '#f0f4f7',
+      color: state.isSelected ? 'white' : 'black',
+    },
+  }),
+  menuPortal: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+};
+
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Search...", fetchData, initialValue, searchBarValue, setSearchBarValue }) => {
   const [options, setOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { setKodeOkupasi, setSchools } = useFormContext();
 
-  const loadOptions = async () => {
+  const loadOptions = useCallback(async () => {
     setLoading(true);
     try {
       const data = await fetchData();
@@ -52,13 +84,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Search..
       console.error('Error loading options:', error);
     }
     setLoading(false);
-  };
+  }, [fetchData, initialValue, setSearchBarValue]);
 
   useEffect(() => {
     loadOptions();
-  }, [initialValue]);
+  }, [loadOptions]);
 
-  const handleSearch = async (selectedKode: string) => {
+  const handleSearch = useCallback(async (selectedKode: string) => {
     setLoading(true);
     try {
       const data = await getAllSekolahStatByKodeOkupasi(selectedKode);
@@ -75,12 +107,15 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Search..
       console.error('Error fetching data:', error);
     }
     setLoading(false);
-  };
+  }, [setSchools, setKodeOkupasi, onSearch]);
 
   const handleChange = (option: any) => {
-    setSearchBarValue(option ? option.value : '');
-    if (option) {
+    if (option && option.value !== searchBarValue) {
+      setSearchBarValue(option.value);
       handleSearch(option.value);
+    } else if (!option) {
+      setSearchBarValue('');
+      setSchools([]);
     }
   };
 
@@ -106,27 +141,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = "Search..
       value={options.find(option => option.value === searchBarValue) || null}
       className="w-full mb-2"
       components={{ MenuList }}
-      styles={{
-        menu: (provided) => ({
-          ...provided,
-          zIndex: 9999,
-          maxHeight: '200px',
-        }),
-        control: (provided) => ({
-          ...provided,
-          borderColor: '#ccc',
-          zIndex: 9999,
-        }),
-        option: (provided, state) => ({
-          ...provided,
-          backgroundColor: state.isSelected ? 'gray' : 'white',
-          color: 'black',
-          '&:hover': {
-            backgroundColor: 'lightgray',
-          },
-        }),
-        menuPortal: base => ({ ...base, zIndex: 9999 }),
-      }}
+      styles={customStyles}
       menuPortalTarget={document.body}
     />
   );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import GoogleMapComponent from '../components/GoogleMapComponent';
+import Loading from '../components/Loading';
 import { useJsApiLoader } from '@react-google-maps/api';
 import { getAllSekolah, getAllKompetensi } from '../api/sekolah-api';
 
@@ -30,6 +31,7 @@ const HomePage: React.FC = () => {
   const [initialSchools, setInitialSchools] = useState<School[]>([]);
   const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
   const [center, setCenter] = useState<{ lat: number, lng: number }>({ lat: -6.200000, lng: 106.816666 });
+  const [loading, setLoading] = useState<boolean>(true); // State untuk melacak status pemuatan
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_MAPS_API_KEY,
@@ -60,6 +62,8 @@ const HomePage: React.FC = () => {
         }
       } catch (error) {
         console.error('Error fetching initial schools:', error);
+      } finally {
+        setLoading(false); // Set loading ke false setelah selesai memuat data
       }
     };
 
@@ -96,8 +100,8 @@ const HomePage: React.FC = () => {
     setSelectedSchool(null);
   };
 
-  if (!isLoaded) {
-    return <div>Loading...</div>;
+  if (!isLoaded || loading) {
+    return <Loading />;
   }
 
   return (
