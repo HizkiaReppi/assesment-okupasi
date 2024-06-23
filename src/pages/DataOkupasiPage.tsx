@@ -16,6 +16,7 @@ const DataOkupasiPage: React.FC = () => {
   } | null>(null);
   const [refresh, setRefresh] = useState(false);
   const isDesktop = useIsDesktop();
+  const [warningMessage, setWarningMessage] = useState<string | null>(null);
 
   const handleSuccess = (updated: boolean) => {
     if (updated) {
@@ -31,7 +32,21 @@ const DataOkupasiPage: React.FC = () => {
   };
 
   const handleEditUnit = (unitId: string, initialNama: string) => {
-    setEditingUnit({ id: unitId, nama: initialNama });
+    if (editingUnit) {
+      setWarningMessage("Selesaikan pengeditan terlebih dahulu.");
+    } else {
+      setEditingUnit({ id: unitId, nama: initialNama });
+    }
+  };
+
+  const handleClearWarning = () => {
+    setWarningMessage(null);
+  };
+
+  const handleEditUnitSuccess = (updated: boolean) => {
+    handleSuccess(updated);
+    setEditingUnit(null);
+    handleRefresh();
   };
 
   return (
@@ -40,6 +55,17 @@ const DataOkupasiPage: React.FC = () => {
         <h1 className="text-2xl font-bold text-center mb-4 pt-8">
           Data Okupasi
         </h1>
+        {warningMessage && (
+          <div className="bg-yellow-200 text-yellow-700 p-4 mb-4 rounded-lg">
+            {warningMessage}
+            <button
+              onClick={handleClearWarning}
+              className="ml-4 text-red-500"
+            >
+              Close
+            </button>
+          </div>
+        )}
         <div className={`flex ${isDesktop ? "flex-row" : "flex-col"} gap-4`}>
           <div className="flex-1">
             {!editingKode && !selectedKode && (
@@ -104,6 +130,36 @@ const DataOkupasiPage: React.FC = () => {
                 />
               </>
             )}
+            {selectedKode && editingUnit && (
+              <>
+                <button
+                  onClick={() => setEditingUnit(null)}
+                  className="flex items-center text-red-500 mb-2"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 19l-7-7 7-7"
+                    ></path>
+                  </svg>
+                  Back
+                </button>
+                <UnitKompetensiEditForm
+                  kode={selectedKode}
+                  unitId={editingUnit.id}
+                  initialNama={editingUnit.nama}
+                  onSuccess={handleEditUnitSuccess} 
+                />
+              </>
+            )}
           </div>
           <div className="flex-1">
             {!selectedKode && (
@@ -119,37 +175,8 @@ const DataOkupasiPage: React.FC = () => {
                   kode={selectedKode}
                   onEdit={handleEditUnit}
                   refresh={refresh} 
+                  editingUnitId={editingUnit?.id} // Pass the editing unit ID to highlight it
                 />
-                {editingUnit && (
-                  <>
-                    <button
-                      onClick={() => setEditingUnit(null)}
-                      className="flex items-center text-red-500 mb-2"
-                    >
-                      <svg
-                        className="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M15 19l-7-7 7-7"
-                        ></path>
-                      </svg>
-                      Back
-                    </button>
-                    <UnitKompetensiEditForm
-                      kode={selectedKode}
-                      unitId={editingUnit.id}
-                      initialNama={editingUnit.nama}
-                      onSuccess={handleSuccess} 
-                    />
-                  </>
-                )}
               </>
             )}
           </div>
@@ -160,5 +187,3 @@ const DataOkupasiPage: React.FC = () => {
 };
 
 export default DataOkupasiPage;
-
-

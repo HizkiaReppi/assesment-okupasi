@@ -334,7 +334,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 onClick={handleBackClick}
                 className="p-2 mt-2 border rounded-full w-full bg-gray-200 hover:bg-red-300 text-center"
               >
-                Batalkan Pencarian
+                Reset Pencarian
               </button>
             )}
             <button

@@ -6,12 +6,16 @@ import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 interface UnitKompetensiListProps {
     kode: string;
     onEdit: (unitId: string, initialNama: string) => void;
-    refresh: boolean;  
+    refresh: boolean;
+    editingUnitId?: string | null; // Optional prop for editing unit ID
 }
 
-const UnitKompetensiList: React.FC<UnitKompetensiListProps> = ({ kode, onEdit, refresh }) => {
+const UnitKompetensiList: React.FC<UnitKompetensiListProps> = ({ kode, onEdit, refresh, editingUnitId }) => {
     const [unitKompetensi, setUnitKompetensi] = useState<{ id: string; nama: string }[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     useEffect(() => {
         setLoading(true);
@@ -42,6 +46,33 @@ const UnitKompetensiList: React.FC<UnitKompetensiListProps> = ({ kode, onEdit, r
         }
     };
 
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(1); // Reset to first page when search query changes
+    };
+
+    const filteredUnits = unitKompetensi.filter((unit) =>
+        unit.nama.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredUnits.slice(indexOfFirstItem, indexOfLastItem);
+
+    const totalPages = Math.ceil(filteredUnits.length / itemsPerPage);
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePrevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
     if (loading) {
         return <p>Loading...</p>;
     }
@@ -49,10 +80,20 @@ const UnitKompetensiList: React.FC<UnitKompetensiListProps> = ({ kode, onEdit, r
     return (
         <div className="mb-6 p-4 bg-white rounded-lg shadow-md">
             <h3 className="text-lg font-bold text-gray-800 mb-4">Daftar Unit Kompetensi</h3>
-            {unitKompetensi.length > 0 ? (
+            <input
+                type="text"
+                placeholder="Cari unit kompetensi"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="mb-4 p-2 border border-gray-300 rounded-md w-full"
+            />
+            <p className="text-sm text-gray-600 mb-4">
+                Total Items: {filteredUnits.length} | Page: {currentPage} of {totalPages}
+            </p>
+            {currentItems.length > 0 ? (
                 <ul className="list-none">
-                    {unitKompetensi.map((unit) => (
-                        <li key={unit.id} className="mb-4 p-4 bg-gray-50 rounded-lg shadow-sm flex justify-between items-center">
+                    {currentItems.map((unit) => (
+                        <li key={unit.id} className={`mb-4 p-4 rounded-lg shadow-sm flex justify-between items-center ${editingUnitId === unit.id ? 'bg-yellow-100' : 'bg-gray-50'}`}>
                             <span className="block text-gray-800 font-semibold">{unit.nama}</span>
                             <div className="flex items-center">
                                 <button
@@ -76,6 +117,22 @@ const UnitKompetensiList: React.FC<UnitKompetensiListProps> = ({ kode, onEdit, r
             ) : (
                 <p>No unit competencies found.</p>
             )}
+            <div className="mt-4 flex justify-between">
+                <button
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                    className={`relative overflow-hidden text-sm px-3 py-1 rounded-md ${currentPage === 1 ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'}`}
+                >
+                    Previous
+                </button>
+                <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    className={`relative overflow-hidden text-sm px-3 py-1 rounded-md ${currentPage === totalPages ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'}`}
+                >
+                    Next
+                </button>
+            </div>
         </div>
     );
 };
