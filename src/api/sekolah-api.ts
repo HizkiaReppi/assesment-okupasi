@@ -84,10 +84,12 @@ export const addKompetensi = async (id: string, kode: string, unit_kompetensi: {
   }
 };
 
-// Get All Kompetensi
-export const getAllKompetensi = async (id: string, search?: string, limit?: number, page?: number) => {
+export const getAllKompetensi = async (id: string, search = '', limit = 10, page = 1) => {
   try {
-    const response = await apiClient.get(`/sekolah/${id}/kompetensi`, { params: { search, limit, page }, withCredentials: true });
+    const response = await apiClient.get(`/sekolah/${id}/kompetensi`, {
+      params: { search, limit, page },
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     handleError(error);

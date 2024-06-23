@@ -1,61 +1,47 @@
 import React, { useEffect, useState } from 'react';
-import Select from 'react-select';
-import { getAllKompetensi, deleteKompetensiById, deleteKompetensiByKodeOkupasi, deleteSekolahById } from '../../api/sekolah-api';
+import Select, { components, OptionProps } from 'react-select';
+import { getAllKompetensi, deleteKompetensiById, deleteKompetensiByKodeOkupasi } from '../../api/sekolah-api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faSearch, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 interface KompetensiListProps {
     sekolahId: string;
     onEdit: (unitId: string, initialKode: string) => void;
     refresh: boolean;
-    editingUnitId: string | null; // Add this prop to track the currently editing unit id
+    editingUnitId: string | null;
 }
 
 const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refresh, editingUnitId }) => {
     const [kompetensi, setKompetensi] = useState<any[]>([]);
-    const [filteredKompetensi, setFilteredKompetensi] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [selectedKodeFilter, setSelectedKodeFilter] = useState<any | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(0);
+    const [isSearchPerformed, setIsSearchPerformed] = useState<boolean>(false);
     const itemsPerPage = 5;
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const data = await getAllKompetensi(sekolahId);
-                if (data && Array.isArray(data.data)) {
-                    setKompetensi(data.data);
-                    setFilteredKompetensi(data.data);
-                } else {
-                    console.error('Invalid data format:', data);
-                }
-            } catch (error) {
-                console.error('Error fetching kompetensi:', error);
-            } finally {
-                setLoading(false);
+    const fetchData = async (search = '', kodeFilter = '') => {
+        setLoading(true);
+        try {
+            const data = await getAllKompetensi(sekolahId, search, itemsPerPage, currentPage + 1);
+            if (data && Array.isArray(data.data)) {
+                const filteredData = kodeFilter
+                    ? data.data.filter((item: any) => item.kode === kodeFilter)
+                    : data.data;
+                setKompetensi(filteredData);
+            } else {
+                console.error('Invalid data format:', data);
             }
-        };
-
-        fetchData();
-    }, [sekolahId, refresh]);
+        } catch (error) {
+            console.error('Error fetching kompetensi:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        let filteredData = kompetensi;
-
-        if (selectedKodeFilter) {
-            filteredData = filteredData.filter(item => item.kode === selectedKodeFilter.value);
-        }
-
-        if (searchTerm) {
-            filteredData = filteredData.filter(item =>
-                item.kode.includes(searchTerm) || item.nama.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
-
-        setFilteredKompetensi(filteredData);
-    }, [searchTerm, selectedKodeFilter, kompetensi]);
+        fetchData(searchTerm, selectedKodeFilter?.value || '');
+    }, [sekolahId, refresh, currentPage, selectedKodeFilter]);
 
     const handleDeleteById = async (unitId: string) => {
         if (!unitId) {
@@ -66,18 +52,7 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
         try {
             const response = await deleteKompetensiById(sekolahId, unitId);
             console.log('Delete response:', response);
-
-            const remainingKompetensi = kompetensi.map(item => ({
-                ...item,
-                unit_kompetensi: item.unit_kompetensi.filter((unit: any) => unit.id !== unitId)
-            })).filter(item => item.unit_kompetensi.length > 0);
-
-            setKompetensi(remainingKompetensi);
-
-            if (remainingKompetensi.length === 0) {
-                console.log('No unit kompetensi left, deleting sekolah with id:', sekolahId);
-                await deleteSekolahById(sekolahId);
-            }
+            fetchData(searchTerm, selectedKodeFilter?.value || '');
         } catch (error) {
             console.error('Error deleting Kompetensi by Id:', error);
         }
@@ -92,23 +67,44 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
         try {
             const response = await deleteKompetensiByKodeOkupasi(sekolahId, kode);
             console.log('Delete response:', response);
-            setKompetensi(kompetensi.filter((item) => item.kode !== kode));
+            fetchData(searchTerm, selectedKodeFilter?.value || '');
         } catch (error) {
             console.error('Error deleting Kompetensi by Kode:', error);
         }
     };
 
-    const kodeOptions = kompetensi.map(item => ({ value: item.kode, label: `${item.kode} - ${item.nama}` }));
+    const handleSearch = () => {
+        setCurrentPage(0); // Reset to first page when search query changes
+        fetchData(searchTerm, selectedKodeFilter?.value || '');
+        setIsSearchPerformed(true);
+    };
+
+    const handleClearFilter = () => {
+        setSelectedKodeFilter(null);
+        fetchData(searchTerm, '');
+    };
+
+    const handleBack = () => {
+        setSearchTerm('');
+        setSelectedKodeFilter(null);
+        fetchData('', '');
+        setIsSearchPerformed(false);
+    };
+
+    const kodeOptions = [
+        { value: '', label: 'Clear Filter' },
+        ...kompetensi.map(item => ({ value: item.kode, label: `${item.kode} - ${item.nama}` }))
+    ];
 
     const indexOfLastItem = (currentPage + 1) * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredKompetensi.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = kompetensi.slice(indexOfFirstItem, indexOfLastItem);
 
     const changePage = (pageNumber: number) => {
         setCurrentPage(pageNumber);
     };
 
-    const pageCount = Math.ceil(filteredKompetensi.length / itemsPerPage);
+    const pageCount = Math.ceil(kompetensi.length / itemsPerPage);
 
     if (loading) {
         return <p>Loading...</p>;
@@ -121,19 +117,43 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
                 <Select
                     options={kodeOptions}
                     value={selectedKodeFilter}
-                    onChange={setSelectedKodeFilter}
+                    onChange={(selectedOption) => {
+                        if (selectedOption.value === '') {
+                            handleClearFilter();
+                        } else {
+                            setSelectedKodeFilter(selectedOption);
+                            fetchData(searchTerm, selectedOption.value);
+                        }
+                    }}
                     placeholder="Filter by Kode Okupasi"
                     className="mb-3"
+                    components={{ Option: CustomOption }}
                 />
-                <input
-                    type="text"
-                    placeholder="Search by Kode or Nama..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full p-3 mb-3 border border-gray-300 rounded-md focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50 transition duration-200 ease-in-out"
-                />
+                <div className="flex mb-3">
+                    <input
+                        type="text"
+                        placeholder="Search by Kode or Nama..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-l-md focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50 transition duration-200 ease-in-out"
+                    />
+                    <button
+                        onClick={handleSearch}
+                        className="p-3 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 transition duration-300"
+                    >
+                        <FontAwesomeIcon icon={faSearch} />
+                    </button>
+                </div>
+                {isSearchPerformed && (
+                    <button
+                        onClick={handleBack}
+                        className="p-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition duration-300"
+                    >
+                        <FontAwesomeIcon icon={faArrowLeft} /> Back
+                    </button>
+                )}
             </div>
-            {filteredKompetensi.length > 0 ? (
+            {kompetensi.length > 0 ? (
                 <ul className="list-none">
                     {currentItems.map((item) => (
                         <li key={item.kode} className={`mb-4 p-4 bg-gray-50 rounded-lg shadow-sm ${editingUnitId === item.kode ? 'border border-yellow-500' : ''}`}>
@@ -187,5 +207,19 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
         </div>
     );
 };
+
+const CustomOption: React.FC<OptionProps<any>> = (props) => (
+    <components.Option {...props}>
+        <div className="flex items-center">
+            <input
+                type="checkbox"
+                checked={props.isSelected}
+                onChange={() => null}
+                className="mr-2"
+            />
+            <label>{props.label}</label>
+        </div>
+    </components.Option>
+);
 
 export default KompetensiList;
