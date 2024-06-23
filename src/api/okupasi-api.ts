@@ -62,14 +62,15 @@ export const getOkupasiByKode = async (kode: string) => {
 };
 
 // Edit Okupasi By Kode
-export const updateOkupasi = async (kode: string, nama: string) => {
+export const updateOkupasi = async (kode: string, newKode: string, nama: string) => {
   try {
-    const response = await apiClient.put(`/okupasi/${kode}`, { nama }, { withCredentials: true });
+    const response = await apiClient.put(`/okupasi/${kode}`, { kode: newKode, nama }, { withCredentials: true });
     return response.data;
   } catch (error) {
     handleError(error);
   }
 };
+
 
 // Delete Okupasi By Kode
 export const deleteOkupasi = async (kode: string) => {

@@ -80,7 +80,10 @@ const OkupasiList: React.FC<OkupasiListProps> = ({ onEdit, onViewUnits, refresh 
             <ul className="list-none">
                 {currentItems.map((item) => (
                     <li key={item.kode} className="mb-4 p-4 bg-gray-50 rounded-lg shadow-sm">
-                        <span className="block text-gray-900 font-semibold">{item.nama}</span>
+                        <span className="block text-gray-900 font-semibold">
+                            {item.nama} <br />
+                            Kode : {item.kode}
+                        </span>
                         <div className="mt-2 flex justify-end space-x-2">
                             <button 
                                 onClick={() => onEdit(item.kode)} 
@@ -92,7 +95,7 @@ const OkupasiList: React.FC<OkupasiListProps> = ({ onEdit, onViewUnits, refresh 
                                 onClick={() => onViewUnits(item.kode)} 
                                 className="relative overflow-hidden text-sm bg-blue-300 text-blue-800 px-3 py-1 rounded-md hover:bg-blue-400 before:absolute before:inset-0 before:bg-blue-400 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-30 before:rounded-full before:scale-0 hover:before:scale-150 before:blur"
                             >
-                                View Units
+                                Cek Kompetensi
                             </button>
                             <button 
                                 onClick={() => handleDelete(item.kode)} 
