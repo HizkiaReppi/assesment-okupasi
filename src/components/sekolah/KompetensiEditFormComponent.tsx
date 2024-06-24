@@ -22,6 +22,7 @@ const KompetensiEditComponent: React.FC<KompetensiEditComponentProps> = ({ sekol
         const fetchAllOkupasi = async () => {
             try {
                 const data = await getAllOkupasi();
+                console.log('All Okupasi:', data); // Debug log
                 if (data && data.data) {
                     setOkupasiOptions(data.data.map((item: any) => ({ value: item.kode, label: `${item.kode} - ${item.nama}` })));
                 } else {
@@ -41,6 +42,7 @@ const KompetensiEditComponent: React.FC<KompetensiEditComponentProps> = ({ sekol
         const fetchOkupasiByKode = async (kode: string) => {
             try {
                 const data = await getOkupasiByKode(kode);
+                console.log('Okupasi by Kode:', data); // Debug log
                 if (data && data.data && Array.isArray(data.data.unit_kompetensi)) {
                     setUnitKompetensiOptions(data.data.unit_kompetensi.map((unit: any) => ({ value: unit.id, label: unit.nama })));
                 } else {
@@ -65,9 +67,12 @@ const KompetensiEditComponent: React.FC<KompetensiEditComponentProps> = ({ sekol
         const fetchInitialData = async () => {
             try {
                 const data = await getOkupasiByKode(unitId);
+                console.log('Initial Okupasi data:', data); // Debug log
                 if (data && data.data && Array.isArray(data.data.unit_kompetensi)) {
-                    setSelectedUnits(data.data.unit_kompetensi.map((unit: any) => ({ value: unit.id, label: unit.nama })));
-                    setSelectedOkupasi({ value: data.data.kode, label: data.data.kode });
+                    const activeUnits = data.data.unit_kompetensi.filter((unit: any) => unit.id === unitId);
+                    setSelectedUnits(activeUnits.map((unit: any) => ({ value: unit.id, label: unit.nama })));
+                    setUnitKompetensiOptions(activeUnits.map((unit: any) => ({ value: unit.id, label: unit.nama })));
+                    setSelectedOkupasi({ value: data.data.kode, label: `${data.data.kode} - ${data.data.nama}` });
                 } else {
                     throw new Error('Invalid data format');
                 }

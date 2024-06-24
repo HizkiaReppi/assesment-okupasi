@@ -177,7 +177,7 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
                                         <FontAwesomeIcon icon={faTrash} />
                                     </button>
                                     <button
-                                        onClick={() => onEdit(item.kode, item.nama)}
+                                        onClick={() => onEdit(item.kode, item.unit_kompetensi.length > 0 ? item.unit_kompetensi[0].id : '')}
                                         className="text-blue-500 hover:text-blue-700"
                                         title="Edit"
                                     >
