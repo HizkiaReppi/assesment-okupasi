@@ -33,6 +33,7 @@ const DataSekolahPage: React.FC = () => {
     };
 
     const handleEditKompetensi = (unitId: string, initialKode: string) => {
+        console.log('Setting editingKompetensi:', { unitId, initialKode });
         setEditingKompetensi({ id: unitId, kode: initialKode });
     };
 
