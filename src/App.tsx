@@ -11,6 +11,7 @@ import { FormProvider } from './context/FormContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import RedirectRoute from './routes/RedirectRoute';
 import FormPage from './pages/FormPage';
+import { ToastContainer } from 'react-toastify';
 
 const AppContent = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
   return (
     <AuthProvider>
       <FormProvider> 
+      <ToastContainer />
         <Router>
           <AppContent />
         </Router>

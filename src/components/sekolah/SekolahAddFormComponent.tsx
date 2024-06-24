@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { addSekolah } from '../../api/sekolah-api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface SekolahAddFormProps {
     onAddSuccess: () => void;
@@ -15,11 +17,17 @@ const SekolahAddForm: React.FC<SekolahAddFormProps> = ({ onAddSuccess }) => {
 
         if (nama.trim() === '') {
             setError('Nama tidak boleh kosong.');
+            toast.error('Nama tidak boleh kosong.', {
+                position: "bottom-right"
+            });
             return;
         }
 
         if (kota.trim() === '') {
             setError('Kota tidak boleh kosong.');
+            toast.error('Kota tidak boleh kosong.', {
+                position: "bottom-right"
+            });
             return;
         }
 
@@ -30,9 +38,15 @@ const SekolahAddForm: React.FC<SekolahAddFormProps> = ({ onAddSuccess }) => {
             setKota('');
             setError(null);
             onAddSuccess();
+            toast.success(`Sekolah ${nama} berhasil ditambahkan.`, {
+                position: "bottom-right"
+            });
         } catch (error) {
             console.error('Error adding Sekolah:', error);
             setError('Gagal menambahkan sekolah. Silakan coba lagi.');
+            toast.error('Gagal menambahkan sekolah. Silakan coba lagi.', {
+                position: "bottom-right"
+            });
         }
     };
 

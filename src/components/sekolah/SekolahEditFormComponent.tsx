@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getSekolahById, editSekolahById } from '../../api/sekolah-api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface EditSekolahFormProps {
     id: string;
@@ -15,11 +17,13 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, onSuccess }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                console.log('Fetching Sekolah by id:', id);
                 const data = await getSekolahById(id);
                 setNama(data.nama || '');
                 setKota(data.kota || '');
             } catch (error) {
+                toast.error('Error fetching Sekolah.', {
+                    position: "bottom-right"
+                });
                 console.error('Error fetching Sekolah:', error);
             } finally {
                 setLoading(false);
@@ -37,11 +41,16 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, onSuccess }) => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            console.log('Updating Sekolah:', { id, nama, kota });
             await editSekolahById(id, nama, kota);
+            toast.success(`Sekolah ${nama} berhasil diupdate.`, {
+                position: "bottom-right"
+            });
             onSuccess();
             setIsEdited(false);  
         } catch (error) {
+            toast.error('Error updating Sekolah.', {
+                position: "bottom-right"
+            });
             console.error('Error updating Sekolah:', error);
         }
     };

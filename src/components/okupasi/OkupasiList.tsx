@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getAllOkupasi, deleteOkupasi } from '../../api/okupasi-api';
+import ConfirmationModal from '../ConfirmationModal';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface OkupasiListProps {
     onEdit: (kode: string) => void;
@@ -12,11 +15,12 @@ const OkupasiList: React.FC<OkupasiListProps> = ({ onEdit, onViewUnits, refresh 
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [totalItems, setTotalItems] = useState(0);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [deleteKode, setDeleteKode] = useState<string | null>(null);
     const itemsPerPage = 10;
 
     useEffect(() => {
         const fetchData = async () => {
-            console.log('Fetching all Okupasi');
             const data = await getAllOkupasi(searchQuery, itemsPerPage, currentPage);
             if (data && data.status === 'success') {
                 setOkupasi(data.data);
@@ -29,14 +33,30 @@ const OkupasiList: React.FC<OkupasiListProps> = ({ onEdit, onViewUnits, refresh 
         fetchData();
     }, [refresh, searchQuery, currentPage]);
 
-    const handleDelete = async (kode: string) => {
-        console.log('Deleting Okupasi with kode:', kode);
+    const handleDelete = async () => {
+        if (!deleteKode) return;
+
         try {
-            await deleteOkupasi(kode);
-            setOkupasi(okupasi.filter((item) => item.kode !== kode));
+            await deleteOkupasi(deleteKode);
+            const deletedItem = okupasi.find((item) => item.kode === deleteKode);
+            setOkupasi(okupasi.filter((item) => item.kode !== deleteKode));
+            toast.error(`Item dengan kode ${deletedItem.kode} dan nama ${deletedItem.nama} berhasil dihapus.`, {
+                position: "bottom-right"
+            });
+            closeModal();
         } catch (error) {
             console.error('Error deleting Okupasi:', error);
         }
+    };
+
+    const openModal = (kode: string) => {
+        setDeleteKode(kode);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setDeleteKode(null);
+        setIsModalOpen(false);
     };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,7 +113,7 @@ const OkupasiList: React.FC<OkupasiListProps> = ({ onEdit, onViewUnits, refresh 
                                 Cek Kompetensi
                             </button>
                             <button 
-                                onClick={() => handleDelete(item.kode)} 
+                                onClick={() => openModal(item.kode)} 
                                 className="relative overflow-hidden text-sm bg-red-300 text-red-800 px-3 py-1 rounded-md hover:bg-red-400 before:absolute before:inset-0 before:bg-red-400 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-30 before:rounded-full before:scale-0 hover:before:scale-150 before:blur"
                             >
                                 Delete
@@ -133,6 +153,12 @@ const OkupasiList: React.FC<OkupasiListProps> = ({ onEdit, onViewUnits, refresh 
                     Next
                 </button>
             </div>
+            <ConfirmationModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onConfirm={handleDelete}
+                message="Yakin untuk menghapus item ini?"
+            />
         </div>
     );
 };

@@ -3,6 +3,9 @@ import Select, { components, OptionProps } from 'react-select';
 import { getAllKompetensi, deleteKompetensiById, deleteKompetensiByKodeOkupasi } from '../../api/sekolah-api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faSearch, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import ConfirmationModal from '../ConfirmationModal';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface KompetensiListProps {
     sekolahId: string;
@@ -18,6 +21,8 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
     const [selectedKodeFilter, setSelectedKodeFilter] = useState<any | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [isSearchPerformed, setIsSearchPerformed] = useState<boolean>(false);
+    const [showModal, setShowModal] = useState<boolean>(false);
+    const [selectedItem, setSelectedItem] = useState<{ id: string; kode?: string } | null>(null);
     const itemsPerPage = 5;
 
     const fetchData = async (search = '', kodeFilter = '') => {
@@ -43,34 +48,35 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
         fetchData(searchTerm, selectedKodeFilter?.value || '');
     }, [sekolahId, refresh, currentPage, selectedKodeFilter]);
 
-    const handleDeleteById = async (unitId: string) => {
-        if (!unitId) {
-            console.error('Invalid unitId:', unitId);
-            return;
-        }
-        console.log('Deleting unit kompetensi with id:', unitId);
-        try {
-            const response = await deleteKompetensiById(sekolahId, unitId);
-            console.log('Delete response:', response);
-            fetchData(searchTerm, selectedKodeFilter?.value || '');
-        } catch (error) {
-            console.error('Error deleting Kompetensi by Id:', error);
+    const handleDelete = async () => {
+        if (selectedItem) {
+            try {
+                if (selectedItem.kode) {
+                    await deleteKompetensiByKodeOkupasi(sekolahId, selectedItem.kode);
+                    toast.success('Kompetensi dengan kode berhasil dihapus.', {
+                        position: "bottom-right"
+                    });
+                } else {
+                    await deleteKompetensiById(sekolahId, selectedItem.id);
+                    toast.success('Kompetensi berhasil dihapus.', {
+                        position: "bottom-right"
+                    });
+                }
+                fetchData(searchTerm, selectedKodeFilter?.value || '');
+                setShowModal(false);
+                setSelectedItem(null);
+            } catch (error) {
+                toast.error('Gagal menghapus kompetensi.', {
+                    position: "bottom-right"
+                });
+                console.error('Error deleting Kompetensi:', error);
+            }
         }
     };
 
-    const handleDeleteByKode = async (kode: string) => {
-        if (!kode) {
-            console.error('Invalid kode:', kode);
-            return;
-        }
-        console.log('Deleting kompetensi with kode:', kode);
-        try {
-            const response = await deleteKompetensiByKodeOkupasi(sekolahId, kode);
-            console.log('Delete response:', response);
-            fetchData(searchTerm, selectedKodeFilter?.value || '');
-        } catch (error) {
-            console.error('Error deleting Kompetensi by Kode:', error);
-        }
+    const confirmDelete = (item: { id: string; kode?: string }) => {
+        setSelectedItem(item);
+        setShowModal(true);
     };
 
     const handleSearch = () => {
@@ -164,7 +170,7 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
                                 </div>
                                 <div className="flex items-center">
                                     <button
-                                        onClick={() => handleDeleteByKode(item.kode)}
+                                        onClick={() => confirmDelete({ id: item.kode, kode: item.kode })}
                                         className="text-red-500 hover:text-red-700 mr-2"
                                         title="Delete by Kode"
                                     >
@@ -182,7 +188,7 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
                             {item.unit_kompetensi.map((unit: any) => (
                                 <div key={unit.id} className="flex items-center mt-1 ml-8">
                                     <button
-                                        onClick={() => handleDeleteById(unit.id)}
+                                        onClick={() => confirmDelete({ id: unit.id })}
                                         className="text-red-500 hover:text-red-700 mr-2"
                                         title="Delete by Id"
                                     >
@@ -204,6 +210,12 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
                     </button>
                 ))}
             </div>
+            <ConfirmationModal
+                isOpen={showModal}
+                message={`Are you sure you want to delete ${selectedItem?.kode ? 'Kode ' + selectedItem.kode : 'Unit ' + selectedItem?.id}?`}
+                onConfirm={handleDelete}
+                onClose={() => setShowModal(false)}
+            />
         </div>
     );
 };

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { getAllSekolah, deleteSekolahById } from '../../api/sekolah-api';
 import { FaSearch, FaArrowLeft } from "react-icons/fa";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import ConfirmationModal from '../ConfirmationModal';
 
 interface SekolahListProps {
     onEdit: (id: string) => void;
@@ -17,18 +20,17 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
     const [inputSearchTerm, setInputSearchTerm] = useState<string>('');
     const [selectedCities, setSelectedCities] = useState<string[]>([]);
     const [filterVisible, setFilterVisible] = useState<boolean>(false);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
     const itemsPerPage = 5;
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                console.log('Fetching all Sekolah');
                 const data = await getAllSekolah();
                 if (data && Array.isArray(data.data)) {
                     setSekolah(data.data);
-                } else {
-                    console.error('Invalid data format:', data);
                 }
             } catch (error) {
                 console.error('Error fetching Sekolah:', error);
@@ -41,12 +43,27 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
     }, [refresh]);
 
     const handleDelete = async (id: string) => {
-        console.log('Deleting Sekolah with id:', id);
+        setDeleteId(id);
+        setIsModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteId) return;
+
         try {
-            await deleteSekolahById(id);
-            setSekolah(sekolah.filter((item) => item.id !== id));
+            await deleteSekolahById(deleteId);
+            setSekolah(sekolah.filter((item) => item.id !== deleteId));
+            toast.error('Sekolah berhasil dihapus.', {
+                position: "bottom-right"
+            });
         } catch (error) {
+            toast.error('Error deleting Sekolah.', {
+                position: "bottom-right"
+            });
             console.error('Error deleting Sekolah:', error);
+        } finally {
+            setIsModalOpen(false);
+            setDeleteId(null);
         }
     };
 
@@ -182,7 +199,7 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                                 Edit
                             </button>
                             <button onClick={() => onViewKompetensi(item.id)} className="text-sm bg-blue-300 px-3 py-1 rounded-md hover:bg-blue-400">
-                                View Kompetensi
+                                Cek Kompetensi
                             </button>
                             <button onClick={() => handleDelete(item.id)} className="text-sm bg-red-300 px-3 py-1 rounded-md hover:bg-red-400">
                                 Delete
@@ -218,6 +235,12 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                     Next
                 </button>
             </div>
+            <ConfirmationModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={confirmDelete}
+                message="Yakin untuk menghapus item ini?"
+            />
         </div>
     );
 };

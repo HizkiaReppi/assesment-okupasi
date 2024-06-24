@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { addUnitKompetensi } from '../../api/okupasi-api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface UnitKompetensiAddFormProps {
     kode: string;
@@ -12,12 +14,16 @@ const UnitKompetensiAddForm: React.FC<UnitKompetensiAddFormProps> = ({ kode, onS
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            console.log('Adding Unit Kompetensi:', { kode, nama });
             await addUnitKompetensi(kode, nama);
             setNama('');
+            toast.success(`Unit kompetensi ${nama} berhasil ditambahkan.`, {
+                position: "bottom-right"
+            });
             onSuccess();
         } catch (error) {
-            console.error('Error adding Unit Kompetensi:', error);
+            toast.error('Gagal menambahkan unit kompetensi.', {
+                position: "bottom-right"
+            });
         }
     };
 

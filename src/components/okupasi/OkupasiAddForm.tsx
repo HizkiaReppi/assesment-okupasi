@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { addOkupasi } from '../../api/okupasi-api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface OkupasiAddFormProps {
     onAddSuccess: () => void;
@@ -31,9 +33,13 @@ const OkupasiAddForm: React.FC<OkupasiAddFormProps> = ({ onAddSuccess }) => {
             setUnitKompetensi([{ nama: '' }]);
             setError(null);
             onAddSuccess();
+            toast.success(`Item dengan kode ${kode} dan nama ${nama} berhasil ditambahkan.`, {
+                position: "bottom-right"
+            });
         } catch (error) {
-            console.error('Error adding Okupasi:', error);
-            setError('Gagal menambahkan okupasi. Silakan coba lagi.');
+            toast.error('Gagal menambahkan okupasi. Silakan coba lagi.', {
+                position: "bottom-right"
+            });
         }
     };
 

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { updateUnitKompetensi } from '../../api/okupasi-api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface UnitKompetensiEditFormProps {
     kode: string;
@@ -14,11 +16,15 @@ const UnitKompetensiEditForm: React.FC<UnitKompetensiEditFormProps> = ({ kode, u
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            console.log('Updating Unit Kompetensi:', { kode, unitId, nama });
             await updateUnitKompetensi(kode, unitId, nama);
+            toast.info(`Unit kompetensi ${nama} berhasil diupdate.`, {
+                position: "bottom-right"
+            });
             onSuccess(true);  
         } catch (error) {
-            console.error('Error updating Unit Kompetensi:', error);
+            toast.error('Gagal mengupdate unit kompetensi.', {
+                position: "bottom-right"
+            });
             onSuccess(false);  
         }
     };
