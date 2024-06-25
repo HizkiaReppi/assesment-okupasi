@@ -22,15 +22,20 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
     const [filterVisible, setFilterVisible] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [totalPages, setTotalPages] = useState<number>(1);
+    const [totalItems, setTotalItems] = useState<number>(0);
     const itemsPerPage = 5;
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const data = await getAllSekolah();
+                const kota = selectedCities.length ? selectedCities.join(',') : undefined;
+                const data = await getAllSekolah(searchTerm, itemsPerPage, currentPage, kota);
                 if (data && Array.isArray(data.data)) {
                     setSekolah(data.data);
+                    setTotalPages(data.total_page);
+                    setTotalItems(data.total_result);
                 }
             } catch (error) {
                 console.error('Error fetching Sekolah:', error);
@@ -40,7 +45,7 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
         };
 
         fetchData();
-    }, [refresh]);
+    }, [refresh, currentPage, searchTerm, selectedCities]);
 
     const handleDelete = async (id: string) => {
         setDeleteId(id);
@@ -53,7 +58,7 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
         try {
             await deleteSekolahById(deleteId);
             setSekolah(sekolah.filter((item) => item.id !== deleteId));
-            toast.error('Sekolah berhasil dihapus.', {
+            toast.success('Sekolah berhasil dihapus.', {
                 position: "bottom-right"
             });
         } catch (error) {
@@ -105,23 +110,14 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
         setCurrentPage(pageNumber);
     };
 
-    const filteredItems = sekolah.filter((item) => {
-        const matchesSearch = item.nama.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCity = selectedCities.length === 0 || selectedCities.includes(item.kota);
-        return matchesSearch && matchesCity;
-    });
-
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
-
     const uniqueCities = Array.from(new Set(sekolah.map((item) => item.kota)));
 
     if (loading) {
         return <p>Loading...</p>;
     }
 
-    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
     return (
         <div className="mb-6 p-4 bg-white rounded-lg shadow-md">
@@ -183,11 +179,11 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
             </div>
             <div className="mb-4">
                 <p className="text-sm text-gray-600 mb-4">
-                    Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredItems.length)} of {filteredItems.length} items
+                    Data {startItem} - {endItem} dari {totalItems}
                 </p>
             </div>
             <ul className="list-none">
-                {currentItems.map((item) => (
+                {sekolah.map((item) => (
                     <li
                         key={item.id}
                         className={`mb-4 p-4 rounded-lg shadow-sm ${editingId === item.id ? 'bg-yellow-100' : 'bg-gray-50'}`} 
