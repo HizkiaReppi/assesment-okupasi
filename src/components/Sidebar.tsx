@@ -209,7 +209,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex items-center mb-4">
               {!isSearching && (
                 <SearchBar
-                  placeholder="Masukkan Kode Okupasi"
+                  placeholder="Masukkan Nama Okupasi"
                   fetchData={fetchOkupasi}
                   initialValue={searchBarValue}
                   onSearch={setKodeOkupasi}

@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import ConfirmationModal from '../ConfirmationModal';
 
 interface SekolahListProps {
-    onEdit: (id: string) => void;
+    onEdit: (id: string, nama: string, kota: string) => void;
     onViewKompetensi: (id: string) => void;
     refresh: boolean;
     editingId: string | null;
@@ -191,7 +191,7 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                         <span className="block text-gray-900 font-semibold">{item.nama}</span>
                         <span className="block text-gray-600">{item.kota}</span>
                         <div className="mt-2 flex justify-end space-x-2">
-                            <button onClick={() => onEdit(item.id)} className="text-sm bg-gray-300 px-3 py-1 rounded-md hover:bg-gray-400">
+                            <button onClick={() => onEdit(item.id, item.nama, item.kota)} className="text-sm bg-gray-300 px-3 py-1 rounded-md hover:bg-gray-400">
                                 Edit
                             </button>
                             <button onClick={() => onViewKompetensi(item.id)} className="text-sm bg-blue-300 px-3 py-1 rounded-md hover:bg-blue-400">

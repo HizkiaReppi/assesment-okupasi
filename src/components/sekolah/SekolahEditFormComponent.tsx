@@ -5,59 +5,41 @@ import 'react-toastify/dist/ReactToastify.css';
 
 interface EditSekolahFormProps {
     id: string;
+    initialNama: string;
+    initialKota: string;
     onSuccess: () => void;
 }
 
-const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, onSuccess }) => {
-    const [nama, setNama] = useState<string>('');
-    const [kota, setKota] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(true);
-    const [isEdited, setIsEdited] = useState<boolean>(false);  
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const data = await getSekolahById(id);
-                setNama(data.nama || '');
-                setKota(data.kota || '');
-            } catch (error) {
-                toast.error('Error fetching Sekolah.', {
-                    position: "bottom-right"
-                });
-                console.error('Error fetching Sekolah:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [id]);
+const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, initialKota, onSuccess }) => {
+    const [nama, setNama] = useState<string>(initialNama);
+    const [kota, setKota] = useState<string>(initialKota);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [isEdited, setIsEdited] = useState<boolean>(false);
 
     const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
         setter(value);
-        setIsEdited(true);  
+        setIsEdited(true);
     };
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
+        setLoading(true);
         try {
             await editSekolahById(id, nama, kota);
             toast.success(`Sekolah ${nama} berhasil diupdate.`, {
                 position: "bottom-right"
             });
             onSuccess();
-            setIsEdited(false);  
+            setIsEdited(false);
         } catch (error) {
             toast.error('Error updating Sekolah.', {
                 position: "bottom-right"
             });
             console.error('Error updating Sekolah:', error);
+        } finally {
+            setLoading(false);
         }
     };
-
-    if (loading) {
-        return <p>Loading...</p>;
-    }
 
     return (
         <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white rounded-lg shadow-lg">
@@ -83,8 +65,9 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, onSuccess }) => {
             <button 
                 type="submit"
                 className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-900 transition-colors duration-300 ease-in-out"
+                disabled={loading}
             >
-                Simpan
+                {loading ? 'Loading...' : 'Simpan'}
             </button>
         </form>
     );

@@ -40,10 +40,10 @@ const FormPage = () => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300">
       <div className="bg-white p-8 sm:p-12 rounded-lg shadow-2xl w-full max-w-md border border-gray-200">
-        <h2 className="text-2xl font-bold mb-10 text-gray-800 text-center">Cari Kode Okupasi</h2>
+        <h2 className="text-2xl font-bold mb-10 text-gray-800 text-center">Cari Nama Okupasi</h2>
         <div className="space-y-6">
           <SearchBar 
-            placeholder="Masukkan Kode Okupasi"
+            placeholder="Masukkan Nama Okupasi"
             fetchData={fetchOkupasi} 
             initialValue={kodeOkupasi} 
             onSearch={setSelectedKode}

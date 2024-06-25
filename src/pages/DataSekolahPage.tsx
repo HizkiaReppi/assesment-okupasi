@@ -15,6 +15,7 @@ const DataSekolahPage: React.FC = () => {
         id: string;
         kode: string;
     } | null>(null);
+    const [selectedSchool, setSelectedSchool] = useState<{ id: string | null, nama: string, kota: string }>({ id: null, nama: '', kota: '' });
     const [refresh, setRefresh] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const isDesktop = useIsDesktop();
@@ -33,13 +34,17 @@ const DataSekolahPage: React.FC = () => {
     };
 
     const handleEditKompetensi = (unitId: string, initialKode: string) => {
-        console.log('Setting editingKompetensi:', { unitId, initialKode });
         setEditingKompetensi({ id: unitId, kode: initialKode });
     };
 
     const handleError = (message: string | string[]) => {
         const errorMessage = Array.isArray(message) ? message.join(", ") : message;
         setErrorMessage(errorMessage);
+    };
+
+    const handleEditSekolah = (id: string, nama: string, kota: string) => {
+        setSelectedSchool({ id, nama, kota });
+        setEditingSekolahId(id);
     };
 
     return (
@@ -75,7 +80,9 @@ const DataSekolahPage: React.FC = () => {
                                     Back
                                 </button>
                                 <SekolahEditForm
-                                    id={editingSekolahId}
+                                    id={selectedSchool.id || ''}
+                                    initialNama={selectedSchool.nama}
+                                    initialKota={selectedSchool.kota}
                                     onSuccess={() => {
                                         setEditingSekolahId(null);
                                         handleRefresh();
@@ -150,7 +157,7 @@ const DataSekolahPage: React.FC = () => {
                     <div className="flex-1">
                         {!selectedSekolahId && (
                             <SekolahList
-                                onEdit={setEditingSekolahId}
+                                onEdit={handleEditSekolah}
                                 onViewKompetensi={setSelectedSekolahId}
                                 refresh={refresh}
                                 editingId={editingSekolahId}
