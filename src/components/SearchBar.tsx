@@ -45,13 +45,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchBarValue(e.target.value);
-    setSelectedItem(e.target.value);
+    setSearchBarValue(e.target.value.toUpperCase());
+    setSelectedItem(e.target.value.toUpperCase());
     setIsDropdownOpen(true);
   };
 
   const handleItemClick = (item: any) => {
-    const displayValue = `${item.nama} (${item.kode})`;
+    const displayValue = `${item.nama.toUpperCase()} (${item.kode.toUpperCase()})`;
     setSelectedItem(displayValue);
     setSearchBarValue(displayValue);
     onSearch(item.kode);
@@ -75,6 +75,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
           onChange={handleInputChange}
           className="p-3 pl-4 pr-10 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
           onFocus={() => setIsDropdownOpen(true)}
+          style={{ textTransform: 'uppercase' }}
         />
         {selectedItem && (
           <FaTimes
@@ -96,6 +97,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                 key={item.kode}
                 onClick={() => handleItemClick(item)}
                 className="p-3 cursor-pointer hover:bg-gray-100 transition duration-300"
+                style={{ textTransform: 'uppercase' }}
               >
                 {item.nama} ({item.kode})
               </div>

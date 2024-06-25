@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 
 interface Kompetensi {
@@ -21,28 +21,31 @@ interface School {
 }
 
 interface Props {
-  lat: number;
-  lng: number;
-  zoom: number;
   filteredSchools: School[];
   onMarkerClick: (school: School | null) => void;
   selectedSchool: School | null;
 }
 
 const GoogleMapComponent: React.FC<Props> = ({
-  lat,
-  lng,
-  zoom,
   filteredSchools,
   onMarkerClick,
   selectedSchool,
 }) => {
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const [center, setCenter] = useState<{ lat: number, lng: number }>({ lat: 1.483818, lng: 124.845726 }); // Default to North Sulawesi
+  const [zoom, setZoom] = useState<number>(10);
 
   useEffect(() => {
     if (infoWindowRef.current) {
       infoWindowRef.current.close();
       infoWindowRef.current = null;
+    }
+  }, [selectedSchool]);
+
+  useEffect(() => {
+    if (selectedSchool) {
+      setCenter({ lat: selectedSchool.lat, lng: selectedSchool.lng });
+      setZoom(15);
     }
   }, [selectedSchool]);
 
@@ -69,7 +72,7 @@ const GoogleMapComponent: React.FC<Props> = ({
   return (
     <GoogleMap
       mapContainerStyle={{ width: '100%', height: '100%' }}
-      center={{ lat, lng }}
+      center={center}
       zoom={zoom}
     >
       {filteredSchools.map((school) => (

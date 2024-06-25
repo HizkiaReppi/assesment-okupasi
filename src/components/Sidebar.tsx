@@ -320,7 +320,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <h3 className="font-bold text-lg">{truncate(school.nama, 20)}</h3>
                     <p className="text-gray-600">{truncate(school.kota, 20)}</p>
                     {school.kecocokan && (
-                      <p className="text-gray-500">Kecocokan: {school.kecocokan}%</p>
+                      <p className="text-gray-500"><strong>Kecocokan: {school.kecocokan}%</strong></p>
                     )}
                   </div>
                 ))
