@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Select, { components, OptionProps } from 'react-select';
 import { getAllKompetensi, deleteKompetensiById, deleteKompetensiByKodeOkupasi } from '../../api/sekolah-api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faSearch, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -18,22 +17,18 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
     const [kompetensi, setKompetensi] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [selectedKodeFilter, setSelectedKodeFilter] = useState<any | null>(null);
-    const [currentPage, setCurrentPage] = useState<number>(0);
+    const [currentPage, setCurrentPage] = useState<number>(1);
     const [isSearchPerformed, setIsSearchPerformed] = useState<boolean>(false);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [selectedItem, setSelectedItem] = useState<{ id: string; kode?: string } | null>(null);
     const itemsPerPage = 5;
 
-    const fetchData = async (search = '', kodeFilter = '') => {
+    const fetchData = async (search = '') => {
         setLoading(true);
         try {
-            const data = await getAllKompetensi(sekolahId, search, itemsPerPage, currentPage + 1);
+            const data = await getAllKompetensi(sekolahId, search, itemsPerPage, currentPage);
             if (data && Array.isArray(data.data)) {
-                const filteredData = kodeFilter
-                    ? data.data.filter((item: any) => item.kode === kodeFilter)
-                    : data.data;
-                setKompetensi(filteredData);
+                setKompetensi(data.data);
             } else {
                 console.error('Invalid data format:', data);
             }
@@ -45,8 +40,8 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
     };
 
     useEffect(() => {
-        fetchData(searchTerm, selectedKodeFilter?.value || '');
-    }, [sekolahId, refresh, currentPage, selectedKodeFilter]);
+        fetchData(searchTerm);
+    }, [sekolahId, refresh, currentPage]);
 
     const handleDelete = async () => {
         if (selectedItem) {
@@ -62,7 +57,7 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
                         position: "bottom-right"
                     });
                 }
-                fetchData(searchTerm, selectedKodeFilter?.value || '');
+                fetchData(searchTerm);
                 setShowModal(false);
                 setSelectedItem(null);
             } catch (error) {
@@ -80,37 +75,22 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
     };
 
     const handleSearch = () => {
-        setCurrentPage(0); // Reset to first page when search query changes
-        fetchData(searchTerm, selectedKodeFilter?.value || '');
+        setCurrentPage(1); // Reset to first page when search query changes
+        fetchData(searchTerm);
         setIsSearchPerformed(true);
-    };
-
-    const handleClearFilter = () => {
-        setSelectedKodeFilter(null);
-        fetchData(searchTerm, '');
     };
 
     const handleBack = () => {
         setSearchTerm('');
-        setSelectedKodeFilter(null);
-        fetchData('', '');
+        fetchData('');
         setIsSearchPerformed(false);
     };
 
-    const kodeOptions = [
-        { value: '', label: 'Clear Filter' },
-        ...kompetensi.map(item => ({ value: item.kode, label: `${item.kode} - ${item.nama}` }))
-    ];
-
-    const indexOfLastItem = (currentPage + 1) * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = kompetensi.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(kompetensi.length / itemsPerPage);
 
     const changePage = (pageNumber: number) => {
         setCurrentPage(pageNumber);
     };
-
-    const pageCount = Math.ceil(kompetensi.length / itemsPerPage);
 
     if (loading) {
         return <p>Loading...</p>;
@@ -120,21 +100,6 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
         <div className="mb-6 p-4 bg-white rounded-lg shadow-md">
             <h3 className="text-lg font-bold text-gray-800 mb-4">Daftar Kompetensi</h3>
             <div className="mb-4">
-                <Select
-                    options={kodeOptions}
-                    value={selectedKodeFilter}
-                    onChange={(selectedOption) => {
-                        if (selectedOption.value === '') {
-                            handleClearFilter();
-                        } else {
-                            setSelectedKodeFilter(selectedOption);
-                            fetchData(searchTerm, selectedOption.value);
-                        }
-                    }}
-                    placeholder="Filter by Kode Okupasi"
-                    className="mb-3"
-                    components={{ Option: CustomOption }}
-                />
                 <div className="flex mb-3">
                     <input
                         type="text"
@@ -161,7 +126,7 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
             </div>
             {kompetensi.length > 0 ? (
                 <ul className="list-none">
-                    {currentItems.map((item) => (
+                    {kompetensi.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
                         <li key={item.kode} className={`mb-4 p-4 bg-gray-50 rounded-lg shadow-sm ${editingUnitId === item.kode ? 'border border-yellow-500' : ''}`}>
                             <div className="flex items-center justify-between">
                                 <div>
@@ -204,11 +169,35 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
                 <p>No kompetensi found.</p>
             )}
             <div className="flex justify-center mt-4">
-                {Array.from({ length: pageCount }, (_, i) => (
-                    <button key={i} onClick={() => changePage(i)} className={`px-3 py-1 mx-1 ${currentPage === i ? 'bg-blue-700 text-white' : 'bg-blue-300'}`}>
+                <button
+                    onClick={() => changePage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                        currentPage === 1 ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'
+                    }`}
+                >
+                    Previous
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => (
+                    <button
+                        key={i + 1}
+                        onClick={() => changePage(i + 1)}
+                        className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                            currentPage === i + 1 ? 'bg-gray-500 text-white' : 'bg-blue-300 hover:bg-blue-400'
+                        }`}
+                    >
                         {i + 1}
                     </button>
                 ))}
+                <button
+                    onClick={() => changePage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                        currentPage === totalPages ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'
+                    }`}
+                >
+                    Next
+                </button>
             </div>
             <ConfirmationModal
                 isOpen={showModal}
@@ -219,19 +208,5 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
         </div>
     );
 };
-
-const CustomOption: React.FC<OptionProps<any>> = (props) => (
-    <components.Option {...props}>
-        <div className="flex items-center">
-            <input
-                type="checkbox"
-                checked={props.isSelected}
-                onChange={() => null}
-                className="mr-2"
-            />
-            <label>{props.label}</label>
-        </div>
-    </components.Option>
-);
 
 export default KompetensiList;

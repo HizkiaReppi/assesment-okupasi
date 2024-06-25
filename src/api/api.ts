@@ -1,4 +1,6 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -22,8 +24,61 @@ const addRefreshSubscriber = (callback: (token: string) => void) => {
   refreshSubscribers.push(callback);
 };
 
+// Utility function to check token expiration
+const isTokenExpired = (token: string): boolean => {
+  try {
+    const { exp } = jwtDecode<{ exp: number }>(token);
+    return exp < Date.now() / 1000;
+  } catch (e) {
+    console.error('Error decoding token', e);
+    return true;
+  }
+};
+
+// Utility function to refresh token
+const refreshToken = async () => {
+  try {
+    const response = await apiClient.post('/user/refresh-token');
+    const newToken = response.data.token;
+    Cookies.set('token', newToken, { httpOnly: true }); // Set the new token as an HTTP-only cookie
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    onTokenRefreshed(newToken);
+  } catch (error) {
+    alert('Session has ended. Please log in again.');
+    Cookies.remove('token'); // Clear the cookie
+    window.location.href = '/login';
+    throw error;
+  } finally {
+    isRefreshing = false;
+  }
+};
+
+// Set up a periodic token refresh
+setInterval(() => {
+  const token = Cookies.get('token');
+  if (token && !isTokenExpired(token)) {
+    refreshToken();
+  }
+}, 15 * 60 * 1000); // 15 minutes in milliseconds
+
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = Cookies.get('token');
+    if (token && isTokenExpired(token)) {
+      alert('Session has ended. Please log in again.');
+      Cookies.remove('token'); // Clear the cookie
+      window.location.href = '/login';
+      return Promise.reject(new Error('Token expired'));
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 apiClient.interceptors.response.use(
-  response => response,
+  (response) => response,
   async (error) => {
     const { config, response } = error;
     const originalRequest = config;
@@ -38,7 +93,8 @@ apiClient.interceptors.response.use(
           apiClient.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
           onTokenRefreshed(newToken);
         } catch (refreshError) {
-          console.error('Session has ended. Please log in again.');
+          alert('Session has ended. Please log in again.');
+          Cookies.remove('token'); // Clear the cookie
           window.location.href = '/login';
           return Promise.reject(refreshError);
         } finally {

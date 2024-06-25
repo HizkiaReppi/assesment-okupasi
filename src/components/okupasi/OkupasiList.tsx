@@ -137,7 +137,7 @@ const OkupasiList: React.FC<OkupasiListProps> = ({ onEdit, onViewUnits, refresh 
                         key={number}
                         onClick={() => handlePageChange(number)}
                         className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
-                            currentPage === number ? 'bg-orange-500 text-white' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'
+                            currentPage === number ? 'bg-gray-500 text-white' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'
                         }`}
                     >
                         {number}
