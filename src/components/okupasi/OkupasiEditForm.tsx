@@ -10,6 +10,7 @@ interface OkupasiEditFormProps {
 
 const OkupasiEditForm: React.FC<OkupasiEditFormProps> = ({ kode, onSuccess }) => {
   const [nama, setNama] = useState<string>('');
+  const [newKode, setNewKode] = useState<string>(kode);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,6 +21,7 @@ const OkupasiEditForm: React.FC<OkupasiEditFormProps> = ({ kode, onSuccess }) =>
         const data = await getOkupasiByKode(kode);
         if (data && data.data) {
           setNama(data.data.nama);
+          setNewKode(data.data.kode);
         }
       } catch (err) {
         setError('Error fetching okupasi data.');
@@ -35,7 +37,7 @@ const OkupasiEditForm: React.FC<OkupasiEditFormProps> = ({ kode, onSuccess }) =>
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await updateOkupasi(kode, kode, nama); // Using the same code for update
+      const response = await updateOkupasi(kode, newKode, nama);
       if (response && response.status === 'success') {
         toast.success(
           <span dangerouslySetInnerHTML={{ __html: `Item dengan kode <strong>${kode}</strong> dan nama <strong>${nama}</strong> berhasil diupdate.` }} />,
@@ -66,9 +68,10 @@ const OkupasiEditForm: React.FC<OkupasiEditFormProps> = ({ kode, onSuccess }) =>
           <input
             type="text"
             id="kode"
-            value={kode}
-            disabled
-            className="w-full p-2 border border-gray-300 rounded-md bg-gray-200 cursor-not-allowed"
+            value={newKode}
+            onChange={(e) => setNewKode(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md"
+            required
           />
         </div>
         <div className="mb-4">

@@ -101,6 +101,18 @@ const Sidebar: React.FC<SidebarProps> = ({
     setIsSearching(false);
   };
 
+  const executeOkupasiSearch = () => {
+    if (kodeOkupasi) {
+      handleSearch(kodeOkupasi);
+    }
+  };
+
+  const handleSearchEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      executeOkupasiSearch();
+    }
+  };
+
   useEffect(() => {
     if (kodeOkupasi) {
       handleSearch(kodeOkupasi);
@@ -208,14 +220,23 @@ const Sidebar: React.FC<SidebarProps> = ({
             )}
             <div className="flex items-center mb-4">
               {!isSearching && (
-                <SearchBar
-                  placeholder="Masukkan Nama Okupasi"
-                  fetchData={fetchOkupasi}
-                  initialValue={searchBarValue}
-                  onSearch={setKodeOkupasi}
-                  searchBarValue={searchBarValue}
-                  setSearchBarValue={setSearchBarValue}
-                />
+                <>
+                  <SearchBar
+                    placeholder="Masukkan Nama Okupasi"
+                    fetchData={fetchOkupasi}
+                    initialValue={searchBarValue}
+                    onSearch={setKodeOkupasi}
+                    searchBarValue={searchBarValue}
+                    setSearchBarValue={setSearchBarValue}
+                    onKeyDown={handleSearchEnter} // Added this to handle 'Enter' key press
+                  />
+                  <button
+                    onClick={executeOkupasiSearch}
+                    className="p-2 border rounded ml-2 bg-gray-200 hover:bg-gray-300 transition"
+                  >
+                    <FaSearch />
+                  </button>
+                </>
               )}
               <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}

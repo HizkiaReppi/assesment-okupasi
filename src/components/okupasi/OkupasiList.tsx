@@ -90,7 +90,7 @@ const OkupasiList: React.FC<OkupasiListProps> = ({ onEdit, onViewUnits, refresh 
                 className="mb-4 p-2 border border-gray-300 rounded-md w-full"
             />
             <p className="text-sm text-gray-600 mb-4">
-                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, totalItems)} of {totalItems} items
+                Data {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, totalItems)} dari {totalItems}
             </p>
             <ul className="list-none">
                 {currentItems.map((item) => (

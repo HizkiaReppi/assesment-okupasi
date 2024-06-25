@@ -37,6 +37,12 @@ const FormPage = () => {
     return [];
   };
 
+  const handleSearchEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300">
       <div className="bg-white p-8 sm:p-12 rounded-lg shadow-2xl w-full max-w-md border border-gray-200">
@@ -47,8 +53,9 @@ const FormPage = () => {
             fetchData={fetchOkupasi} 
             initialValue={kodeOkupasi} 
             onSearch={setSelectedKode}
-            searchBarValue={selectedKode} // Menampilkan nama dan kode di input
+            searchBarValue={selectedKode} 
             setSearchBarValue={setSelectedKode}
+            onKeyDown={handleSearchEnter} // Added this line
           />
           <div className="flex justify-center mt-4">
             <button

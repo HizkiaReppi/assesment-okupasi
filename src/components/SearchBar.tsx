@@ -8,6 +8,7 @@ interface SearchBarProps {
   onSearch: (value: string) => void;
   searchBarValue: string;
   setSearchBarValue: (value: string) => void;
+  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void; // Added this line
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
@@ -17,6 +18,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
   searchBarValue,
   setSearchBarValue,
+  onKeyDown // Added this line
 }) => {
   const [data, setData] = useState<any[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -76,6 +78,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
           className="p-3 pl-4 pr-10 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
           onFocus={() => setIsDropdownOpen(true)}
           style={{ textTransform: 'uppercase' }}
+          onKeyDown={onKeyDown} // Added this line
         />
         {selectedItem && (
           <FaTimes

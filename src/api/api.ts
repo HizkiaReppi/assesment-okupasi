@@ -28,7 +28,7 @@ apiClient.interceptors.response.use(
     const { config, response } = error;
     const originalRequest = config;
 
-    if (response.status === 401 && !originalRequest._retry) {
+    if (response && response.status === 401 && !originalRequest._retry) {
       if (!isRefreshing) {
         isRefreshing = true;
         try {
@@ -38,7 +38,7 @@ apiClient.interceptors.response.use(
           apiClient.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
           onTokenRefreshed(newToken);
         } catch (refreshError) {
-          console.error('Refresh token failed', refreshError);
+          console.error('Session has ended. Please log in again.');
           window.location.href = '/login';
           return Promise.reject(refreshError);
         } finally {
@@ -46,14 +46,14 @@ apiClient.interceptors.response.use(
         }
       }
 
-      const retryOriginalRequest = new Promise(resolve => {
+      originalRequest._retry = true;
+
+      return new Promise((resolve) => {
         addRefreshSubscriber((token: string) => {
           originalRequest.headers['Authorization'] = `Bearer ${token}`;
           resolve(axios(originalRequest));
         });
       });
-
-      return retryOriginalRequest;
     }
 
     return Promise.reject(error);
@@ -72,7 +72,7 @@ const handleError = (error: unknown) => {
 
 export const login = async (email: string, password: string) => {
   try {
-    const response = await apiClient.post('/user/login', { email, password }, { withCredentials: true });
+    const response = await apiClient.post('/user/login', { email, password });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -81,7 +81,7 @@ export const login = async (email: string, password: string) => {
 
 export const getAllUsers = async () => {
   try {
-    const response = await apiClient.get('/user', { withCredentials: true });
+    const response = await apiClient.get('/user');
     return response.data;
   } catch (error) {
     handleError(error);
@@ -90,7 +90,7 @@ export const getAllUsers = async () => {
 
 export const getUserById = async (id: string) => {
   try {
-    const response = await apiClient.get(`/user/${id}`, { withCredentials: true });
+    const response = await apiClient.get(`/user/${id}`);
     return response.data;
   } catch (error) {
     handleError(error);
@@ -99,7 +99,7 @@ export const getUserById = async (id: string) => {
 
 export const createUser = async (nama: string, email: string, password: string) => {
   try {
-    const response = await apiClient.post('/user', { nama, email, password }, { withCredentials: true });
+    const response = await apiClient.post('/user', { nama, email, password });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -118,7 +118,7 @@ export const updateUser = async (id: string, email: string, password: string) =>
 
 export const deleteUser = async (id: string) => {
   try {
-    const response = await apiClient.delete(`/user/${id}`, { withCredentials: true });
+    const response = await apiClient.delete(`/user/${id}`);
     return response.data;
   } catch (error) {
     handleError(error);
@@ -127,7 +127,7 @@ export const deleteUser = async (id: string) => {
 
 export const changeEmail = async (email: string) => {
   try {
-    const response = await apiClient.patch('/user/email', { email }, { withCredentials: true });
+    const response = await apiClient.patch('/user/email', { email });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -136,7 +136,7 @@ export const changeEmail = async (email: string) => {
 
 export const changePassword = async (password: string) => {
   try {
-    const response = await apiClient.patch('/user/password', { password }, { withCredentials: true });
+    const response = await apiClient.patch('/user/password', { password });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -145,7 +145,7 @@ export const changePassword = async (password: string) => {
 
 export const logout = async () => {
   try {
-    const response = await apiClient.post('/user/logout', {}, { withCredentials: true });
+    const response = await apiClient.post('/user/logout');
     return response.data;
   } catch (error) {
     handleError(error);

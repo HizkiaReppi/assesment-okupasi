@@ -12,20 +12,35 @@ const Navbar = () => {
   const { isLoggedIn, setIsLoggedIn } = useAuth(); 
 
   useEffect(() => {
-    if (isLoggedIn) {
-      axios.get('http://localhost:3000/api/v1/user', { withCredentials: true })
-        .then(_ => {
-          setIsSuperAdmin(true); 
-        })
-        .catch(error => {
-          if (error.response && error.response.status === 403) {
-            setIsSuperAdmin(false);
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/v1/user', { withCredentials: true });
+        setIsSuperAdmin(response.data.isSuperAdmin);
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          try {
+            const refreshResponse = await axios.post('http://localhost:3000/api/v1/user/refresh-token', {}, { withCredentials: true });
+            if (refreshResponse.status === 200) {
+              const response = await axios.get('http://localhost:3000/api/v1/user', { withCredentials: true });
+              setIsSuperAdmin(response.data.isSuperAdmin);
+            } else {
+              setIsLoggedIn(false);
+            }
+          } catch (refreshError) {
+            console.error('Refresh token failed', refreshError);
+            setIsLoggedIn(false);
+            navigate('/login');
           }
-        });
-    } else {
-      setIsSuperAdmin(false);
+        } else {
+          setIsLoggedIn(false);
+        }
+      }
+    };
+
+    if (isLoggedIn) {
+      fetchUser();
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, setIsLoggedIn, navigate]);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -35,12 +50,10 @@ const Navbar = () => {
     try {
       await logout(); 
       setIsLoggedIn(false);
-      sessionStorage.removeItem('isLoggedIn'); 
       navigate('/login');
     } catch (error) {
       console.error('Logout failed', error);
       setIsLoggedIn(false);
-      sessionStorage.removeItem('isLoggedIn');
       navigate('/login');
     }
   };
@@ -59,9 +72,9 @@ const Navbar = () => {
             <>
               <Link to="/data-sekolah" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Data Sekolah</Link>
               <Link to="/data-okupasi" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Data Okupasi</Link>
-              {isSuperAdmin && (
-                <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">User Settings</Link>
-              )}
+              <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">User Settings</Link>
+              {/* {isSuperAdmin && (
+              )} */}
               <button className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center" onClick={handleLogout}>
                 <FaDoorClosed className="mr-2" /> Logout
               </button>
@@ -85,7 +98,7 @@ const Navbar = () => {
               <Link to="/data-sekolah" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Data Sekolah</Link>
               <Link to="/data-okupasi" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Data Okupasi</Link>
               {isSuperAdmin && (
-                <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Add User</Link>
+                <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>User Settings</Link>
               )}
               <button className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center" onClick={handleLogout}>
                 <FaDoorClosed className="mr-2" /> Logout
