@@ -2,7 +2,7 @@ import { getAllKompetensi, getAllSekolahStatByKodeOkupasi } from "../api/sekolah
 import { getAllOkupasi } from "../api/okupasi-api";
 import { geocodeAddress } from "../utils/geocodeAddress";
 
-export const fetchSchoolsByOkupasi = async (selectedKode: string, searchQuery: string = "", limit: number = 100, page: number = 1) => {
+export const fetchSchoolsByOkupasi = async (selectedKode: string, searchQuery: string = "", limit: number = 10, page: number = 1) => {
   const data = await getAllSekolahStatByKodeOkupasi(selectedKode, searchQuery, limit, page);
   const okupasiData = await getAllOkupasi();
   const selectedOkupasi = okupasiData.data.find(
