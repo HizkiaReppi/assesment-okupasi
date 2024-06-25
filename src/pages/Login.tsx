@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { login } from '../api/api';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { setIsLoggedIn } = useAuth();
+  const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -23,7 +25,8 @@ const Login = () => {
       const response = await login(email, password);
       if (response) {
         setIsLoggedIn(true);
-        // navigate('/home'); 
+        navigate('/home'); // Navigate to home page on successful login
+      } else {
         setError('Login failed. Please check your email and password.');
       }
     } catch (err) {
@@ -66,13 +69,6 @@ const Login = () => {
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </div>
           </div>
-          {/* <div className="flex items-center justify-between text-gray-600 mb-6">
-            <label className="flex items-center">
-              <input type="checkbox" className="form-checkbox h-4 w-4 text-gray-600" />
-              <span className="ml-2">Remember me</span>
-            </label>
-            <a href="#" className="hover:underline">Forgot Password?</a>
-          </div> */}
           <button 
             type="submit" 
             className={`w-full bg-gray-700 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -81,12 +77,6 @@ const Login = () => {
             {loading ? 'Memuat...' : 'Login'}
           </button>
         </form>
-        {/* <div className="mt-4 text-gray-600 cursor-pointer hover:underline">
-          Lupa kata sandi?
-        </div>
-        <div className="mt-4 text-gray-600">
-          Sudah punya akun? <Link to="/signup" className="text-gray-600 hover:underline">Daftar disini</Link>
-        </div> */}
       </div>
     </div>
   );
