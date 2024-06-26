@@ -1,48 +1,37 @@
-import { useState, useEffect } from "react";
-import { FaDoorOpen, FaBars, FaDoorClosed } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { FaDoorOpen, FaBars } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext'; 
-import { logout } from '../api/api';  
+import { useAuth } from '../context/AuthContext';
+import LogoutButton from './Logout';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-  const navigate = useNavigate();
-  const { isLoggedIn, setIsLoggedIn } = useAuth(); 
+  const { isLoggedIn } = useAuth();
 
+  // Cek role user dengan ambil endpoint user, jika berhasil maka superadmin
   useEffect(() => {
-    if (isLoggedIn) {
-      axios.get('http://localhost:3000/api/v1/user', { withCredentials: true })
-        .then(_ => {
-          setIsSuperAdmin(true); 
-        })
-        .catch(error => {
-          if (error.response && error.response.status === 403) {
+    const checkUserRole = async () => {
+      if (isLoggedIn) {
+        try {
+          const response = await axios.get('http://localhost:3000/api/v1/user', { withCredentials: true });
+          setIsSuperAdmin(response.data.is_super);
+        } catch (error) {
+          if (axios.isAxiosError(error) && error.response?.status === 403) {
             setIsSuperAdmin(false);
           }
-        });
-    } else {
-      setIsSuperAdmin(false);
-    }
+        }
+      } else {
+        setIsSuperAdmin(false);
+      }
+    };
+
+    checkUserRole();
   }, [isLoggedIn]);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
-  };
-
-  const handleLogout = async () => {
-    try {
-      await logout(); 
-      setIsLoggedIn(false);
-      sessionStorage.removeItem('isLoggedIn'); 
-      navigate('/login');
-    } catch (error) {
-      console.error('Logout failed', error);
-      setIsLoggedIn(false);
-      sessionStorage.removeItem('isLoggedIn');
-      navigate('/login');
-    }
   };
 
   return (
@@ -62,9 +51,7 @@ const Navbar = () => {
               {isSuperAdmin && (
                 <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">User Settings</Link>
               )}
-              <button className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center" onClick={handleLogout}>
-                <FaDoorClosed className="mr-2" /> Logout
-              </button>
+              <LogoutButton />
             </>
           )}
           {!isLoggedIn && (
@@ -87,9 +74,7 @@ const Navbar = () => {
               {isSuperAdmin && (
                 <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Add User</Link>
               )}
-              <button className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center" onClick={handleLogout}>
-                <FaDoorClosed className="mr-2" /> Logout
-              </button>
+              <LogoutButton />
             </>
           )}
           {!isLoggedIn && (
