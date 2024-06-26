@@ -1,34 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import { FaDoorOpen, FaBars } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import LogoutButton from './Logout';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const { isLoggedIn } = useAuth();
-
-  // Cek role user dengan ambil endpoint user, jika berhasil maka superadmin
-  useEffect(() => {
-    const checkUserRole = async () => {
-      if (isLoggedIn) {
-        try {
-          const response = await axios.get('http://localhost:3000/api/v1/user', { withCredentials: true });
-          setIsSuperAdmin(response.data.is_super);
-        } catch (error) {
-          if (axios.isAxiosError(error) && error.response?.status === 403) {
-            setIsSuperAdmin(false);
-          }
-        }
-      } else {
-        setIsSuperAdmin(false);
-      }
-    };
-
-    checkUserRole();
-  }, [isLoggedIn]);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -48,9 +26,7 @@ const Navbar = () => {
             <>
               <Link to="/data-sekolah" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Data Sekolah</Link>
               <Link to="/data-okupasi" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Data Okupasi</Link>
-              {isSuperAdmin && (
-                <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">User Settings</Link>
-              )}
+              <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">User Settings</Link>
               <LogoutButton />
             </>
           )}
@@ -71,9 +47,7 @@ const Navbar = () => {
             <>
               <Link to="/data-sekolah" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Data Sekolah</Link>
               <Link to="/data-okupasi" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Data Okupasi</Link>
-              {isSuperAdmin && (
-                <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Add User</Link>
-              )}
+              <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>User Settings</Link>
               <LogoutButton />
             </>
           )}

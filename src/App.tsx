@@ -12,6 +12,7 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import RedirectRoute from './routes/RedirectRoute';
 import FormPage from './pages/FormPage';
 import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const AppContent = () => {
   return (
@@ -24,7 +25,7 @@ const AppContent = () => {
         <Route path="/home" element={<HomePage />} />
         <Route path='/form' element={<FormPage />} />
         <Route path="/data-sekolah" element={<ProtectedRoute element={<DataSekolahPage />} />} />
-        <Route path="/data-okupasi" element={<DataOkupasiPage />} />
+        <Route path="/data-okupasi" element={<ProtectedRoute element={<DataOkupasiPage />} />} />
       </Routes>
     </>
   );
@@ -33,8 +34,8 @@ const AppContent = () => {
 const App = () => {
   return (
     <AuthProvider>
-      <FormProvider> 
-      <ToastContainer />
+      <FormProvider>
+        <ToastContainer />
         <Router>
           <AppContent />
         </Router>

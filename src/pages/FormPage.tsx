@@ -1,15 +1,46 @@
-import { useState } from 'react';
+import { useState, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import { getAllOkupasi } from '../api/okupasi-api';
 import { useFormContext } from '../context/FormContext';
 import { getAllSekolahStatByKodeOkupasi } from '../api/sekolah-api';
+import hoverImagePeta from '../assets/bg2.webp'; // Import the hover image
 
 const FormPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { setKodeOkupasi, setSchools, kodeOkupasi } = useFormContext();
   const [selectedKode, setSelectedKode] = useState<string>(kodeOkupasi || '');
   const navigate = useNavigate();
+
+  // Hover state and handlers
+  const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
+  const [hoveredSection, setHoveredSection] = useState<string | null>(null);
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>, section: string) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setHoverPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setHoveredSection(section);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredSection(null);
+  };
+
+  const renderHoverImage = (section: string, image: string) => {
+    return (
+      hoveredSection === section && (
+        <div
+          className="absolute inset-0 pointer-events-none transition-all duration-300 ease-out"
+          style={{
+            backgroundImage: `url(${image})`,
+            backgroundSize: 'cover',
+            clipPath: `circle(150px at ${hoverPosition.x}px ${hoverPosition.y}px)`,
+            opacity: 0.8,
+          }}
+        ></div>
+      )
+    );
+  };
 
   const handleSearch = async () => {
     if (!selectedKode) return;
@@ -44,8 +75,12 @@ const FormPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300">
-      <div className="bg-white p-8 sm:p-12 rounded-lg shadow-2xl w-full max-w-md border border-gray-200">
+    <div 
+      className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 relative overflow-hidden"
+      onMouseMove={(e) => handleMouseMove(e, 'form')}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="bg-white p-8 sm:p-12 rounded-lg shadow-2xl w-full max-w-md border border-gray-200 relative z-10">
         <h2 className="text-2xl font-bold mb-10 text-gray-800 text-center">Cari Nama Okupasi</h2>
         <div className="space-y-6">
           <SearchBar 
@@ -55,7 +90,7 @@ const FormPage = () => {
             onSearch={setSelectedKode}
             searchBarValue={selectedKode} 
             setSearchBarValue={setSelectedKode}
-            onKeyDown={handleSearchEnter} // Added this line
+            onKeyDown={handleSearchEnter}
           />
           <div className="flex justify-center mt-4">
             <button
@@ -69,6 +104,7 @@ const FormPage = () => {
           {isLoading && <p className="mt-4 text-center text-gray-500">Loading...</p>}
         </div>
       </div>
+      {renderHoverImage('form', hoverImagePeta)}
     </div>
   );
 };

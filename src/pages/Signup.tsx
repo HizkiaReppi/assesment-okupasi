@@ -4,6 +4,7 @@ import { createUser, getAllUsers, updateUser, deleteUser } from '../api/api';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
+import axios from 'axios';
 
 interface User {
   id: string;
@@ -38,7 +39,11 @@ const SignUp = () => {
         console.error('Failed to fetch users: response data is not an array');
       }
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      if (axios.isAxiosError(error) && error.response?.status === 403) {
+        toast.error('Anda bukan superadmin');
+      } else {
+        console.error('Failed to fetch users:', error);
+      }
     }
   };
 
@@ -56,8 +61,12 @@ const SignUp = () => {
       fetchUsers();
       resetForm();
     } catch (err) {
-      const errorMessage = (err as Error).message || 'Terjadi kesalahan, silakan coba lagi.';
-      setError(errorMessage);
+      if (axios.isAxiosError(err) && err.response?.status === 403) {
+        toast.error('Anda bukan superadmin');
+      } else {
+        const errorMessage = (err as Error).message || 'Terjadi kesalahan, silakan coba lagi.';
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
       setShowForm(false);
@@ -85,8 +94,12 @@ const SignUp = () => {
       resetForm();
       setIsEditing(false);
     } catch (err) {
-      const errorMessage = (err as Error).message || 'Terjadi kesalahan, silakan coba lagi.';
-      setError(errorMessage);
+      if (axios.isAxiosError(err) && err.response?.status === 403) {
+        toast.error('Anda bukan superadmin');
+      } else {
+        const errorMessage = (err as Error).message || 'Terjadi kesalahan, silakan coba lagi.';
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
       setShowForm(false);
@@ -100,8 +113,12 @@ const SignUp = () => {
       toast.success('Berhasil menghapus anggota');
       fetchUsers();  
     } catch (error) {
-      console.error('Failed to delete user:', error);
-      toast.error('Gagal menghapus anggota');
+      if (axios.isAxiosError(error) && error.response?.status === 403) {
+        toast.error('Anda bukan superadmin');
+      } else {
+        console.error('Failed to delete user:', error);
+        toast.error('Gagal menghapus anggota');
+      }
     } finally {
       setLoading(false);
     }
@@ -249,3 +266,4 @@ const SignUp = () => {
 };
 
 export default SignUp;
+

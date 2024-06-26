@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState} from "react";
 import SekolahAddForm from "../components/sekolah/SekolahAddFormComponent";
 import SekolahEditForm from "../components/sekolah/SekolahEditFormComponent";
 import SekolahList from "../components/sekolah/SekolahListComponent";
@@ -20,10 +20,6 @@ const DataSekolahPage: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const isDesktop = useIsDesktop();
 
-    useEffect(() => {
-        // Perform the refresh action whenever refresh state changes
-    }, [refresh]);
-
     const handleSuccess = () => {
         console.log("Kompetensi updated successfully.");
         handleRefresh();
@@ -37,6 +33,8 @@ const DataSekolahPage: React.FC = () => {
         setEditingKompetensi({ id: unitId, kode: initialKode });
     };
 
+    // @ts-ignore
+    // handle error not used
     const handleError = (message: string | string[]) => {
         const errorMessage = Array.isArray(message) ? message.join(", ") : message;
         setErrorMessage(errorMessage);
@@ -116,7 +114,6 @@ const DataSekolahPage: React.FC = () => {
                                 <KompetensiAddForm
                                     sekolahId={selectedSekolahId}
                                     onSuccess={handleSuccess}
-                                    onError={handleError}
                                 />
                             </>
                         )}
@@ -149,7 +146,6 @@ const DataSekolahPage: React.FC = () => {
                                         setEditingKompetensi(null);
                                         handleSuccess();
                                     }}
-                                    onError={handleError}
                                 />
                             </>
                         )}
@@ -181,3 +177,4 @@ const DataSekolahPage: React.FC = () => {
 };
 
 export default DataSekolahPage;
+

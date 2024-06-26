@@ -12,6 +12,7 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
+// Check token expiration
 const isTokenExpired = (token: string): boolean => {
   try {
     const { exp } = jwtDecode<{ exp: number }>(token);
@@ -22,6 +23,7 @@ const isTokenExpired = (token: string): boolean => {
   }
 };
 
+// Force logout
 const forceLogout = () => {
   alert('Session has ended. Please log in again.');
   Cookies.remove('Authorization');
@@ -30,7 +32,7 @@ const forceLogout = () => {
   window.location.href = '/login';
 };
 
-// Refresh Token
+// Refresh token
 const refreshToken = async () => {
   try {
     const response: AxiosResponse = await apiClient.put('/authentication/refresh');
@@ -46,7 +48,7 @@ const refreshToken = async () => {
   }
 };
 
-// Cek Token Expiration
+// Check token expiration and refresh if necessary
 const checkTokenExpiration = async () => {
   const authToken = Cookies.get('Authorization');
   const rToken = Cookies.get('r');
@@ -65,24 +67,26 @@ setInterval(checkTokenExpiration, 60 * 1000);
 
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    checkTokenExpiration();
+    await checkTokenExpiration();
     const authToken = Cookies.get('Authorization');
     if (authToken) {
-      config.headers.set('Authorization', `Bearer ${authToken}`);
+      config.headers['Authorization'] = `Bearer ${authToken}`;
     }
     return config;
   },
   (error: AxiosError) => Promise.reject(error)
 );
 
-// Interceptor untuk response
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
     const { response } = error;
 
-    if (response && response.status === 401) {
+    if (response && (response.status === 401 || response.status === 403)) {
       await checkTokenExpiration();
+      if (response.status === 401 || response.status === 403) {
+        forceLogout();
+      }
     }
 
     return Promise.reject(error);
@@ -99,7 +103,7 @@ const handleError = (error: unknown) => {
   }
 };
 
-// Timer untuk logout
+// Timer for logout
 const setLogoutTimer = () => {
   setTimeout(() => {
     alert('Session has ended. Please log in again.');
@@ -112,8 +116,8 @@ const setLogoutTimer = () => {
 export const login = async (email: string, password: string) => {
   try {
     const response: AxiosResponse = await apiClient.post('/user/login', { email, password });
-    sessionStorage.setItem('isLoggedIn', 'true'); 
-    setLogoutTimer(); 
+    sessionStorage.setItem('isLoggedIn', 'true');
+    setLogoutTimer();
     return response.data;
   } catch (error) {
     handleError(error);
@@ -196,5 +200,3 @@ export const changePassword = async (password: string) => {
     handleError(error);
   }
 };
-
-

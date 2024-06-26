@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { getAllSekolah, deleteSekolahById } from '../../api/sekolah-api';
-import { FaSearch, FaArrowLeft } from "react-icons/fa";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ConfirmationModal from '../ConfirmationModal';
@@ -24,7 +23,7 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await getAllSekolah(searchQuery, itemsPerPage, currentPage);
+                const data = await getAllSekolah(searchQuery, itemsPerPage);
                 if (data && Array.isArray(data.data)) {
                     setSekolah(data.data);
                     setTotalItems(data.total_result);
