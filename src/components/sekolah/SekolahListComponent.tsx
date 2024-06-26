@@ -18,12 +18,12 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
     const [totalItems, setTotalItems] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState<string | null>(null);
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await getAllSekolah(searchQuery, itemsPerPage);
+                const data = await getAllSekolah(searchQuery, itemsPerPage, currentPage); // Kirim currentPage ke API
                 if (data && Array.isArray(data.data)) {
                     setSekolah(data.data);
                     setTotalItems(data.total_result);
@@ -73,9 +73,6 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
         setCurrentPage(pageNumber);
     };
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-
     return (
         <div className="mb-6 p-4 bg-white rounded-lg shadow-md">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Daftar Sekolah</h2>
@@ -87,7 +84,7 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                 className="mb-4 p-2 border border-gray-300 rounded-md w-full"
             />
             <p className="text-sm text-gray-600 mb-4">
-                Data {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, totalItems)} dari {totalItems}
+                Data {itemsPerPage * (currentPage - 1) + 1} - {Math.min(itemsPerPage * currentPage, totalItems)} dari {totalItems}
             </p>
             <ul className="list-none">
                 {sekolah.map((item) => (
@@ -96,7 +93,7 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                         className={`mb-4 p-4 bg-gray-50 rounded-lg shadow-sm ${editingId === item.id ? 'bg-yellow-100' : 'bg-gray-50'}`}
                     >
                         <span className="block text-gray-900 font-semibold">
-                            {item.nama} <br />
+                            {item.nama.toUpperCase()} <br />
                             Kota: {item.kota}
                         </span>
                         <div className="mt-2 flex justify-end space-x-2">
