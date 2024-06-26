@@ -1,15 +1,22 @@
-import { useState} from 'react';
+import { useState } from 'react';
 import { FaDoorOpen, FaBars } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LogoutButton from './Logout';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isLoggedIn } = useAuth();
+  const location = useLocation();
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
+  };
+
+  const getLinkClasses = (path: string) => {
+    return location.pathname === path 
+      ? "text-orange-700 border-b-2 border-orange-700 font-medium"
+      : "text-gray-800 hover:text-orange-700 transition duration-300 font-medium";
   };
 
   return (
@@ -21,17 +28,17 @@ const Navbar = () => {
           </Link>
         </div>
         <div className="hidden sm:flex space-x-6">
-          <Link to="/" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Home</Link>
+          <Link to="/" className={getLinkClasses("/")}>Home</Link>
           {isLoggedIn && (
             <>
-              <Link to="/data-sekolah" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Data Sekolah</Link>
-              <Link to="/data-okupasi" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">Data Okupasi</Link>
-              <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium">User Settings</Link>
+              <Link to="/data-sekolah" className={getLinkClasses("/data-sekolah")}>Data Sekolah</Link>
+              <Link to="/data-okupasi" className={getLinkClasses("/data-okupasi")}>Data Okupasi</Link>
+              <Link to="/signup" className={getLinkClasses("/signup")}>User Settings</Link>
               <LogoutButton />
             </>
           )}
           {!isLoggedIn && (
-            <Link to="/login" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center">
+            <Link to="/login" className={`text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center ${getLinkClasses("/login")}`}>
               <FaDoorOpen className="mr-2" /> Login
             </Link>
           )}
@@ -42,17 +49,17 @@ const Navbar = () => {
       </div>
       {menuOpen && (
         <div className="bg-white w-full absolute top-16 left-0 right-0 shadow-md z-10 flex flex-col items-center space-y-4 py-4">
-          <Link to="/" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Home</Link>
+          <Link to="/" className={getLinkClasses("/")} onClick={toggleMenu}>Home</Link>
           {isLoggedIn && (
             <>
-              <Link to="/data-sekolah" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Data Sekolah</Link>
-              <Link to="/data-okupasi" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>Data Okupasi</Link>
-              <Link to="/signup" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium" onClick={toggleMenu}>User Settings</Link>
+              <Link to="/data-sekolah" className={getLinkClasses("/data-sekolah")} onClick={toggleMenu}>Data Sekolah</Link>
+              <Link to="/data-okupasi" className={getLinkClasses("/data-okupasi")} onClick={toggleMenu}>Data Okupasi</Link>
+              <Link to="/signup" className={getLinkClasses("/signup")} onClick={toggleMenu}>User Settings</Link>
               <LogoutButton />
             </>
           )}
           {!isLoggedIn && (
-            <Link to="/login" className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center" onClick={toggleMenu}>
+            <Link to="/login" className={`text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center ${getLinkClasses("/login")}`} onClick={toggleMenu}>
               <FaDoorOpen className="mr-2" /> Login
             </Link>
           )}

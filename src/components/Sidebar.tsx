@@ -364,7 +364,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   key={index + 1}
                   onClick={() => handlePageChange(index + 1)}
                   className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
-                    currentPage === index + 1 ? "bg-orange-500 text-white" : "bg-gray-300 text-gray-800 hover:bg-gray-400"
+                    currentPage === index + 1 ? "bg-gray-500 text-white" : "bg-gray-300 text-gray-800 hover:bg-gray-400"
                   }`}
                 >
                   {index + 1}
