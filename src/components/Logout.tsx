@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { FaDoorClosed } from 'react-icons/fa';
-import { logout } from '../api/api';
+import { logout } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
 
 const LogoutButton = () => {
@@ -12,7 +12,6 @@ const LogoutButton = () => {
       await logout();
       setIsLoggedIn(false);
       sessionStorage.removeItem('isLoggedIn');
-      alert('Session has ended. Please log in again.');
       navigate('/login');
     } catch (error) {
       console.error('Logout failed', error);

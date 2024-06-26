@@ -1,6 +1,6 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { FaEye, FaEyeSlash, FaEdit, FaTrash, FaPlus, FaTimes } from 'react-icons/fa';
-import { createUser, getAllUsers, updateUser, deleteUser } from '../api/api';
+import { createUser, getAllUsers,deleteUser } from '../api/user-api';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';

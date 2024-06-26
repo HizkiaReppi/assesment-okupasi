@@ -1,6 +1,6 @@
 import { useState, MouseEvent } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { login } from '../api/api';
+import { login } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import hoverImagePeta from '../assets/FullMap.png'; // Import the hover image
