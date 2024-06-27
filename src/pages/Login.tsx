@@ -55,7 +55,6 @@ const Login = () => {
     try {
       const response = await login(email, password);
       if (response) {
-        localStorage.setItem('token', response.token); // Save token to localStorage
         setIsLoggedIn(true);
         navigate('/home'); // Navigate to home page on successful login
       } else {

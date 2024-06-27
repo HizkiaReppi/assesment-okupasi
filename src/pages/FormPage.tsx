@@ -80,7 +80,7 @@ const FormPage = () => {
       onMouseMove={(e) => handleMouseMove(e, 'form')}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="bg-white p-8 sm:p-12 rounded-lg shadow-2xl w-full max-w-md border border-gray-200 relative z-10">
+      <div className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg p-8 sm:p-12 rounded-lg shadow-2xl w-full max-w-md border border-gray-200 relative z-10">
         <h2 className="text-2xl font-bold mb-10 text-gray-800 text-center">Cari Nama Okupasi</h2>
         <div className="space-y-6">
           <SearchBar 

@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 
 interface Kompetensi {
+  id: string;
+  nama: string;
+}
+
+interface Okupasi {
   kode: string;
   nama: string;
-  unit_kompetensi: {
-    id: string;
-    nama: string;
-  }[];
+  unit_kompetensi: Kompetensi[];
 }
 
 interface School {
@@ -17,7 +19,7 @@ interface School {
   nama: string;
   kota: string;
   kecocokan?: string;
-  kompetensi?: Kompetensi[];
+  okupasi?: Okupasi;  // Tandai okupasi sebagai optional
 }
 
 interface Props {
@@ -74,6 +76,7 @@ const GoogleMapComponent: React.FC<Props> = ({
       mapContainerStyle={{ width: '100%', height: '100%' }}
       center={center}
       zoom={zoom}
+      options={{ mapId: '890b9267e97ad716' }} // Menambahkan mapId di sini
     >
       {filteredSchools.map((school) => (
         <Marker
@@ -103,20 +106,22 @@ const GoogleMapComponent: React.FC<Props> = ({
                 <strong>Kecocokan:</strong> {selectedSchool.kecocokan}%
               </p>
             )}
-            {selectedSchool.kompetensi && selectedSchool.kompetensi.length > 0 && (
-              <div>
-                <p className="text-sm text-gray-800 mb-1">
-                  <strong>Okupasi:</strong> {selectedSchool.kompetensi.map(k => k.nama).join(', ')}
-                </p>
+            <p className="text-sm text-gray-800 mb-1">
+              <strong>Okupasi:</strong> {selectedSchool.okupasi ? selectedSchool.okupasi.nama : "-"}
+            </p>
+            {selectedSchool.okupasi && selectedSchool.okupasi.unit_kompetensi && selectedSchool.okupasi.unit_kompetensi.length > 0 ? (
+              <>
                 <p className="text-sm text-gray-800 mb-1">
                   <strong>Unit Kompetensi:</strong>
                 </p>
                 <ul className="list-disc pl-5 text-sm text-gray-800">
-                  {selectedSchool.kompetensi.flatMap(k => k.unit_kompetensi.map(uk => (
+                  {selectedSchool.okupasi.unit_kompetensi.map(uk => (
                     <li key={uk.id} className="mb-1">{uk.nama}</li>
-                  )))}
+                  ))}
                 </ul>
-              </div>
+              </>
+            ) : (
+              <p className="text-sm text-gray-800 mb-1">-</p>
             )}
           </div>
         </InfoWindow>

@@ -6,7 +6,7 @@ import LogoutButton from './Logout';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isSuperAdmin } = useAuth();
   const location = useLocation();
 
   const toggleMenu = () => {
@@ -33,7 +33,7 @@ const Navbar = () => {
             <>
               <Link to="/data-sekolah" className={getLinkClasses("/data-sekolah")}>Data Sekolah</Link>
               <Link to="/data-okupasi" className={getLinkClasses("/data-okupasi")}>Data Okupasi</Link>
-              <Link to="/signup" className={getLinkClasses("/signup")}>User Settings</Link>
+              {isSuperAdmin && <Link to="/signup" className={getLinkClasses("/signup")}>User Settings</Link>}
               <LogoutButton />
             </>
           )}
@@ -54,7 +54,7 @@ const Navbar = () => {
             <>
               <Link to="/data-sekolah" className={getLinkClasses("/data-sekolah")} onClick={toggleMenu}>Data Sekolah</Link>
               <Link to="/data-okupasi" className={getLinkClasses("/data-okupasi")} onClick={toggleMenu}>Data Okupasi</Link>
-              <Link to="/signup" className={getLinkClasses("/signup")} onClick={toggleMenu}>User Settings</Link>
+              {isSuperAdmin && <Link to="/signup" className={getLinkClasses("/signup")} onClick={toggleMenu}>User Settings</Link>}
               <LogoutButton />
             </>
           )}
