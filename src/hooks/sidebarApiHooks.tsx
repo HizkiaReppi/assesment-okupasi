@@ -18,7 +18,9 @@ interface School {
   nama: string;
   kota: string;
   kecocokan: string;
-  okupasi: Okupasi;
+  lat: number;
+  lng: number;
+  okupasi?: Okupasi;
 }
 
 interface Coordinates {
@@ -30,13 +32,13 @@ export const fetchSchoolsByOkupasi = async (
   selectedKode: string,
   searchQuery: string = "",
   limit: number = 10
-): Promise<{ result: any[]; selectedOkupasi: Okupasi | undefined }> => {
+): Promise<{ result: School[]; selectedOkupasi: Okupasi | undefined }> => {
   const okupasiData = await getAllOkupasi();
   const selectedOkupasi = okupasiData.data.find(
     (okupasi: Okupasi) => okupasi.kode === selectedKode
   );
 
-  let allResults: any[] = [];
+  let allResults: School[] = [];
   let page = 1;
   let hasMoreData = true;
 
@@ -45,7 +47,7 @@ export const fetchSchoolsByOkupasi = async (
 
     if (data.status === "success" && data.data && data.data.length > 0) {
       const pageResults = await Promise.all(
-        data.data.map(async (school: School) => {
+        data.data.map(async (school: any) => {
           const address = `${school.nama}, ${school.kota}, Indonesia`;
           const coordinates: Coordinates = await geocodeAddress(address);
           return {
@@ -55,17 +57,17 @@ export const fetchSchoolsByOkupasi = async (
             lat: coordinates.lat,
             lng: coordinates.lng,
             kecocokan: parseFloat(school.kecocokan).toFixed(2),
-            okupasi: school.okupasi,
+            okupasi: school.okupasi ?? null,  // Explicitly handle undefined okupasi
           };
         })
       );
       allResults = [...allResults, ...pageResults];
       page += 1;
       if (pageResults.length < limit) {
-        hasMoreData = false; // Tidak ada data lebih lanjut untuk diambil
+        hasMoreData = false; // No more data available
       }
     } else {
-      hasMoreData = false; // Tidak ada data lebih lanjut untuk diambil
+      hasMoreData = false; // No more data available
     }
   }
 

@@ -19,7 +19,7 @@ interface School {
   nama: string;
   kota: string;
   kecocokan?: string;
-  okupasi?: Okupasi;  // Tandai okupasi sebagai optional
+  okupasi?: Okupasi;  // Mark okupasi as optional
 }
 
 interface Props {
@@ -71,14 +71,33 @@ const GoogleMapComponent: React.FC<Props> = ({
     }
   };
 
+  const bounds = {
+    north: 4.834726, // North boundary of North Sulawesi
+    south: 0.226033, // South boundary of North Sulawesi
+    east: 127.797571, // East boundary of North Sulawesi
+    west: 122.932839, // West boundary of North Sulawesi
+  };
+
+  useEffect(() => {
+    if (selectedSchool) {
+      console.log("Selected school data for InfoWindow:", selectedSchool);
+    }
+  }, [selectedSchool]);
+
   return (
     <GoogleMap
       mapContainerStyle={{ width: '100%', height: '100%' }}
       center={center}
       zoom={zoom}
-      options={{ mapId: '890b9267e97ad716' }} // Menambahkan mapId di sini
+      options={{
+        mapId: '890b9267e97ad716', // Adding mapId here
+        restriction: {
+          latLngBounds: bounds,
+          strictBounds: true,
+        },
+      }}
     >
-      {filteredSchools.map((school) => (
+      {filteredSchools.map((school: School) => (
         <Marker
           key={school.id}
           position={{ lat: school.lat, lng: school.lng }}
@@ -106,19 +125,28 @@ const GoogleMapComponent: React.FC<Props> = ({
                 <strong>Kecocokan:</strong> {selectedSchool.kecocokan}%
               </p>
             )}
-            <p className="text-sm text-gray-800 mb-1">
-              <strong>Okupasi:</strong> {selectedSchool.okupasi ? selectedSchool.okupasi.nama : "-"}
-            </p>
-            {selectedSchool.okupasi && selectedSchool.okupasi.unit_kompetensi && selectedSchool.okupasi.unit_kompetensi.length > 0 ? (
+            {selectedSchool.okupasi ? (
               <>
                 <p className="text-sm text-gray-800 mb-1">
-                  <strong>Unit Kompetensi:</strong>
+                  <strong>Kode Okupasi:</strong> {selectedSchool.okupasi.kode}
                 </p>
-                <ul className="list-disc pl-5 text-sm text-gray-800">
-                  {selectedSchool.okupasi.unit_kompetensi.map(uk => (
-                    <li key={uk.id} className="mb-1">{uk.nama}</li>
-                  ))}
-                </ul>
+                <p className="text-sm text-gray-800 mb-1">
+                  <strong>Nama Okupasi:</strong> {selectedSchool.okupasi.nama}
+                </p>
+                {selectedSchool.okupasi.unit_kompetensi && selectedSchool.okupasi.unit_kompetensi.length > 0 ? (
+                  <>
+                    <p className="text-sm text-gray-800 mb-1">
+                      <strong>Unit Kompetensi:</strong>
+                    </p>
+                    <ul className="list-disc pl-5 text-sm text-gray-800">
+                      {selectedSchool.okupasi.unit_kompetensi.map((uk: Kompetensi) => (
+                        <li key={uk.id} className="mb-1">{uk.nama}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-800 mb-1">-</p>
+                )}
               </>
             ) : (
               <p className="text-sm text-gray-800 mb-1">-</p>
