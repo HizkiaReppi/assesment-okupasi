@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedInState] = useState<boolean>(() => {
-    return !!sessionStorage.getItem("Authorization"); // Periksa apakah token ada di sessionStorage
+    return !!sessionStorage.getItem("Authorization"); // Check if token exists in sessionStorage
   });
   const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(() =>
     isUserSuper()
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const refreshAuthToken = async () => {
       try {
         await refreshToken();
-        setIsSuperAdmin(isUserSuper()); // Perbarui peran setelah token diperbarui
+        setIsSuperAdmin(isUserSuper()); // Update role after token is refreshed
       } catch (error) {
         const typedError = error as { response?: { data: any }, message: string };
         console.error('Failed to refresh token:', typedError.response ? typedError.response.data : typedError.message);
@@ -53,38 +53,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const handleLogout = () => {
-      sessionStorage.removeItem("Authorization");
-      sessionStorage.removeItem("isSuperUser");
-      forceLogout();
+      clearSession();
+      alert('Your session has expired. Please log in again.'); // Alert the user
       setIsLoggedIn(false);
     };
 
-    // if (isLoggedIn) {
-    //   // Refresh token setiap 14 menit
-    //   const interval = setInterval(refreshAuthToken, 14 * 60 * 1000);
-
-    //   // Logout otomatis setelah 16 menit jika tidak ada refresh
-    //   timeout = setTimeout(() => {
-    //     handleLogout();
-    //   }, 16 * 60 * 1000);
-
-    //   return () => {
-    //     clearInterval(interval);
-    //     clearTimeout(timeout);
-    //   };
-    // }
-
-    // Commented out test code for 1 minute intervals and logout
     if (isLoggedIn) {
-      // Set interval to refresh token every 6 minute
-      const interval = setInterval(refreshAuthToken, 6 * 60 * 1000);
+      // Production code: Refresh token every 15 minutes, force logout after 15 minutes if no refresh
+      const interval = setInterval(refreshAuthToken, 15 * 60 * 1000);
 
-      // Also set a timeout to logout after 6 minute if no refresh
       timeout = setTimeout(() => {
-        forceLogout();
-        setIsLoggedIn(false);
-        sessionStorage.removeItem('isLoggedIn');
-      }, 6 * 60 * 1000);
+        handleLogout();
+      }, 15 * 60 * 1000);
+
+      // Test code: Uncomment the following block for testing (1 minute intervals)
+      
+      // const interval = setInterval(refreshAuthToken, 1 * 60 * 1000);
+
+      // timeout = setTimeout(() => {
+      //   handleLogout();
+      // }, 1 * 60 * 1000);
+      
 
       return () => {
         clearInterval(interval);
@@ -106,4 +95,13 @@ export const useAuth = (): AuthContextType => {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
+};
+
+// Fungsi untuk menghapus session storage
+const clearSession = () => {
+  sessionStorage.removeItem('Authorization');
+  sessionStorage.removeItem('isSuperUser');
+  // Hapus cookies authorization
+  document.cookie = 'Authorization=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+  window.location.href = '/login'; // Redirect to login page
 };

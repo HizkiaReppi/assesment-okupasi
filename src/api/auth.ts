@@ -24,9 +24,8 @@ export const login = async (email: string, password: string) => {
 // Fungsi logout
 export const logout = async () => {
   try {
-    const response: AxiosResponse = await apiClient.post('/user/logout');
+    await apiClient.post('/user/logout');
     clearSession();
-    return response.data;
   } catch (error) {
     handleError(error);
   }
@@ -40,18 +39,19 @@ export const refreshToken = async () => {
       const token = sessionStorage.getItem('Authorization')?.split(' ')[1];
       if (token) {
         const decodedToken: any = jwtDecode(token);
-        sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false'); // Simpan status super user
+        sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false'); 
       }
     }
   } catch (error) {
     console.error('Error refreshing token:', (error as any).response ? (error as any).response.data : (error as any).message);
+    forceLogout();  // Directly call forceLogout if refreshToken fails
     throw error;
   }
 };
 
 // Fungsi force logout
 export const forceLogout = async () => {
-  const response: AxiosResponse = await apiClient.post('/user/logout');
+  await apiClient.post('/user/logout');
   alert('Session has ended. Please log in again.');
   clearSession();
 };
@@ -60,6 +60,8 @@ export const forceLogout = async () => {
 const clearSession = () => {
   sessionStorage.removeItem('Authorization');
   sessionStorage.removeItem('isSuperUser');
+  // Hapus cookies authorization
+  document.cookie = 'Authorization=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   window.location.href = '/login';
 };
 
