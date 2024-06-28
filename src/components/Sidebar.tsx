@@ -52,10 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        filterRef.current &&
-        !filterRef.current.contains(event.target as Node)
-      ) {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
         setIsFilterOpen(false);
       }
     };
@@ -72,6 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
       kota: school.kota,
       kecocokan: school.kecocokan,
       okupasi: school.okupasi?.nama,
+      kode_okupasi: kodeOkupasi, // Include kodeOkupasi here
       unit_kompetensi: school.okupasi?.unit_kompetensi,
     };
     onSelectSchool(school.nama, schoolDetails);
@@ -210,7 +208,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                 Okupasi : {kodeOkupasi} - {okupasiName}
               </h3>
             )}
-            <div className="flex items-center mb=4">
+            <div className="flex items-center mb-4">
               {!isSearching && (
                 <>
                   <SearchBar

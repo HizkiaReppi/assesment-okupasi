@@ -96,7 +96,7 @@ const HomePage: React.FC = () => {
             kota: schoolDetails.kota,
             kecocokan: schoolDetails.kecocokan,
             okupasi: schoolDetails.okupasi,
-            kode_okupasi: schoolDetails.kode_okupasi,
+            kode_okupasi: schoolDetails.kode_okupasi, // Include kodeOkupasi here
             unit_kompetensi: schoolDetails.unit_kompetensi || [], 
           }
         });
@@ -177,7 +177,7 @@ const HomePage: React.FC = () => {
                   {popupInfo?.details.okupasi && (
                     <p className="text-sm text-gray-700 mb-1">
                       <strong>Okupasi:</strong> {popupInfo.details.okupasi.toUpperCase()}
-                      {popupInfo.details.kode_okupasi && ` (${popupInfo.details.kode_okupasi})`}
+                      <br></br><strong>Kode:</strong> {popupInfo.details.kode_okupasi && ` ${popupInfo.details.kode_okupasi}`}
                     </p>
                   )}
                   {popupInfo?.details.unit_kompetensi && popupInfo.details.unit_kompetensi.length > 0 && (
