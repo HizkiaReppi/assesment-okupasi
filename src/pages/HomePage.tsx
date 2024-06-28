@@ -37,6 +37,7 @@ const HomePage: React.FC = () => {
   const [initialSchools, setInitialSchools] = useState<School[]>([]);
   const [center, setCenter] = useState<{ lat: number, lng: number }>({ lat: 1.3017, lng: 124.9113 }); // Koordinat Tondano
   const [loading, setLoading] = useState<boolean>(true);
+  const [isLoadingLocation, setIsLoadingLocation] = useState<boolean>(false);
   const [markers, setMarkers] = useState<L.LatLng[]>([]);
   const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null);
   const [rateLimitExceeded, setRateLimitExceeded] = useState<boolean>(false);
@@ -74,10 +75,12 @@ const HomePage: React.FC = () => {
   }, []);
 
   const fetchGeocode = async (schoolName: string, schoolDetails: any) => {
+    setIsLoadingLocation(true); // Mulai loading
     try {
       const response = await fetch(`https://us1.locationiq.com/v1/search.php?key=${import.meta.env.VITE_LOCATION_IQ_API_KEY}&q=${schoolName}&format=json`);
       if (response.status === 429) {
         setRateLimitExceeded(true);
+        setIsLoadingLocation(false); // Selesai loading
         return;
       }
       const data = await response.json();
@@ -94,7 +97,7 @@ const HomePage: React.FC = () => {
             kecocokan: schoolDetails.kecocokan,
             okupasi: schoolDetails.okupasi,
             kode_okupasi: schoolDetails.kode_okupasi,
-            unit_kompetensi: schoolDetails.unit_kompetensi || [], // Pastikan unit_kompetensi ada
+            unit_kompetensi: schoolDetails.unit_kompetensi || [], 
           }
         });
         setCenter({ lat: parseFloat(lat), lng: parseFloat(lon) });
@@ -102,6 +105,8 @@ const HomePage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching geocode data:', error);
+    } finally {
+      setIsLoadingLocation(false); 
     }
   };
 
@@ -141,6 +146,13 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="relative flex flex-col sm:flex-row h-screen overflow-hidden">
+      {isLoadingLocation && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-gray-700 bg-opacity-50">
+          <div className="bg-white p-4 rounded shadow">
+            <p className="text-lg font-semibold">Mencari lokasi...</p>
+          </div>
+        </div>
+      )}
       <div className="flex-grow h-full" style={{ zIndex: 0, paddingTop: '64px' }}>
         <MapContainer
           center={center}
@@ -164,7 +176,8 @@ const HomePage: React.FC = () => {
                   {popupInfo?.details.kecocokan && <p className="text-sm text-gray-700 mb-1"><strong>Kecocokan:</strong> {popupInfo.details.kecocokan}</p>}
                   {popupInfo?.details.okupasi && (
                     <p className="text-sm text-gray-700 mb-1">
-                      <strong>Okupasi:</strong> {popupInfo.details.okupasi.toUpperCase()} ({popupInfo.details.kode_okupasi})
+                      <strong>Okupasi:</strong> {popupInfo.details.okupasi.toUpperCase()}
+                      {popupInfo.details.kode_okupasi && ` (${popupInfo.details.kode_okupasi})`}
                     </p>
                   )}
                   {popupInfo?.details.unit_kompetensi && popupInfo.details.unit_kompetensi.length > 0 && (
@@ -183,7 +196,7 @@ const HomePage: React.FC = () => {
           ))}
         </MapContainer>
       </div>
-      <div className="w-full sm:w-64 h-full sm:h-auto overflow-y-auto bg-white">
+      <div className="w-full sm:w-2 h-full sm:h-auto overflow-y-auto bg-white">
         <Sidebar onSelectSchool={handleSchoolClick} />
       </div>
       {rateLimitExceeded && (
