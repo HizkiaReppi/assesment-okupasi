@@ -1,44 +1,36 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaFilter, FaTimes, FaSearch } from "react-icons/fa";
 import SearchBar from "../components/SearchBar";
 import { useFormContext } from "../context/FormContext";
 import { fetchSchoolsByOkupasi, fetchOkupasi } from "../hooks/sidebarApiHooks";
 
 interface Kompetensi {
+  id: string;
+  nama: string;
+}
+
+interface Okupasi {
   kode: string;
   nama: string;
-  unit_kompetensi: {
-    id: string;
-    nama: string;
-  }[];
+  unit_kompetensi: Kompetensi[];
 }
 
 interface School {
   id: string;
   nama: string;
   kota: string;
-  lat: number;
-  lng: number;
-  kecocokan?: string;
-  kompetensi?: Kompetensi[];
+  kecocokan: string;
+  okupasi?: Okupasi;
 }
 
 interface SidebarProps {
-  onSelectSchool: (school: School) => void;
-  setFilteredSchools: (schools: School[]) => void;
-  schools: School[];
-  onBackClick: () => void;
+  onSelectSchool: (schoolName: string, schoolDetails: any) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
-  onSelectSchool,
-  setFilteredSchools,
-  schools,
-  onBackClick,
-}) => {
+const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   const { kodeOkupasi, setKodeOkupasi } = useFormContext();
   const [isOpen, setIsOpen] = useState(true);
-  const [filteredSchools, setFilteredSchoolsState] = useState<School[]>([]);
+  const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
   const [searchResults, setSearchResults] = useState<School[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -55,8 +47,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   const filterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setFilteredSchoolsState([]);
-  }, [schools]);
+    setFilteredSchools([]);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -75,19 +67,24 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, []);
 
   const handleSchoolClick = (school: School) => {
-    onSelectSchool(school);
+    const schoolDetails = {
+      nama: school.nama,
+      kota: school.kota,
+      kecocokan: school.kecocokan,
+      okupasi: school.okupasi?.nama,
+      unit_kompetensi: school.okupasi?.unit_kompetensi,
+    };
+    onSelectSchool(school.nama, schoolDetails);
     setSelectedSchool(school);
   };
 
   const handleSearch = async (selectedKode: string, searchQuery: string = "") => {
     setIsSearching(true);
-    setFilteredSchoolsState([]);
     setFilteredSchools([]);
     try {
       const { result, selectedOkupasi } = await fetchSchoolsByOkupasi(selectedKode, searchQuery);
 
       setSearchResults(result);
-      setFilteredSchoolsState(result);
       setFilteredSchools(result);
       setKodeOkupasi(selectedKode);
       setOkupasiName(selectedOkupasi ? selectedOkupasi.nama : "");
@@ -95,7 +92,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     } catch (error) {
       console.error("Error fetching sekolah stat by kode okupasi:", error);
       setSearchResults([]);
-      setFilteredSchoolsState([]);
       setFilteredSchools([]);
     }
     setIsSearching(false);
@@ -139,10 +135,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       const filtered = searchResults.filter((school) =>
         school.kota.toLowerCase().includes(filter.toLowerCase())
       );
-      setFilteredSchoolsState(filtered);
       setFilteredSchools(filtered);
     } else {
-      setFilteredSchoolsState(searchResults);
       setFilteredSchools(searchResults);
     }
     setFilterPage(0);
@@ -151,15 +145,13 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const handleClearFilter = () => {
     setSelectedFilter(null);
-    setFilteredSchoolsState(searchResults);
     setFilteredSchools(searchResults);
     setFilterPage(0);
     setCurrentPage(1); // Reset pagination to first page
   };
 
   const handleBackClick = () => {
-    onBackClick();
-    setFilteredSchoolsState([]);
+    setFilteredSchools([]);
     setSearchResults([]);
     setSelectedSchool(null);
     setKodeOkupasi("");
@@ -218,7 +210,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 Okupasi : {kodeOkupasi} - {okupasiName}
               </h3>
             )}
-            <div className="flex items-center mb-4">
+            <div className="flex items-center mb=4">
               {!isSearching && (
                 <>
                   <SearchBar
@@ -388,4 +380,3 @@ const Sidebar: React.FC<SidebarProps> = ({
 };
 
 export default Sidebar;
-

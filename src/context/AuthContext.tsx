@@ -59,38 +59,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoggedIn(false);
     };
 
-    if (isLoggedIn) {
-      // Refresh token setiap 15 menit
-      const interval = setInterval(refreshAuthToken, 15 * 60 * 1000);
-
-      // Logout otomatis setelah 20 menit jika tidak ada refresh
-      timeout = setTimeout(() => {
-        handleLogout();
-      }, 20 * 60 * 1000);
-
-      return () => {
-        clearInterval(interval);
-        clearTimeout(timeout);
-      };
-    }
-
-    // // Commented out test code for 1 minute intervals and logout
     // if (isLoggedIn) {
-    //   // Set interval to refresh token every 1 minute
-    //   const interval = setInterval(refreshAuthToken, 1 * 60 * 1000);
+    //   // Refresh token setiap 14 menit
+    //   const interval = setInterval(refreshAuthToken, 14 * 60 * 1000);
 
-    //   // Also set a timeout to logout after 1 minute if no refresh
+    //   // Logout otomatis setelah 16 menit jika tidak ada refresh
     //   timeout = setTimeout(() => {
-    //     forceLogout();
-    //     setIsLoggedIn(false);
-    //     sessionStorage.removeItem('isLoggedIn');
-    //   }, 2 * 60 * 1000);
+    //     handleLogout();
+    //   }, 16 * 60 * 1000);
 
     //   return () => {
     //     clearInterval(interval);
     //     clearTimeout(timeout);
     //   };
     // }
+
+    // Commented out test code for 1 minute intervals and logout
+    if (isLoggedIn) {
+      // Set interval to refresh token every 6 minute
+      const interval = setInterval(refreshAuthToken, 6 * 60 * 1000);
+
+      // Also set a timeout to logout after 6 minute if no refresh
+      timeout = setTimeout(() => {
+        forceLogout();
+        setIsLoggedIn(false);
+        sessionStorage.removeItem('isLoggedIn');
+      }, 6 * 60 * 1000);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
+    }
   }, [isLoggedIn]);
 
   return (

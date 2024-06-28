@@ -50,7 +50,8 @@ export const refreshToken = async () => {
 };
 
 // Fungsi force logout
-export const forceLogout = () => {
+export const forceLogout = async () => {
+  const response: AxiosResponse = await apiClient.post('/user/logout');
   alert('Session has ended. Please log in again.');
   clearSession();
 };
