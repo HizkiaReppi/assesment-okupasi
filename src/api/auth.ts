@@ -9,7 +9,7 @@ export const login = async (email: string, password: string) => {
     const token = response.data.data.token;
     const decodedToken: any = jwtDecode(token);
 
-    sessionStorage.setItem('Authorization', `Bearer ${token}`);
+    sessionStorage.setItem('Authorization', token); // Store token without 'Bearer ' prefix
     sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false'); // Simpan status super user
 
     return {
@@ -21,6 +21,7 @@ export const login = async (email: string, password: string) => {
   }
 };
 
+
 // Fungsi logout
 export const logout = async () => {
   try {
@@ -31,20 +32,27 @@ export const logout = async () => {
   }
 };
 
-// Fungsi refresh token
 export const refreshToken = async () => {
   try {
+    console.log('Attempting to refresh token...');
     const response = await apiClient.put('/authentication/refresh', {}, { withCredentials: true });
     if (response.data.status === 'success') {
-      const token = sessionStorage.getItem('Authorization')?.split(' ')[1];
-      if (token) {
-        const decodedToken: any = jwtDecode(token);
-        sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false');
-      }
+      const token = response.data.data.token; 
+      console.log('Token refreshed successfully:', token);
+      sessionStorage.setItem("Authorization", token); 
+      const decodedToken: any = jwtDecode(token);
+      sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false');
+    } else {
+      console.error('Failed to refresh token, status:', response.data.status);
+      throw new Error('Failed to refresh token');
     }
-  } catch (error) {
-    console.error('Error refreshing token:', (error as any).response ? (error as any).response.data : (error as any).message);
-    forceLogout();  // Directly call forceLogout if refreshToken fails
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error refreshing token:', error.message);
+    } else {
+      console.error('Error refreshing token:', String(error));
+    }
+    forceLogout();  
     throw error;
   }
 };
@@ -69,3 +77,4 @@ const clearSession = () => {
 export const isUserSuper = (): boolean => {
   return sessionStorage.getItem('isSuperUser') === 'true';
 };
+

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { getSekolahById, editSekolahById } from '../../api/sekolah-api';
+import React, { useState} from 'react';
+import { editSekolahById } from '../../api/sekolah-api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 

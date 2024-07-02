@@ -19,7 +19,7 @@ interface School {
   nama: string;
   kota: string;
   kecocokan?: string;
-  okupasi?: Okupasi;  // Mark okupasi as optional
+  okupasi?: Okupasi;  
 }
 
 interface Props {

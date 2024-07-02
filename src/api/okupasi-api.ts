@@ -1,40 +1,10 @@
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; // Sudah termasuk '/api/v1'
-
-const apiClient = axios.create({
-  baseURL: API_BASE_URL, // Tidak perlu menambahkan '/api/v1' lagi
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true, // tangani cookies
-});
-
-// Handle Error
-const handleError = (error: unknown) => {
-  if (axios.isAxiosError(error)) {
-    console.error('Axios error:', error.response?.data);
-    if (error.response && error.response.data && error.response.data.errors) {
-      throw new Error(error.response.data.errors[0].message);
-    } else {
-      throw error.response ? error.response.data : new Error('An error occurred');
-    }
-  } else if (error instanceof Error) {
-    console.error('General error:', error.message);
-    throw new Error(error.message);
-  } else {
-    console.error('Unknown error:', error);
-    throw new Error('An unknown error occurred');
-  }
-};
+import { apiClient, handleError } from './apiClient';
 
 // Add Okupasi
 export const addOkupasi = async (kode: string, nama: string, unitKompetensi: { nama: string }[]) => {
   try {
     const payload = { kode, nama, unit_kompetensi: unitKompetensi };
-    console.log('Sending data to server:', payload);
     const response = await apiClient.post('/okupasi', payload);
-    console.log('Server response:', response.data);
     return response.data;
   } catch (error) {
     handleError(error);

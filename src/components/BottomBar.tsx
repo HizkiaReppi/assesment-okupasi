@@ -6,7 +6,7 @@ import Draggable from 'react-draggable';
 const BottomBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleDrag = (e: any, data: any) => {
+  const handleDrag = (_e: any, data: any) => {
     if (data.y < -100) {
       setIsOpen(true);
     } else if (data.y > 100) {

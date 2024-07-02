@@ -5,7 +5,7 @@ import {
   ReactNode,
   useEffect,
 } from "react";
-import { refreshToken, forceLogout, isUserSuper } from "../api/auth";
+import { refreshToken, isUserSuper } from "../api/auth";
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedInState] = useState<boolean>(() => {
-    return !!sessionStorage.getItem("Authorization"); // Check if token exists in sessionStorage
+    return !!sessionStorage.getItem("Authorization"); 
   });
   const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(() =>
     isUserSuper()
@@ -45,17 +45,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const refreshAuthToken = async () => {
       try {
         await refreshToken();
-        setIsSuperAdmin(isUserSuper()); // Update role after token is refreshed
+        setIsSuperAdmin(isUserSuper()); 
       } catch (error) {
-        const typedError = error as { response?: { data: any }, message: string };
-        console.error('Failed to refresh token:', typedError.response ? typedError.response.data : typedError.message);
         handleLogout();
       }
     };
 
     const handleLogout = () => {
       clearSession();
-      alert('Your session has expired. Please log in again.'); // Alert the user
+      alert('Sesi Anda telah kadaluarsa. Silakan login kembali.'); 
       setIsLoggedIn(false);
     };
 
@@ -63,15 +61,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (timeout) clearTimeout(timeout);
       timeout = setTimeout(() => {
         handleLogout();
-      }, 15 * 60 * 1000); // 15 minutes
+      }, 15 * 60 * 1000); // 15 menit
     };
 
     if (isLoggedIn) {
-      interval = setInterval(refreshAuthToken, 15 * 60 * 1000); // Refresh token every 15 minutes
+      interval = setInterval(refreshAuthToken, 15 * 60 * 1000); // Perbarui token setiap 15 menit
+      resetLogoutTimeout(); // Atur timeout logout awal
 
-      resetLogoutTimeout(); // Set initial logout timeout
-
-      // Listen for user activity
+      // Dengarkan aktivitas pengguna
       window.addEventListener('mousemove', resetLogoutTimeout);
       window.addEventListener('keydown', resetLogoutTimeout);
 
@@ -105,5 +102,5 @@ const clearSession = () => {
   sessionStorage.removeItem('isSuperUser');
   // Hapus cookies authorization
   document.cookie = 'Authorization=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-  window.location.href = '/login'; // Redirect to login page
+  window.location.href = '/login'; // Arahkan ke halaman login
 };
