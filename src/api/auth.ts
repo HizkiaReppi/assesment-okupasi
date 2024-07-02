@@ -21,7 +21,6 @@ export const login = async (email: string, password: string) => {
   }
 };
 
-
 // Fungsi logout
 export const logout = async () => {
   try {
@@ -32,14 +31,15 @@ export const logout = async () => {
   }
 };
 
+// Fungsi refresh token
 export const refreshToken = async () => {
   try {
     console.log('Attempting to refresh token...');
     const response = await apiClient.put('/authentication/refresh', {}, { withCredentials: true });
     if (response.data.status === 'success') {
-      const token = response.data.data.token; 
+      const token = response.data.data.token;
       // console.log('Token refreshed successfully:', token);
-      sessionStorage.setItem("Authorization", token); 
+      sessionStorage.setItem("Authorization", token);
       const decodedToken: any = jwtDecode(token);
       sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false');
     } else {
@@ -52,16 +52,15 @@ export const refreshToken = async () => {
     } else {
       console.error('Error refreshing token:', String(error));
     }
-    forceLogout();  
+    forceLogout();
     throw error;
   }
 };
 
 // Fungsi force logout
 export const forceLogout = async () => {
-  await apiClient.post('/user/logout');
-  alert('Session has ended. Please log in again.');
   clearSession();
+  alert('Session has ended. Please log in again.');
 };
 
 // Fungsi untuk menghapus session storage
@@ -77,4 +76,3 @@ const clearSession = () => {
 export const isUserSuper = (): boolean => {
   return sessionStorage.getItem('isSuperUser') === 'true';
 };
-

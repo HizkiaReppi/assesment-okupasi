@@ -5,7 +5,7 @@ import {
   ReactNode,
   useEffect,
 } from "react";
-import { refreshToken, isUserSuper } from "../api/auth";
+import { refreshToken, isUserSuper, forceLogout } from "../api/auth";
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedInState] = useState<boolean>(() => {
-    return !!sessionStorage.getItem("Authorization"); 
+    return !!sessionStorage.getItem("Authorization");
   });
   const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(() =>
     isUserSuper()
@@ -45,26 +45,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const refreshAuthToken = async () => {
       try {
         await refreshToken();
-        setIsSuperAdmin(isUserSuper()); 
+        // console.log('Token berhasil diperbarui di AuthProvider');
+        setIsSuperAdmin(isUserSuper());
       } catch (error) {
-        handleLogout();
+        forceLogout();
       }
-    };
-
-    const handleLogout = () => {
-      clearSession();
-      alert('Sesi Anda telah kadaluarsa. Silakan login kembali.'); 
-      setIsLoggedIn(false);
     };
 
     const resetLogoutTimeout = () => {
       if (timeout) clearTimeout(timeout);
+      // console.log('Mengatur ulang timeout logout');
       timeout = setTimeout(() => {
-        handleLogout();
+        forceLogout();
       }, 15 * 60 * 1000); // 15 menit
     };
 
     if (isLoggedIn) {
+      // console.log('Mengatur handler untuk refresh token dan logout');
       interval = setInterval(refreshAuthToken, 14 * 60 * 1000); // Perbarui token setiap 14 menit
       resetLogoutTimeout(); // Atur timeout logout awal
 
@@ -94,13 +91,4 @@ export const useAuth = (): AuthContextType => {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-};
-
-// Fungsi untuk menghapus session storage
-const clearSession = () => {
-  sessionStorage.removeItem('Authorization');
-  sessionStorage.removeItem('isSuperUser');
-  // Hapus cookies authorization
-  document.cookie = 'Authorization=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-  window.location.href = '/login'; // Arahkan ke halaman login
 };
