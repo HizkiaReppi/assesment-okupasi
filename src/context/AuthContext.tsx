@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     if (isLoggedIn) {
-      interval = setInterval(refreshAuthToken, 15 * 60 * 1000); // Perbarui token setiap 15 menit
+      interval = setInterval(refreshAuthToken, 14 * 60 * 1000); // Perbarui token setiap 14 menit
       resetLogoutTimeout(); // Atur timeout logout awal
 
       // Dengarkan aktivitas pengguna
