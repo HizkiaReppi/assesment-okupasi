@@ -34,12 +34,12 @@ export const logout = async () => {
 // Fungsi refresh token
 export const refreshToken = async () => {
   try {
-    const response = await apiClient.put('/authentication/refresh', {}, { withCredentials: true });
+    const response = await apiClient.put('/api/v1/authentication/refresh', {}, { withCredentials: true });
     if (response.data.status === 'success') {
       const token = sessionStorage.getItem('Authorization')?.split(' ')[1];
       if (token) {
         const decodedToken: any = jwtDecode(token);
-        sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false'); 
+        sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false');
       }
     }
   } catch (error) {

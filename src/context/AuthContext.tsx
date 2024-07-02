@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
+    let interval: ReturnType<typeof setInterval>;
 
     const refreshAuthToken = async () => {
       try {
@@ -58,26 +59,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoggedIn(false);
     };
 
-    if (isLoggedIn) {
-      // Production code: Refresh token every 15 minutes, force logout after 15 minutes if no refresh
-      const interval = setInterval(refreshAuthToken, 15 * 60 * 1000);
-
+    const resetLogoutTimeout = () => {
+      if (timeout) clearTimeout(timeout);
       timeout = setTimeout(() => {
         handleLogout();
-      }, 15 * 60 * 1000);
+      }, 15 * 60 * 1000); // 15 minutes
+    };
 
-      // Test code: Uncomment the following block for testing (1 minute intervals)
-      
-      // const interval = setInterval(refreshAuthToken, 1 * 60 * 1000);
+    if (isLoggedIn) {
+      interval = setInterval(refreshAuthToken, 15 * 60 * 1000); // Refresh token every 15 minutes
 
-      // timeout = setTimeout(() => {
-      //   handleLogout();
-      // }, 1 * 60 * 1000);
-      
+      resetLogoutTimeout(); // Set initial logout timeout
+
+      // Listen for user activity
+      window.addEventListener('mousemove', resetLogoutTimeout);
+      window.addEventListener('keydown', resetLogoutTimeout);
 
       return () => {
         clearInterval(interval);
         clearTimeout(timeout);
+        window.removeEventListener('mousemove', resetLogoutTimeout);
+        window.removeEventListener('keydown', resetLogoutTimeout);
       };
     }
   }, [isLoggedIn]);
