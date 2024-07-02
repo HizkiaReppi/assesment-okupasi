@@ -38,12 +38,12 @@ export const refreshToken = async () => {
     const response = await apiClient.put('/authentication/refresh', {}, { withCredentials: true });
     if (response.data.status === 'success') {
       const token = response.data.data.token; 
-      console.log('Token refreshed successfully:', token);
+      // console.log('Token refreshed successfully:', token);
       sessionStorage.setItem("Authorization", token); 
       const decodedToken: any = jwtDecode(token);
       sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false');
     } else {
-      console.error('Failed to refresh token, status:', response.data.status);
+      // console.error('Failed to refresh token, status:', response.data.status);
       throw new Error('Failed to refresh token');
     }
   } catch (error: unknown) {

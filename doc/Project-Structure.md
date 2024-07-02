@@ -1,3 +1,6 @@
+# Project Structure
+
+```plaintext
 src/
 ├── api/           # API untuk berinteraksi dengan 
 ├── assets/        # tempat asset gambar 
@@ -11,3 +14,5 @@ src/
 ├── utils/         # Utils untuk berinteraksi dengan API Google Geolocation
 ├── App.tsx        # Route dan layouting
 ├── main.tsx       # Titik masuk aplikasi
+```
+

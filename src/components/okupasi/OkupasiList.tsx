@@ -91,7 +91,7 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
       <h2 className="text-xl font-bold text-gray-800 mb-4">Daftar Okupasi</h2>
       <input
         type="text"
-        placeholder="Cari kode atau nama okupasi"
+        placeholder="Cari nama okupasi"
         value={searchQuery}
         onChange={handleSearchChange}
         className="mb-4 p-2 border border-gray-300 rounded-md w-full"
