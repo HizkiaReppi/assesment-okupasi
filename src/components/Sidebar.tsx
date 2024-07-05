@@ -203,13 +203,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   };
 
   return (
-    <div className="flex rounded-sm">
+    <div className="flex rounded-sm z-40">
       <div
         className={`fixed top-14 right-0 h-[calc(100%-3rem)] overflow-y-auto overflow-x-hidden bg-white shadow-md z-50 ${
           isOpen ? "w-80" : "w-10"
         } transition-all duration-300 flex flex-col rounded-sm`}
       >
-        <button onClick={() => setIsOpen(!isOpen)} className="flex ml-2 p-2 font-extrabold focus:outline-none">
+        <button onClick={() => setIsOpen(!isOpen)} className="flex ml-2 p-2 font-extrabold focus:outline-none mt-4">
           {isOpen ? ">" : "<"}
         </button>
         {isOpen && (
