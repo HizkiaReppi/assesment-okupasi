@@ -1,4 +1,4 @@
-import { useState} from "react";
+import { useState } from "react";
 import SekolahAddForm from "../components/sekolah/SekolahAddFormComponent";
 import SekolahEditForm from "../components/sekolah/SekolahEditFormComponent";
 import SekolahList from "../components/sekolah/SekolahListComponent";
@@ -15,7 +15,7 @@ const DataSekolahPage: React.FC = () => {
         id: string;
         kode: string;
     } | null>(null);
-    const [selectedSchool, setSelectedSchool] = useState<{ id: string | null, nama: string, kota: string }>({ id: null, nama: '', kota: '' });
+    const [selectedSchool, setSelectedSchool] = useState<{ id: string | null, nama: string, kota: string, jumlah_siswa: number, jumlah_kelulusan: number }>({ id: null, nama: '', kota: '', jumlah_siswa: 0, jumlah_kelulusan: 0 });
     const [refresh, setRefresh] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const isDesktop = useIsDesktop();
@@ -33,15 +33,13 @@ const DataSekolahPage: React.FC = () => {
         setEditingKompetensi({ id: unitId, kode: initialKode });
     };
 
-    // @ts-ignore
-    // handle error not used
     const handleError = (message: string | string[]) => {
         const errorMessage = Array.isArray(message) ? message.join(", ") : message;
         setErrorMessage(errorMessage);
     };
 
-    const handleEditSekolah = (id: string, nama: string, kota: string) => {
-        setSelectedSchool({ id, nama, kota });
+    const handleEditSekolah = (id: string, nama: string, kota: string, jumlah_siswa: number, jumlah_kelulusan: number) => {
+        setSelectedSchool({ id, nama, kota, jumlah_siswa, jumlah_kelulusan });
         setEditingSekolahId(id);
     };
 
@@ -81,11 +79,13 @@ const DataSekolahPage: React.FC = () => {
                                     id={selectedSchool.id || ''}
                                     initialNama={selectedSchool.nama}
                                     initialKota={selectedSchool.kota}
+                                    initialJumlahSiswa={selectedSchool.jumlah_siswa}
+                                    initialJumlahKelulusan={selectedSchool.jumlah_kelulusan}
                                     onSuccess={() => {
                                         setEditingSekolahId(null);
                                         handleRefresh();
                                     }}
-                                    // onError={handleError}
+                                    onError={handleError}
                                 />
                             </>
                         )}
@@ -160,14 +160,12 @@ const DataSekolahPage: React.FC = () => {
                             />
                         )}
                         {selectedSekolahId && (
-                            <>
-                                <KompetensiList
-                                    sekolahId={selectedSekolahId}
-                                    onEdit={handleEditKompetensi}
-                                    refresh={refresh}
-                                    editingUnitId={editingKompetensi?.id || null}
-                                />
-                            </>
+                            <KompetensiList
+                                sekolahId={selectedSekolahId}
+                                onEdit={handleEditKompetensi}
+                                refresh={refresh}
+                                editingUnitId={editingKompetensi?.id || null}
+                            />
                         )}
                     </div>
                 </div>
@@ -177,4 +175,3 @@ const DataSekolahPage: React.FC = () => {
 };
 
 export default DataSekolahPage;
-

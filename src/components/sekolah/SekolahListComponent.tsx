@@ -73,11 +73,6 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
         setCurrentPage(pageNumber);
     };
 
-    const formatPercentage = (numerator: number, denominator: number): string => {
-        if (denominator === 0) return '0%';
-        return ((numerator / denominator) * 100).toFixed(2) + '%';
-    };
-
     return (
         <div className="mb-6 p-4 bg-white rounded-lg shadow-md">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Daftar Sekolah</h2>
@@ -106,7 +101,10 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                         </span>
                         <div className="mt-2 flex justify-end space-x-2">
                             <button 
-                                onClick={() => onEdit(item.id, item.nama, item.kota, item.jumlah_siswa, item.jumlah_kelulusan)} 
+                                onClick={() => {
+                                    console.log('Editing school:', item); // Debugging
+                                    onEdit(item.id, item.nama, item.kota, item.jumlah_siswa, item.jumlah_kelulusan);
+                                }} 
                                 className="relative overflow-hidden text-sm bg-gray-300 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-400 before:absolute before:inset-0 before:bg-gray-400 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-30 before:rounded-full before:scale-0 hover:before:scale-150 before:blur"
                             >
                                 Edit
@@ -166,6 +164,11 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
             />
         </div>
     );
+};
+
+const formatPercentage = (numerator: number, denominator: number): string => {
+    if (denominator === 0) return '0%';
+    return ((numerator / denominator) * 100).toFixed(2) + '%';
 };
 
 export default SekolahList;

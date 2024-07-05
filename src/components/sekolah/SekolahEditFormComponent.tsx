@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { editSekolahById } from '../../api/sekolah-api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -7,20 +7,28 @@ interface EditSekolahFormProps {
     id: string;
     initialNama: string;
     initialKota: string;
-    initialJumlahSiswa: number;
-    initialJumlahKelulusan: number;
+    initialJumlahSiswa?: number;
+    initialJumlahKelulusan?: number;
     onSuccess: () => void;
+    onError: (message: string | string[]) => void;
 }
 
-const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, initialKota, initialJumlahSiswa, initialJumlahKelulusan, onSuccess }) => {
-    const [nama, setNama] = useState<string>(initialNama);
-    const [kota, setKota] = useState<string>(initialKota);
-    const [jumlahSiswa, setJumlahSiswa] = useState<number>(initialJumlahSiswa);
-    const [jumlahKelulusan, setJumlahKelulusan] = useState<number>(initialJumlahKelulusan);
+const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, initialKota, initialJumlahSiswa = 0, initialJumlahKelulusan = 0, onSuccess }) => {
+    const [nama, setNama] = useState<string>(initialNama || '');
+    const [kota, setKota] = useState<string>(initialKota || '');
+    const [jumlahSiswa, setJumlahSiswa] = useState<string>(initialJumlahSiswa.toString());
+    const [jumlahKelulusan, setJumlahKelulusan] = useState<string>(initialJumlahKelulusan.toString());
     const [loading, setLoading] = useState<boolean>(false);
     const [isEdited, setIsEdited] = useState<boolean>(false);
 
-    const handleInputChange = (setter: React.Dispatch<React.SetStateAction<any>>, value: any) => {
+    useEffect(() => {
+        setNama(initialNama || '');
+        setKota(initialKota || '');
+        setJumlahSiswa(initialJumlahSiswa.toString());
+        setJumlahKelulusan(initialJumlahKelulusan.toString());
+    }, [initialNama, initialKota, initialJumlahSiswa, initialJumlahKelulusan]);
+
+    const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
         setter(value);
         setIsEdited(true);
     };
@@ -29,7 +37,7 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, init
         event.preventDefault();
         setLoading(true);
         try {
-            await editSekolahById(id, nama, kota, jumlahSiswa, jumlahKelulusan);
+            await editSekolahById(id, nama, kota, parseInt(jumlahSiswa), parseInt(jumlahKelulusan));
             toast.success(`Sekolah ${nama} berhasil diupdate.`, {
                 position: "bottom-right"
             });
@@ -43,6 +51,10 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, init
         } finally {
             setLoading(false);
         }
+    };
+
+    const validateNumber = (value: string) => {
+        return /^[0-9]*$/.test(value);
     };
 
     return (
@@ -69,18 +81,18 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, init
             <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Jumlah Siswa:</label>
                 <input 
-                    type="number" 
+                    type="text" 
                     value={jumlahSiswa} 
-                    onChange={(e) => handleInputChange(setJumlahSiswa, Number(e.target.value))} 
+                    onChange={(e) => validateNumber(e.target.value) && handleInputChange(setJumlahSiswa, e.target.value)} 
                     className={`w-full p-3 border ${isEdited ? 'border-blue-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out`}
                 />
             </div>
             <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Jumlah Kelulusan:</label>
                 <input 
-                    type="number" 
+                    type="text" 
                     value={jumlahKelulusan} 
-                    onChange={(e) => handleInputChange(setJumlahKelulusan, Number(e.target.value))} 
+                    onChange={(e) => validateNumber(e.target.value) && handleInputChange(setJumlahKelulusan, e.target.value)} 
                     className={`w-full p-3 border ${isEdited ? 'border-blue-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out`}
                 />
             </div>
