@@ -41,8 +41,6 @@ interface PopupInfo {
   };
 }
 
-
-
 const HomePage: React.FC = () => {
   const [initialSchools, setInitialSchools] = useState<School[]>([]);
   const [center, setCenter] = useState<{ lat: number; lng: number }>({
@@ -212,33 +210,32 @@ const HomePage: React.FC = () => {
           {markers.map((position, index) => (
             <Marker key={index} position={position}>
               <Popup>
-                <div className="max-h-72 w-full sm:max-w-96 overflow-y-auto pt-4 pb-4">
-                  <h3 className="text-2xl sm:text-3xl font-semibold mb-4">
+                <div className="max-h-72 max-w-96 overflow-y-auto pt-4 pb-4 pr-6">
+                  <h3 className="text-xl font-semibold mb-2 underline mr-3">
                     {popupInfo?.details.nama}
                   </h3>
-                  <p className="text-base sm:text-lg text-gray-700 mb-2">
+                  <p className="text-base sm:text-lg text-gray-700 ">
                     <strong>Kota:</strong> {popupInfo?.details.kota}
                   </p>
                   {popupInfo?.details.kecocokan && (
                     <p className="text-base sm:text-lg text-gray-700 mb-2">
-                      <strong>Kecocokan:</strong> {popupInfo.details.kecocokan}
+                      <strong>Kecocokan:</strong> {popupInfo.details.kecocokan}%
                     </p>
                   )}
                   {popupInfo?.details.jumlah_siswa && (
-                    <p className="text-base sm:text-lg text-gray-700 mb-2">
+                    <p className="text-base sm:text-lg text-gray-700 ">
                       <strong>Jumlah Siswa:</strong>{" "}
                       {popupInfo.details.jumlah_siswa}
                     </p>
                   )}
                   {popupInfo?.details.jumlah_kelulusan && (
-                    <p className="text-base sm:text-lg text-gray-700 mb-2">
+                    <p className="text-base text-gray-700 mb-4">
                       <strong>Jumlah Kelulusan:</strong>{" "}
-                      {popupInfo.details.jumlah_kelulusan} (
-                      {popupInfo.details.persentase_kelulusan})
+                      {popupInfo.details.jumlah_kelulusan}({popupInfo.details.persentase_kelulusan})
                     </p>
                   )}
                   {popupInfo?.details.okupasi && (
-                    <p className="text-base sm:text-lg text-gray-700 mb-2">
+                    <p className="text-base sm:text-lg text-gray-700 ">
                       <strong>Okupasi:</strong>{" "}
                       {popupInfo.details.okupasi.toUpperCase()}
                       <br />
@@ -249,8 +246,8 @@ const HomePage: React.FC = () => {
                   )}
                   {popupInfo?.details.unit_kompetensi &&
                     popupInfo.details.unit_kompetensi.length > 0 && (
-                      <div className="mt-4">
-                        <h4 className="text-base sm:text-lg font-semibold">
+                      <div className="mt-2">
+                        <h4 className="text-base sm:text-lg font-semibold ">
                           Unit Kompetensi:
                         </h4>
                         <ul className="list-disc list-inside text-base sm:text-lg text-gray-700">

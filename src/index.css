@@ -2,51 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-/* index.css atau App.css */
 .leaflet-popup-close-button {
-  font-size: 34px !important; /* Ubah ukuran font sesuai kebutuhan */
-  width: 30px !important;     /* Ubah lebar sesuai kebutuhan */
-  height: 30px !important;    /* Ubah tinggi sesuai kebutuhan */
+  font-size: 34px !important;
+  width: 30px !important;
+  height: 30px !important;
   line-height: 30px !important;
   text-align: center !important;
   margin-right: 12px;
-max-width: 80vw;
 }
 
-/* index.css atau App.css */
 .leaflet-popup-content-wrapper {
-  max-height: 72vh; /* Atur tinggi maksimum popup */
-  overflow-y: auto; /* Pastikan konten bisa di-scroll secara vertikal */
-  overflow-x: hidden;
-  padding-top: 20px;
+  max-height: 72vh; 
+  overflow-y: auto; 
+  overflow-x: hidden; 
+  padding-top: 20px;  
   padding-bottom: 10px;
+  max-width: 80vw; 
 }
 
 .leaflet-popup-content-wrapper::-webkit-scrollbar {
-  width: 5px; /* Atur lebar scrollbar */
+  width: 5px; 
 }
 
 .leaflet-popup-content-wrapper::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Warna track scrollbar */
+  background: #f1f1f1;
 }
 
 .leaflet-popup-content-wrapper::-webkit-scrollbar-thumb {
-  background: #888; /* Warna thumb scrollbar */
+  background: #888; 
 }
 
 .leaflet-popup-content-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #555; /* Warna thumb scrollbar saat hover */
+  background: #555; 
 }
 
 @media (min-width: 640px) {
   .leaflet-popup-content-wrapper {
-    max-width: 40vw; /* Atur lebar maksimum popup untuk layar lebih besar dari 640px */
+    max-width: 40vw; 
   }
 }
 
 @media (min-width: 1024px) {
   .leaflet-popup-content-wrapper {
-    max-width: 30vw; /* Atur lebar maksimum popup untuk layar lebih besar dari 1024px */
+    max-width: 30vw; 
   }
 }
-
