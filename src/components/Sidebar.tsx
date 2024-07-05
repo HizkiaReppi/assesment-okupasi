@@ -20,6 +20,9 @@ interface School {
   nama: string;
   kota: string;
   kecocokan: string;
+  jumlah_siswa: number;
+  jumlah_kelulusan: number;
+  persentase_kelulusan: string;
   okupasi?: Okupasi;
 }
 
@@ -68,8 +71,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
       nama: school.nama,
       kota: school.kota,
       kecocokan: school.kecocokan,
+      jumlah_siswa: school.jumlah_siswa,
+      jumlah_kelulusan: school.jumlah_kelulusan,
+      persentase_kelulusan: school.persentase_kelulusan,
       okupasi: school.okupasi?.nama,
-      kode_okupasi: kodeOkupasi, // Include kodeOkupasi here
+      kode_okupasi: kodeOkupasi,
       unit_kompetensi: school.okupasi?.unit_kompetensi,
     };
     onSelectSchool(school.nama, schoolDetails);
@@ -190,6 +196,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
     (filterPage + 1) * itemsPerFilterPage
   );
   const filterPageCount = Math.ceil(filteredKota.length / itemsPerFilterPage);
+
+  const formatPercentage = (numerator: number, denominator: number): string => {
+    if (denominator === 0) return '0%';
+    return ((numerator / denominator) * 100).toFixed(2) + '%';
+  };
 
   return (
     <div className="flex rounded-sm">
@@ -330,9 +341,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                   >
                     <h3 className="font-bold text-lg">{truncate(school.nama, 20)}</h3>
                     <p className="text-gray-600">{truncate(school.kota, 20)}</p>
-                    {school.kecocokan && (
-                      <p className="text-gray-500"><strong>Kecocokan: {school.kecocokan}%</strong></p>
-                    )}
+                    <p className="text-gray-500"><strong>Kecocokan: {school.kecocokan}%</strong></p>
+                    <p className="text-gray-500"><strong>Jumlah Siswa: {school.jumlah_siswa}</strong></p>
+                    <p className="text-gray-500"><strong>Jumlah Kelulusan: {school.jumlah_kelulusan}</strong></p>
+                    <p className="text-gray-500"><strong>Persentase Kelulusan: {formatPercentage(school.jumlah_kelulusan, school.jumlah_siswa)}</strong></p>
                   </div>
                 ))
               ) : (

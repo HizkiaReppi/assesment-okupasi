@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import ConfirmationModal from '../ConfirmationModal';
 
 interface SekolahListProps {
-    onEdit: (id: string, nama: string, kota: string) => void;
+    onEdit: (id: string, nama: string, kota: string, jumlah_siswa: number, jumlah_kelulusan: number) => void;
     onViewKompetensi: (id: string) => void;
     refresh: boolean;
     editingId: string | null;
@@ -73,6 +73,11 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
         setCurrentPage(pageNumber);
     };
 
+    const formatPercentage = (numerator: number, denominator: number): string => {
+        if (denominator === 0) return '0%';
+        return ((numerator / denominator) * 100).toFixed(2) + '%';
+    };
+
     return (
         <div className="mb-6 p-4 bg-white rounded-lg shadow-md">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Daftar Sekolah</h2>
@@ -94,11 +99,14 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                     >
                         <span className="block text-gray-900 font-semibold">
                             {item.nama.toUpperCase()} <br />
-                            Kota: {item.kota}
+                            Kota: {item.kota} <br />
+                            Jumlah Siswa: {item.jumlah_siswa} <br />
+                            Jumlah Kelulusan: {item.jumlah_kelulusan} <br />
+                            Persentase Kelulusan: {formatPercentage(item.jumlah_kelulusan, item.jumlah_siswa)}
                         </span>
                         <div className="mt-2 flex justify-end space-x-2">
                             <button 
-                                onClick={() => onEdit(item.id, item.nama, item.kota)} 
+                                onClick={() => onEdit(item.id, item.nama, item.kota, item.jumlah_siswa, item.jumlah_kelulusan)} 
                                 className="relative overflow-hidden text-sm bg-gray-300 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-400 before:absolute before:inset-0 before:bg-gray-400 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-30 before:rounded-full before:scale-0 hover:before:scale-150 before:blur"
                             >
                                 Edit

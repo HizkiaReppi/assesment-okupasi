@@ -10,6 +10,8 @@ interface SekolahAddFormProps {
 const SekolahAddForm: React.FC<SekolahAddFormProps> = ({ onAddSuccess }) => {
     const [nama, setNama] = useState('');
     const [kota, setKota] = useState('');
+    const [jumlahSiswa, setJumlahSiswa] = useState<number | ''>('');
+    const [jumlahKelulusan, setJumlahKelulusan] = useState<number | ''>('');
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -31,11 +33,29 @@ const SekolahAddForm: React.FC<SekolahAddFormProps> = ({ onAddSuccess }) => {
             return;
         }
 
+        if (jumlahSiswa === '' || jumlahSiswa <= 0) {
+            setError('Jumlah siswa harus lebih dari 0.');
+            toast.error('Jumlah siswa harus lebih dari 0.', {
+                position: "bottom-right"
+            });
+            return;
+        }
+
+        if (jumlahKelulusan === '' || jumlahKelulusan < 0) {
+            setError('Jumlah kelulusan tidak boleh negatif.');
+            toast.error('Jumlah kelulusan tidak boleh negatif.', {
+                position: "bottom-right"
+            });
+            return;
+        }
+
         try {
-            await addSekolah(nama, kota);
+            await addSekolah(nama, kota, Number(jumlahSiswa), Number(jumlahKelulusan));
 
             setNama('');
             setKota('');
+            setJumlahSiswa('');
+            setJumlahKelulusan('');
             setError(null);
             onAddSuccess();
             toast.success(`Sekolah ${nama} berhasil ditambahkan.`, {
@@ -69,6 +89,24 @@ const SekolahAddForm: React.FC<SekolahAddFormProps> = ({ onAddSuccess }) => {
                     type="text"
                     value={kota}
                     onChange={(e) => setKota(e.target.value)}
+                    className="mt-1 p-3 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm"
+                />
+            </div>
+            <div>
+                <label className="block text-gray-700">Jumlah Siswa:</label>
+                <input
+                    type="number"
+                    value={jumlahSiswa}
+                    onChange={(e) => setJumlahSiswa(Number(e.target.value))}
+                    className="mt-1 p-3 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm"
+                />
+            </div>
+            <div>
+                <label className="block text-gray-700">Jumlah Kelulusan:</label>
+                <input
+                    type="number"
+                    value={jumlahKelulusan}
+                    onChange={(e) => setJumlahKelulusan(Number(e.target.value))}
                     className="mt-1 p-3 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm"
                 />
             </div>

@@ -1,5 +1,5 @@
-import { getAllSekolahStatByKodeOkupasi,  } from "../api/sekolah-api";
-import {getAllOkupasi} from "../api/okupasi-api";
+import { getAllSekolahStatByKodeOkupasi } from "../api/sekolah-api";
+import { getAllOkupasi } from "../api/okupasi-api";
 
 interface Kompetensi {
   id: string;
@@ -17,6 +17,9 @@ interface School {
   nama: string;
   kota: string;
   kecocokan: string;
+  jumlah_siswa: number;
+  jumlah_kelulusan: number;
+  persentase_kelulusan: string;
   okupasi?: Okupasi;
 }
 
@@ -43,6 +46,9 @@ export const fetchSchoolsByOkupasi = async (
         nama: school.nama,
         kota: school.kota,
         kecocokan: parseFloat(school.kecocokan).toFixed(2),
+        jumlah_siswa: school.jumlah_siswa,
+        jumlah_kelulusan: school.jumlah_kelulusan,
+        persentase_kelulusan: school.persentase_kelulusan,
         okupasi: school.okupasi ?? null,
       }));
 

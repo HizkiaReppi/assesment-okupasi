@@ -13,6 +13,10 @@ interface School {
   kota: string;
   lat?: number;
   lng?: number;
+  kecocokan?: string;
+  jumlah_siswa?: number;
+  jumlah_kelulusan?: number;
+  persentase_kelulusan?: string;
 }
 
 interface Kompetensi {
@@ -27,6 +31,9 @@ interface PopupInfo {
     nama: string;
     kota: string;
     kecocokan?: string;
+    jumlah_siswa?: number;
+    jumlah_kelulusan?: number;
+    persentase_kelulusan?: string;
     okupasi?: string;
     kode_okupasi?: string;
     unit_kompetensi?: Kompetensi[];
@@ -95,6 +102,9 @@ const HomePage: React.FC = () => {
             nama: schoolDetails.nama,
             kota: schoolDetails.kota,
             kecocokan: schoolDetails.kecocokan,
+            jumlah_siswa: schoolDetails.jumlah_siswa,
+            jumlah_kelulusan: schoolDetails.jumlah_kelulusan,
+            persentase_kelulusan: formatPercentage(schoolDetails.jumlah_kelulusan, schoolDetails.jumlah_siswa),
             okupasi: schoolDetails.okupasi,
             kode_okupasi: schoolDetails.kode_okupasi, // Include kodeOkupasi here
             unit_kompetensi: schoolDetails.unit_kompetensi || [], 
@@ -140,6 +150,11 @@ const HomePage: React.FC = () => {
     return null;
   };
 
+  const formatPercentage = (numerator: number, denominator: number): string => {
+    if (denominator === 0) return '0%';
+    return ((numerator / denominator) * 100).toFixed(2) + '%';
+  };
+
   if (loading) {
     return <Loading />;
   }
@@ -160,7 +175,7 @@ const HomePage: React.FC = () => {
           minZoom={10} // Set the minimum zoom level
           maxZoom={16} // Set the maximum zoom level
           scrollWheelZoom={true}
-          className="h-full w-full"
+          className="h-full w-full sm:h-screen sm:w-screen"
         >
           <MapBoundsSetter />
           <TileLayer
@@ -174,6 +189,9 @@ const HomePage: React.FC = () => {
                   <h3 className="text-lg font-semibold mb-2">{popupInfo?.details.nama}</h3>
                   <p className="text-sm text-gray-700 mb-1"><strong>Kota:</strong> {popupInfo?.details.kota}</p>
                   {popupInfo?.details.kecocokan && <p className="text-sm text-gray-700 mb-1"><strong>Kecocokan:</strong> {popupInfo.details.kecocokan}</p>}
+                  {popupInfo?.details.jumlah_siswa && <p className="text-sm text-gray-700 mb-1"><strong>Jumlah Siswa:</strong> {popupInfo.details.jumlah_siswa}</p>}
+                  {popupInfo?.details.jumlah_kelulusan && <p className="text-sm text-gray-700 mb-1"><strong>Jumlah Kelulusan:</strong> {popupInfo.details.jumlah_kelulusan}</p>}
+                  {popupInfo?.details.persentase_kelulusan && <p className="text-sm text-gray-700 mb-1"><strong>Persentase Kelulusan:</strong> {popupInfo.details.persentase_kelulusan}</p>}
                   {popupInfo?.details.okupasi && (
                     <p className="text-sm text-gray-700 mb-1">
                       <strong>Okupasi:</strong> {popupInfo.details.okupasi.toUpperCase()}
@@ -196,9 +214,8 @@ const HomePage: React.FC = () => {
           ))}
         </MapContainer>
       </div>
-      <div className="w-full sm:w-2 h-full sm:h-auto overflow-y-auto bg-white">
-        <Sidebar onSelectSchool={handleSchoolClick} />
-      </div>
+      <Sidebar onSelectSchool={handleSchoolClick} />
+
       {rateLimitExceeded && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-red-500 text-white text-center">
           You are making requests too quickly. Please wait a moment and try again.

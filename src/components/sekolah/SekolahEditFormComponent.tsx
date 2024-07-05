@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState } from 'react';
 import { editSekolahById } from '../../api/sekolah-api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -7,16 +7,20 @@ interface EditSekolahFormProps {
     id: string;
     initialNama: string;
     initialKota: string;
+    initialJumlahSiswa: number;
+    initialJumlahKelulusan: number;
     onSuccess: () => void;
 }
 
-const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, initialKota, onSuccess }) => {
+const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, initialKota, initialJumlahSiswa, initialJumlahKelulusan, onSuccess }) => {
     const [nama, setNama] = useState<string>(initialNama);
     const [kota, setKota] = useState<string>(initialKota);
+    const [jumlahSiswa, setJumlahSiswa] = useState<number>(initialJumlahSiswa);
+    const [jumlahKelulusan, setJumlahKelulusan] = useState<number>(initialJumlahKelulusan);
     const [loading, setLoading] = useState<boolean>(false);
     const [isEdited, setIsEdited] = useState<boolean>(false);
 
-    const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
+    const handleInputChange = (setter: React.Dispatch<React.SetStateAction<any>>, value: any) => {
         setter(value);
         setIsEdited(true);
     };
@@ -25,7 +29,7 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, init
         event.preventDefault();
         setLoading(true);
         try {
-            await editSekolahById(id, nama, kota);
+            await editSekolahById(id, nama, kota, jumlahSiswa, jumlahKelulusan);
             toast.success(`Sekolah ${nama} berhasil diupdate.`, {
                 position: "bottom-right"
             });
@@ -59,6 +63,24 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, init
                     type="text" 
                     value={kota} 
                     onChange={(e) => handleInputChange(setKota, e.target.value)} 
+                    className={`w-full p-3 border ${isEdited ? 'border-blue-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out`}
+                />
+            </div>
+            <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Jumlah Siswa:</label>
+                <input 
+                    type="number" 
+                    value={jumlahSiswa} 
+                    onChange={(e) => handleInputChange(setJumlahSiswa, Number(e.target.value))} 
+                    className={`w-full p-3 border ${isEdited ? 'border-blue-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out`}
+                />
+            </div>
+            <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Jumlah Kelulusan:</label>
+                <input 
+                    type="number" 
+                    value={jumlahKelulusan} 
+                    onChange={(e) => handleInputChange(setJumlahKelulusan, Number(e.target.value))} 
                     className={`w-full p-3 border ${isEdited ? 'border-blue-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out`}
                 />
             </div>

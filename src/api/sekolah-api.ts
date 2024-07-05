@@ -1,11 +1,16 @@
 import { apiClient, handleError } from './apiClient';
 
 // Add sekolah
-export const addSekolah = async (nama: string, kota: string) => {
+export const addSekolah = async (
+  nama: string,
+  kota: string,
+  jumlah_siswa: number,
+  jumlah_kelulusan: number
+): Promise<any> => {
   try {
     const response = await apiClient.post(
       "/sekolah",
-      { nama, kota },
+      { nama, kota, jumlah_siswa, jumlah_kelulusan },
       { withCredentials: true }
     );
     return response.data;
@@ -52,12 +57,14 @@ export const getSekolahById = async (id: string) => {
 export const editSekolahById = async (
   id: string,
   nama: string,
-  kota: string
-) => {
+  kota: string,
+  jumlah_siswa: number,
+  jumlah_kelulusan: number
+): Promise<any> => {
   try {
     const response = await apiClient.put(
       `/sekolah/${id}`,
-      { nama, kota },
+      { nama, kota, jumlah_siswa, jumlah_kelulusan },
       { withCredentials: true }
     );
     return response.data;

@@ -1,16 +1,22 @@
-import { useState } from 'react';
-import { FaDoorOpen, FaBars } from 'react-icons/fa';
+import { useState, useEffect, useRef } from 'react';
+import { FaDoorOpen, FaBars, FaCaretDown } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LogoutButton from './Logout';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const { isLoggedIn, isSuperAdmin } = useAuth();
   const location = useLocation();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
+  };
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
   };
 
   const getLinkClasses = (path: string) => {
@@ -18,6 +24,19 @@ const Navbar = () => {
       ? "text-orange-700 border-b-2 border-orange-700 font-medium"
       : "text-gray-800 hover:text-orange-700 transition duration-300 font-medium";
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <nav className="fixed w-full z-50 bg-white shadow-md">
@@ -33,6 +52,17 @@ const Navbar = () => {
             <>
               <Link to="/data-sekolah" className={getLinkClasses("/data-sekolah")}>Data Sekolah</Link>
               <Link to="/data-okupasi" className={getLinkClasses("/data-okupasi")}>Data Okupasi</Link>
+              <div className="relative" ref={dropdownRef}>
+                <button onClick={toggleDropdown} className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center">
+                  Assessment <FaCaretDown className="ml-1" />
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute mt-2 w-48 bg-white shadow-lg rounded-md z-10">
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSc0TleUB6HGjj2bSmqmOphFgvXPMFM-WTU3HGGhFXd6gWugyQ/viewform?usp=sf_link" target="_blank" rel="noopener noreferrer" className="block px-4 py-2 text-gray-800 hover:bg-gray-200">Desain Komunikasi Visual (DKV)</a>
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLScGgTdXSjmMheZjhyXQBYr_WDX8p8zqHBt20BqcdpwJyH-HXA/viewform?usp=sf_link" target="_blank" rel="noopener noreferrer" className="block px-4 py-2 text-gray-800 hover:bg-gray-200">Teknik Komputer dan Jaringan (TKJ)</a>
+                  </div>
+                )}
+              </div>
               {isSuperAdmin && <Link to="/signup" className={getLinkClasses("/signup")}>User Settings</Link>}
               <LogoutButton />
             </>
@@ -54,6 +84,17 @@ const Navbar = () => {
             <>
               <Link to="/data-sekolah" className={getLinkClasses("/data-sekolah")} onClick={toggleMenu}>Data Sekolah</Link>
               <Link to="/data-okupasi" className={getLinkClasses("/data-okupasi")} onClick={toggleMenu}>Data Okupasi</Link>
+              <div className="relative" ref={dropdownRef}>
+                <button onClick={toggleDropdown} className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center">
+                  Assessment <FaCaretDown className="ml-1" />
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute mt-2 w-48 bg-white shadow-lg rounded-md z-10">
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSc0TleUB6HGjj2bSmqmOphFgvXPMFM-WTU3HGGhFXd6gWugyQ/viewform?usp=sf_link" target="_blank" rel="noopener noreferrer" className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={toggleMenu}>Desain Komunikasi Visual (DKV)</a>
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLScGgTdXSjmMheZjhyXQBYr_WDX8p8zqHBt20BqcdpwJyH-HXA/viewform?usp=sf_link" target="_blank" rel="noopener noreferrer" className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={toggleMenu}>Teknik Komputer dan Jaringan (TKJ)</a>
+                  </div>
+                )}
+              </div>
               {isSuperAdmin && <Link to="/signup" className={getLinkClasses("/signup")} onClick={toggleMenu}>User Settings</Link>}
               <LogoutButton />
             </>
