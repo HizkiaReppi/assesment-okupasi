@@ -343,8 +343,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                     <p className="text-gray-600">{truncate(school.kota, 20)}</p>
                     <p className="text-gray-500"><strong>Kecocokan: {school.kecocokan}%</strong></p>
                     <p className="text-gray-500"><strong>Jumlah Siswa: {school.jumlah_siswa}</strong></p>
-                    <p className="text-gray-500"><strong>Jumlah Kelulusan: {school.jumlah_kelulusan}</strong></p>
-                    <p className="text-gray-500"><strong>Persentase Kelulusan: {formatPercentage(school.jumlah_kelulusan, school.jumlah_siswa)}</strong></p>
+                    <p className="text-gray-500"><strong>Jumlah Kelulusan: {school.jumlah_kelulusan}</strong> <strong>({formatPercentage(school.jumlah_kelulusan, school.jumlah_siswa)})</strong></p>
                   </div>
                 ))
               ) : (

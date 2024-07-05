@@ -96,8 +96,7 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                             {item.nama.toUpperCase()} <br />
                             Kota: {item.kota} <br />
                             Jumlah Siswa: {item.jumlah_siswa} <br />
-                            Jumlah Kelulusan: {item.jumlah_kelulusan} <br />
-                            Persentase Kelulusan: {formatPercentage(item.jumlah_kelulusan, item.jumlah_siswa)}
+                            Jumlah Kelulusan: {item.jumlah_kelulusan} ({formatPercentage(item.jumlah_kelulusan, item.jumlah_siswa)} )
                         </span>
                         <div className="mt-2 flex justify-end space-x-2">
                             <button 
