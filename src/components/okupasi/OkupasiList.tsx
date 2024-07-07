@@ -77,15 +77,6 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
     setCurrentPage(pageNumber);
   };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = okupasi;
-
-  const pageNumbers = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
-
   return (
     <div className="mb-6 p-4 bg-white rounded-lg shadow-md">
       <h2 className="text-xl font-bold text-gray-800 mb-4">Daftar Okupasi</h2>
@@ -97,21 +88,20 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
         className="mb-4 p-2 border border-gray-300 rounded-md w-full"
       />
       <p className="text-sm text-gray-600 mb-4">
-        Data {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, totalItems)}{" "}
-        dari {totalItems}
+        Data {itemsPerPage * (currentPage - 1) + 1} - {Math.min(itemsPerPage * currentPage, totalItems)} dari {totalItems}
       </p>
       <ul className="list-none">
-        {currentItems.map((item) => (
+        {okupasi.map((item) => (
           <li
             key={item.kode}
             className="mb-4 p-4 bg-gray-50 rounded-lg shadow-sm"
           >
-            <span className="block text-gray-900 font-semibold">
+            <span className="block text-gray-900 font-semibold mb-2">
               {item.nama.toUpperCase()} <br />
-              Kode : {item.kode}
+              Kode: {item.kode}
             </span>
 
-            <div className="mt-2 flex justify-end space-x-2">
+            <div className="mt-2 flex flex-col space-y-2 sm:flex-row sm:justify-end sm:space-y-0 sm:space-x-2">
               <button
                 onClick={() => onEdit(item.kode)}
                 className="relative overflow-hidden text-sm bg-gray-300 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-400 before:absolute before:inset-0 before:bg-gray-400 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-30 before:rounded-full before:scale-0 hover:before:scale-150 before:blur"
@@ -146,17 +136,17 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
         >
           Previous
         </button>
-        {pageNumbers.map((number) => (
+        {Array.from({ length: totalPages }, (_, i) => (
           <button
-            key={number}
-            onClick={() => handlePageChange(number)}
+            key={i + 1}
+            onClick={() => handlePageChange(i + 1)}
             className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
-              currentPage === number
+              currentPage === i + 1
                 ? "bg-gray-500 text-white"
                 : "bg-gray-300 text-gray-800 hover:bg-gray-400"
             }`}
           >
-            {number}
+            {i + 1}
           </button>
         ))}
         <button

@@ -92,16 +92,16 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                         key={item.id}
                         className={`mb-4 p-4 bg-gray-50 rounded-lg shadow-sm ${editingId === item.id ? 'bg-yellow-100' : 'bg-gray-50'}`}
                     >
-                        <span className="block text-gray-900 font-semibold">
+                        <span className="block text-gray-900 font-semibold mb-2">
                             {item.nama.toUpperCase()} <br />
                             Kota: {item.kota} <br />
                             Jumlah Siswa: {item.jumlah_siswa} <br />
                             Jumlah Kelulusan: {item.jumlah_kelulusan} ({formatPercentage(item.jumlah_kelulusan, item.jumlah_siswa)} )
                         </span>
-                        <div className="mt-2 flex justify-end space-x-2">
+                        <div className="mt-2 flex flex-col space-y-2 sm:flex-row sm:justify-end sm:space-y-0 sm:space-x-2">
                             <button 
                                 onClick={() => {
-                                    console.log('Editing school:', item); // Debugging
+                                    // console.log('Editing school:', item); // Debugging
                                     onEdit(item.id, item.nama, item.kota, item.jumlah_siswa, item.jumlah_kelulusan);
                                 }} 
                                 className="relative overflow-hidden text-sm bg-gray-300 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-400 before:absolute before:inset-0 before:bg-gray-400 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-30 before:rounded-full before:scale-0 hover:before:scale-150 before:blur"

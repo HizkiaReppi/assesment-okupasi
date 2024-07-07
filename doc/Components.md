@@ -35,7 +35,7 @@ components/
 ## `BottomBar.tsx`
 - **Deskripsi**: Komponen ini digunakan di HomePage untuk mengubah sidebar pada tampilan mobile.
 - **Penggunaan**: Hanya di HomePage.
-- **Status**: Saat ini tidak digunakan.
+- **Status**: Diaktfikan ketika layout dibawah dari 540px
 
 ## `GoogleMapComponent.tsx`
 - **Deskripsi**: Komponen ini digunakan untuk menampilkan Google Maps.

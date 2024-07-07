@@ -1,12 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
-import Sidebar from "../components/Sidebar";
-import Loading from "../components/Loading";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import { getAllSekolah } from "../api/sekolah-api";
-import L from "leaflet";
-import debounce from "lodash.debounce";
-import "../index.css";
+import React, { useState, useEffect, useCallback } from 'react';
+import Sidebar from '../components/Sidebar';
+import BottomBar from '../components/BottomBar';
+import Loading from '../components/Loading';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { getAllSekolah } from '../api/sekolah-api';
+import L from 'leaflet';
+import debounce from 'lodash.debounce';
+import '../index.css';
+import useSidebarBottombar from '../hooks/useSidebarBottombar';
 
 interface School {
   id: string;
@@ -42,7 +44,7 @@ interface PopupInfo {
 }
 
 const HomePage: React.FC = () => {
-  const [initialSchools, setInitialSchools] = useState<School[]>([]);
+  const [, setInitialSchools] = useState<School[]>([]);
   const [center, setCenter] = useState<{ lat: number; lng: number }>({
     lat: 1.3017,
     lng: 124.9113,
@@ -59,6 +61,8 @@ const HomePage: React.FC = () => {
     east: 127.797571,
     west: 122.932839,
   };
+
+  const screenSize = useSidebarBottombar(); // Get the current screen size
 
   useEffect(() => {
     const fetchInitialSchools = async () => {
@@ -265,8 +269,13 @@ const HomePage: React.FC = () => {
           ))}
         </MapContainer>
       </div>
-      <Sidebar onSelectSchool={handleSchoolClick} />
-
+      {screenSize === 'desktop' ? (
+        <Sidebar onSelectSchool={handleSchoolClick} />
+      ) : screenSize === 'mobile' ? (
+        <BottomBar onSelectSchool={handleSchoolClick} />
+      ) : (
+        <Sidebar onSelectSchool={handleSchoolClick} />
+      )}
       {rateLimitExceeded && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-red-500 text-white text-center">
           You are making requests too quickly. Please wait a moment and try
