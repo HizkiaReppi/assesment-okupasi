@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Sidebar from '../components/Sidebar';
-import BottomBar from '../components/BottomBar';
+import Sidebar from '../components/homepage/Sidebar';
+import BottomBar from '../components/homepage/BottomBar';
 import Loading from '../components/Loading';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';

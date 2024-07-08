@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaFilter, FaTimes, FaSearch, FaArrowUp, FaChevronDown, FaChevronUp } from "react-icons/fa";
-import SearchBar from "../components/SearchBar";
-import { useFormContext } from "../context/FormContext";
-import { fetchSchoolsByOkupasi, fetchOkupasi } from "../hooks/sidebarApiHooks";
+import SearchBar from "../SearchBar";
+import { useFormContext } from "../../context/FormContext";
+import { fetchSchoolsByOkupasi, fetchOkupasi } from "../../hooks/sidebarApiHooks";
 
 interface Kompetensi {
   id: string;

@@ -4,6 +4,10 @@
 
 ```plaintext
 components/
+├── homepage/                               # spesific component for HomePage
+│   ├── BottomBar.tsx
+│   ├── GoogleMapComponent.tsx
+│   └── Sidebar.tsx
 ├── okupasi/                                # specific component for DataOkupasiPage
 │   ├── OkupasiAddForm.tsx      
 │   ├── OkupasiEditForm.tsx
@@ -18,16 +22,13 @@ components/
 │   ├── SekolahAddFormComponent.tsx
 │   ├── SekolahEditFormComponent.tsx
 │   └── SekolahListComponent.tsx
-├── BottomBar.tsx                           # component for bottom bar
 ├── ConfirmationModal.tsx                   # component for confirmation modal
 ├── ErrorNotification.tsx                   # component for error notification
-├── GoogleMapComponent.tsx                  # component for google map
 ├── InfoBar.tsx                             # component for info bar
 ├── Loading.tsx                             # component for loading
 ├── Logout.tsx                              # component for logout
 ├── Navbar.tsx                              # component for navbar
 ├── SearchBar.tsx                           # component for search bar
-└── Sidebar.tsx                             # component for sidebar
 ```
 
 # Dokumentasi Komponen Spesifik
