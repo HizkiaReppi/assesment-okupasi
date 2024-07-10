@@ -75,46 +75,46 @@ const SekolahAddForm: React.FC<SekolahAddFormProps> = ({ onAddSuccess }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white rounded-lg shadow-lg">
-            <h2 className="text-lg font-bold text-black mb-4">Tambah Sekolah</h2>
+        <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white rounded-lg shadow-lg dark:bg-gray-800">
+            <h2 className="text-lg font-bold text-black mb-4 dark:text-white">Tambah Sekolah</h2>
             {error && <div className="text-red-500 mb-4">{error}</div>}
             <div>
-                <label className="block text-gray-700">Nama:</label>
+                <label className="block text-gray-700 dark:text-gray-300">Nama:</label>
                 <input
                     type="text"
                     value={nama}
                     onChange={(e) => setNama(e.target.value)}
-                    className="mt-1 p-3 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm"
+                    className="mt-1 p-3 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-white"
                 />
             </div>
             <div>
-                <label className="block text-gray-700">Kota:</label>
+                <label className="block text-gray-700 dark:text-gray-300">Kota:</label>
                 <input
                     type="text"
                     value={kota}
                     onChange={(e) => setKota(e.target.value)}
-                    className="mt-1 p-3 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm"
+                    className="mt-1 p-3 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-white"
                 />
             </div>
             <div>
-                <label className="block text-gray-700">Jumlah Siswa:</label>
+                <label className="block text-gray-700 dark:text-gray-300">Jumlah Siswa:</label>
                 <input
                     type="text"
                     value={jumlahSiswa}
                     onChange={(e) => validateNumber(e.target.value) && setJumlahSiswa(e.target.value)}
-                    className="mt-1 p-3 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm"
+                    className="mt-1 p-3 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-white"
                 />
             </div>
             <div>
-                <label className="block text-gray-700">Jumlah Kelulusan:</label>
+                <label className="block text-gray-700 dark:text-gray-300">Jumlah Kelulusan:</label>
                 <input
                     type="text"
                     value={jumlahKelulusan}
                     onChange={(e) => validateNumber(e.target.value) && setJumlahKelulusan(e.target.value)}
-                    className="mt-1 p-3 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm"
+                    className="mt-1 p-3 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-white"
                 />
             </div>
-            <button type="submit" className="mt-4 bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800">
+            <button type="submit" className="mt-4 bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-300">
                 Simpan
             </button>
         </form>

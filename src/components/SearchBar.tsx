@@ -8,7 +8,7 @@ interface SearchBarProps {
   onSearch: (value: string) => void;
   searchBarValue: string;
   setSearchBarValue: (value: string) => void;
-  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void; // Added this line
+  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
@@ -18,7 +18,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
   searchBarValue,
   setSearchBarValue,
-  onKeyDown // Added this line
+  onKeyDown
 }) => {
   const [data, setData] = useState<any[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -75,20 +75,20 @@ const SearchBar: React.FC<SearchBarProps> = ({
           placeholder={placeholder}
           value={selectedItem}
           onChange={handleInputChange}
-          className="p-3 pl-4 pr-10 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          className="p-3 pl-4 pr-10 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
           onFocus={() => setIsDropdownOpen(true)}
           style={{ textTransform: 'uppercase' }}
-          onKeyDown={onKeyDown} // Added this line
+          onKeyDown={onKeyDown}
         />
         {selectedItem && (
           <FaTimes
-            className="absolute right-3 cursor-pointer text-gray-500 hover:text-gray-700"
+            className="absolute right-3 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-400"
             onClick={clearInput}
           />
         )}
       </div>
       {isDropdownOpen && (
-        <div className="absolute mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto w-full z-10">
+        <div className="absolute mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto w-full z-10 dark:bg-gray-800 dark:border-gray-700">
           {data
             .filter(item => 
               item.nama.toLowerCase().includes(searchBarValue.toLowerCase()) ||
@@ -99,7 +99,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
               <div
                 key={item.kode}
                 onClick={() => handleItemClick(item)}
-                className="p-3 cursor-pointer hover:bg-gray-100 transition duration-300"
+                className="p-3 cursor-pointer hover:bg-gray-100 transition duration-300 dark:hover:bg-gray-600 dark:text-gray-200"
                 style={{ textTransform: 'uppercase' }}
               >
                 {item.nama} ({item.kode})

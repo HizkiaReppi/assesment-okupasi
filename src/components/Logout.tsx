@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaDoorClosed } from 'react-icons/fa';
 import { logout } from '../api/auth';
@@ -40,7 +40,7 @@ const LogoutButton = () => {
   return (
     <>
       <button 
-        className="text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center" 
+        className="text-gray-800 dark:text-gray-200 hover:text-orange-700 dark:hover:text-orange-400 transition duration-300 font-medium flex items-center" 
         onClick={openModal}
       >
         <FaDoorClosed className="mr-2" /> Logout

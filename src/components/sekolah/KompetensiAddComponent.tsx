@@ -96,20 +96,21 @@ const KompetensiAddComponent: React.FC<KompetensiAddComponentProps> = ({ sekolah
 
     return (
         <div>
-            <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white rounded-lg shadow-lg">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">Tambah Unit Kompetensi</h3>
+            <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white rounded-lg shadow-lg dark:bg-gray-800 dark:text-white">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 dark:text-white">Tambah Unit Kompetensi</h3>
                 <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Okupasi:</label>
+                    <label className="block text-gray-700 mb-2 dark:text-gray-300">Okupasi:</label>
                     <Select
                         value={selectedOkupasi}
                         onChange={setSelectedOkupasi}
                         options={okupasiOptions}
                         placeholder="Select Okupasi"
                         className="mb-3"
+                        classNamePrefix="react-select"
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Unit Kompetensi:</label>
+                    <label className="block text-gray-700 mb-2 dark:text-gray-300">Unit Kompetensi:</label>
                     <Select
                         value={selectedUnits}
                         onChange={handleUnitChange}
@@ -120,11 +121,12 @@ const KompetensiAddComponent: React.FC<KompetensiAddComponentProps> = ({ sekolah
                         hideSelectedOptions={false}
                         components={{ Option }}
                         className="mb-3"
+                        classNamePrefix="react-select"
                     />
                 </div>
                 <button
                     type="submit"
-                    className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-900 transition-colors duration-300 ease-in-out"
+                    className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-900 transition-colors duration-300 ease-in-out dark:bg-gray-700 dark:hover:bg-gray-800"
                 >
                     Simpan
                 </button>

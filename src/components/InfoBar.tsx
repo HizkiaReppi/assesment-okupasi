@@ -19,14 +19,14 @@ const InfoBar: React.FC<InfoBarProps> = ({ school, kompetensi, onClose }) => {
   if (!school) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div className="bg-white p-4 rounded shadow-lg w-96 relative">
-        <button onClick={onClose} className="absolute top-0 right-0 m-2 text-gray-500 hover:text-gray-700">
+    <div className="fixed inset-0 flex items-center justify-center z-50 ">
+      <div className="bg-white p-4 rounded shadow-lg w-96 relative dark:bg-gray-800 dark:text-gray-200">
+        <button onClick={onClose} className="absolute top-0 right-0 m-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
           ✕
         </button>
         <h2 className="text-xl font-bold mb-2">{school.name}</h2>
         <h3 className="text-lg font-semibold mt-4">Okupasi :</h3>
-        <ul className="list-disc pl-5">
+        <ul className="list-disc">
           {kompetensi.map(komp => (
             <li key={komp.kode} className="mb-2">
               <strong>{komp.nama}</strong>

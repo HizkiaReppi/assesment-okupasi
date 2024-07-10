@@ -8,12 +8,14 @@ import 'react-toastify/dist/ReactToastify.css';
 
 interface KompetensiListProps {
     sekolahId: string;
+    schoolName: string; // New prop for school name
+    okupasiName: string; // New prop for okupasi name
     onEdit: (unitId: string, initialKode: string) => void;
     refresh: boolean;
     editingUnitId: string | null;
 }
 
-const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refresh, editingUnitId }) => {
+const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, schoolName, okupasiName, onEdit, refresh, editingUnitId }) => {
     const [kompetensi, setKompetensi] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [searchTerm, setSearchTerm] = useState<string>('');
@@ -80,7 +82,7 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
         setIsSearchPerformed(true);
     };
 
-    const handleBack = () => {
+    const handleClearSearch = () => {
         setSearchTerm('');
         fetchData('');
         setIsSearchPerformed(false);
@@ -97,8 +99,8 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
     }
 
     return (
-        <div className="mb-6 p-4 bg-white rounded-lg shadow-md">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Daftar Kompetensi</h3>
+        <div className="mb-6 p-4 bg-white rounded-lg shadow-md dark:bg-gray-800 dark:text-white">
+            <h3 className="text-lg font-bold text-gray-800 mb-4 dark:text-white">Daftar Kompetensi - {schoolName} - {okupasiName}</h3>
             <div className="mb-4">
                 <div className="flex mb-3">
                     <input
@@ -106,7 +108,7 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
                         placeholder="Search by Kode or Nama..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-l-md focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50 transition duration-200 ease-in-out"
+                        className="w-full p-3 border border-gray-300 rounded-l-md focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50 transition duration-200 ease-in-out dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                     <button
                         onClick={handleSearch}
@@ -117,7 +119,7 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
                 </div>
                 {isSearchPerformed && (
                     <button
-                        onClick={handleBack}
+                        onClick={handleClearSearch}
                         className="p-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition duration-300"
                     >
                         <FontAwesomeIcon icon={faArrowLeft} /> Back
@@ -127,11 +129,11 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
             {kompetensi.length > 0 ? (
                 <ul className="list-none">
                     {kompetensi.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
-                        <li key={item.kode} className={`mb-4 p-4 bg-gray-50 rounded-lg shadow-sm ${editingUnitId === item.kode ? 'border border-yellow-500' : ''}`}>
+                        <li key={item.kode} className={`mb-4 p-4 bg-gray-50 rounded-lg shadow-sm dark:bg-gray-700 ${editingUnitId === item.kode ? 'border border-yellow-500' : ''}`}>
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <span className="block text-gray-800 font-semibold">{item.kode}</span>
-                                    <span className="block text-gray-600">{item.nama}</span>
+                                    <span className="block text-gray-800 font-semibold dark:text-white">{item.kode}</span>
+                                    <span className="block text-gray-600 dark:text-gray-300">{item.nama}</span>
                                 </div>
                                 <div className="flex items-center">
                                     <button
@@ -159,21 +161,21 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
                                     >
                                         <FontAwesomeIcon icon={faTrash} />
                                     </button>
-                                    <span className="text-gray-600">{unit.nama}</span>
+                                    <span className="text-gray-600 dark:text-gray-300">{unit.nama}</span>
                                 </div>
                             ))}
                         </li>
                     ))}
                 </ul>
             ) : (
-                <p>No kompetensi found.</p>
+                <p className="dark:text-white">No kompetensi found.</p>
             )}
             <div className="flex justify-center mt-4">
                 <button
                     onClick={() => changePage(currentPage - 1)}
                     disabled={currentPage === 1}
                     className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
-                        currentPage === 1 ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'
+                        currentPage === 1 ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500'
                     }`}
                 >
                     Previous
@@ -183,7 +185,7 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
                         key={i + 1}
                         onClick={() => changePage(i + 1)}
                         className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
-                            currentPage === i + 1 ? 'bg-gray-500 text-white' : 'bg-blue-300 hover:bg-blue-400'
+                            currentPage === i + 1 ? 'bg-gray-500 text-white dark:bg-gray-800' : 'bg-blue-300 hover:bg-blue-400 dark:bg-gray-600 dark:hover:bg-gray-500'
                         }`}
                     >
                         {i + 1}
@@ -193,7 +195,7 @@ const KompetensiList: React.FC<KompetensiListProps> = ({ sekolahId, onEdit, refr
                     onClick={() => changePage(currentPage + 1)}
                     disabled={currentPage === totalPages}
                     className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
-                        currentPage === totalPages ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400'
+                        currentPage === totalPages ? 'bg-gray-200 text-gray-400' : 'bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500'
                     }`}
                 >
                     Next

@@ -186,11 +186,11 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="relative flex flex-col sm:flex-row h-screen overflow-hidden">
+    <div className="relative flex flex-col sm:flex-row h-screen overflow-hidden dark:bg-gray-800">
       {isLoadingLocation && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-gray-700 bg-opacity-50">
-          <div className="bg-white p-4 rounded shadow">
-            <p className="text-lg font-semibold">Mencari lokasi...</p>
+          <div className="bg-white p-4 rounded shadow dark:bg-gray-800">
+            <p className="text-lg font-semibold dark:text-gray-200">Mencari lokasi...</p>
           </div>
         </div>
       )}
@@ -214,32 +214,32 @@ const HomePage: React.FC = () => {
           {markers.map((position, index) => (
             <Marker key={index} position={position}>
               <Popup>
-                <div className="max-h-72 max-w-96 overflow-y-auto pt-4 pb-4 pr-6">
+                <div className="max-h-72 max-w-96 overflow-y-auto pt-4 pb-4 pr-6 dark:bg-gray-900 dark:text-gray-200">
                   <h3 className="text-xl font-semibold mb-2 underline mr-3">
                     {popupInfo?.details.nama}
                   </h3>
-                  <p className="text-base sm:text-lg text-gray-700 ">
+                  <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
                     <strong>Kota:</strong> {popupInfo?.details.kota}
                   </p>
                   {popupInfo?.details.kecocokan && (
-                    <p className="text-base sm:text-lg text-gray-700 mb-2">
+                    <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400 mb-2">
                       <strong>Kecocokan:</strong> {popupInfo.details.kecocokan}%
                     </p>
                   )}
                   {popupInfo?.details.jumlah_siswa && (
-                    <p className="text-base sm:text-lg text-gray-700 ">
+                    <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
                       <strong>Jumlah Siswa:</strong>{" "}
                       {popupInfo.details.jumlah_siswa}
                     </p>
                   )}
                   {popupInfo?.details.jumlah_kelulusan && (
-                    <p className="text-base text-gray-700 mb-4">
+                    <p className="text-base text-gray-700 dark:text-gray-400 mb-4">
                       <strong>Jumlah Kelulusan:</strong>{" "}
                       {popupInfo.details.jumlah_kelulusan}({popupInfo.details.persentase_kelulusan})
                     </p>
                   )}
                   {popupInfo?.details.okupasi && (
-                    <p className="text-base sm:text-lg text-gray-700 ">
+                    <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
                       <strong>Okupasi:</strong>{" "}
                       {popupInfo.details.okupasi.toUpperCase()}
                       <br />
@@ -251,10 +251,10 @@ const HomePage: React.FC = () => {
                   {popupInfo?.details.unit_kompetensi &&
                     popupInfo.details.unit_kompetensi.length > 0 && (
                       <div className="mt-2">
-                        <h4 className="text-base sm:text-lg font-semibold ">
+                        <h4 className="text-base sm:text-lg font-semibold dark:text-gray-300">
                           Unit Kompetensi:
                         </h4>
-                        <ul className="list-disc list-inside text-base sm:text-lg text-gray-700">
+                        <ul className="list-disc list-inside text-base sm:text-lg text-gray-700 dark:text-gray-400">
                           {popupInfo.details.unit_kompetensi.map(
                             (kompetensi) => (
                               <li key={kompetensi.id}>{kompetensi.nama}</li>

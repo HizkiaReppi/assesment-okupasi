@@ -1,6 +1,7 @@
 import { useState, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import hoverImagePeta from '../assets/FullMap.png'; 
+import hoverImagePeta from '../assets/FullMap.png';
+import ScrollingText from '../components/ScrollingText'; // Import the ScrollingText component
 
 const MainMenu = () => {
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
@@ -45,15 +46,18 @@ const MainMenu = () => {
   const buttonFontSize = baseFontSize * goldenRatio;
 
   return (
-    <div className="flex flex-col sm:flex-row h-screen bg-gradient-to-br from-gray-100 to-gray-300">
+    <div className="flex flex-col sm:flex-row h-screen bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-800 dark:to-gray-900">
+      <div className="fixed top-20 w-full z-10 bg-transparent">
+        <ScrollingText /> 
+      </div>
       <div
-        className="w-full h-full flex flex-col justify-center items-center bg-white relative overflow-hidden border-r border-gray-300"
+        className="w-full h-full flex flex-col justify-center items-center bg-white dark:bg-gray-700 relative overflow-hidden border-r border-gray-300 dark:border-gray-700"
         onMouseMove={(e) => handleMouseMove(e, 'peta')}
         onMouseLeave={handleMouseLeave}
       >
         <div className="relative z-10 text-center px-4 pb-2">
-          <h1 className="font-bold text-gray-800" style={{ fontSize: `${h1FontSize}px`, marginBottom: `${baseFontSize * goldenRatio}px` }}>PETA OKUPASI</h1>
-          <p className="mb-4 max-w-md text-gray-600" style={{ fontSize: `${pFontSize}px`, marginBottom: `${baseFontSize}px` }}>
+          <h1 className="font-bold text-gray-800 dark:text-gray-200" style={{ fontSize: `${h1FontSize}px`, marginBottom: `${baseFontSize * goldenRatio}px` }}>PETA OKUPASI</h1>
+          <p className="mb-4 max-w-md text-gray-600 dark:text-gray-400" style={{ fontSize: `${pFontSize}px`, marginBottom: `${baseFontSize}px` }}>
             Temukan informasi terkait okupasi sekolah kejuruan yang ada di daerah <span className="font-bold">Sulawesi Utara</span>
           </p>
           <button

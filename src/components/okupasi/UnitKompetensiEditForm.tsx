@@ -30,20 +30,20 @@ const UnitKompetensiEditForm: React.FC<UnitKompetensiEditFormProps> = ({ kode, u
     };
 
     return (
-        <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white rounded-lg shadow-md">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Edit Unit Kompetensi</h3>
+        <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white rounded-lg shadow-md dark:bg-gray-800 dark:text-white">
+            <h3 className="text-lg font-bold text-gray-800 mb-4 dark:text-white">Edit Unit Kompetensi</h3>
             <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Nama:</label>
+                <label className="block text-gray-700 mb-2 dark:text-gray-300">Nama:</label>
                 <input 
                     type="text" 
                     value={nama} 
                     onChange={(e) => setNama(e.target.value)} 
-                    className="w-full p-3 border border-gray-300 rounded-md focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50 transition duration-200 ease-in-out" 
+                    className="w-full p-3 border border-gray-300 rounded-md focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50 transition duration-200 ease-in-out dark:bg-gray-700 dark:border-gray-600 dark:focus:border-gray-500 dark:text-white" 
                 />
             </div>
             <button 
                 type="submit"
-                className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-900 transition-colors duration-300 ease-in-out"
+                className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-900 transition-colors duration-300 ease-in-out dark:bg-gray-700 dark:hover:bg-gray-800"
             >
                 Simpan
             </button>

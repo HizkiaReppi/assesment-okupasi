@@ -76,12 +76,12 @@ const FormPage = () => {
 
   return (
     <div 
-      className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 relative overflow-hidden"
+      className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-800 dark:to-gray-900 relative overflow-hidden"
       onMouseMove={(e) => handleMouseMove(e, 'form')}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg p-8 sm:p-12 rounded-lg shadow-2xl w-full max-w-md border border-gray-200 relative z-10">
-        <h2 className="text-2xl font-bold mb-10 text-gray-800 text-center">Cari Nama Okupasi</h2>
+      <div className="bg-white bg-opacity-20 dark:bg-black dark:bg-opacity-40 backdrop-filter backdrop-blur-lg p-8 sm:p-12 rounded-lg shadow-2xl w-full max-w-md border border-white border-opacity-30 dark:border-gray-700 relative z-10">
+        <h2 className="text-2xl font-bold mb-10 text-gray-800 dark:text-gray-200 text-center">Cari Nama Okupasi</h2>
         <div className="space-y-6">
           <SearchBar 
             placeholder="Masukkan Nama Okupasi"

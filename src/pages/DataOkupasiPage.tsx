@@ -5,50 +5,25 @@ import OkupasiList from "../components/okupasi/OkupasiList";
 import UnitKompetensiAddForm from "../components/okupasi/UnitKompetensiAddForm";
 import UnitKompetensiEditForm from "../components/okupasi/UnitKompetensiEditForm";
 import UnitKompetensiList from "../components/okupasi/UnitKompetensiList";
-import useIsDesktop from "../hooks/useIsDesktop";
+import ErrorNotification from "../components/ErrorNotification";
+import Modal from '../components/EditModal';
 
 const DataOkupasiPage: React.FC = () => {
   const [selectedKode, setSelectedKode] = useState<string | null>(null);
   const [editingKode, setEditingKode] = useState<string | null>(null);
   const [editingUnit, setEditingUnit] = useState<{ id: string; nama: string } | null>(null);
+  const [addingOkupasi, setAddingOkupasi] = useState<boolean>(false);
+  const [addingUnitKompetensi, setAddingUnitKompetensi] = useState<boolean>(false);
   const [refresh, setRefresh] = useState(false);
-  const isDesktop = useIsDesktop();
-  const [warningMessage, setWarningMessage] = useState<string | null>(null);
-
-  const handleSuccess = (updated: boolean) => {
-    if (updated) {
-      console.log("Unit competency updated. Refreshing list...");
-      handleRefresh();
-    } else {
-      console.log("Failed to update unit competency.");
-    }
-  };
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [okupasiName, setOkupasiName] = useState<string>("");
 
   const handleRefresh = () => {
-    setRefresh(!refresh);
+    setRefresh(prevRefresh => !prevRefresh);
   };
 
   const handleEditUnit = (unitId: string, initialNama: string) => {
-    if (editingUnit) {
-      setWarningMessage("Selesaikan pengeditan terlebih dahulu.");
-    } else {
-      setEditingUnit({ id: unitId, nama: initialNama });
-    }
-  };
-
-  const handleClearWarning = () => {
-    setWarningMessage(null);
-  };
-
-  const handleEditUnitSuccess = (updated: boolean) => {
-    handleSuccess(updated);
-    setEditingUnit(null);
-    handleRefresh();
-  };
-
-  const handleViewUnits = (kode: string | null) => {
-    setEditingKode(null);
-    setSelectedKode(kode);
+    setEditingUnit({ id: unitId, nama: initialNama });
   };
 
   const handleEditOkupasi = (kode: string | null) => {
@@ -56,63 +31,170 @@ const DataOkupasiPage: React.FC = () => {
     setEditingKode(kode);
   };
 
+  const handleViewUnits = (kode: string | null, name: string) => {
+    setEditingKode(null);
+    setSelectedKode(kode);
+    setOkupasiName(name);
+  };
+
+  const handleAddOkupasi = () => {
+    setAddingOkupasi(true);
+  };
+
+  const handleAddUnitKompetensi = () => {
+    setAddingUnitKompetensi(true);
+  };
+
   return (
-    <div className="bg-gray-100 min-h-screen p-6">
-      <div className="bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center mb-4 pt-8">Data Okupasi</h1>
-        {warningMessage && (
-          <div className="bg-yellow-200 text-yellow-700 p-4 mb-4 rounded-lg">
-            {warningMessage}
-            <button onClick={handleClearWarning} className="ml-4 text-red-500">Close</button>
-          </div>
-        )}
-        <div className={`flex ${isDesktop ? "flex-row" : "flex-col"} gap-4`}>
-          <div className="flex-1">
-            {!editingKode && !selectedKode && <OkupasiAddForm onAddSuccess={handleRefresh} />}
-            {editingKode && (
+    <div className="bg-gray-100 min-h-screen p-6 dark:bg-gray-900">
+      {errorMessage && <ErrorNotification message={errorMessage} onClose={() => setErrorMessage(null)} />}
+      <div className="bg-white p-8 rounded-lg shadow-md dark:bg-gray-800 dark:text-white">
+        <h1 className="text-2xl font-bold text-center mb-4 pt-8 dark:text-white">Data Okupasi</h1>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-full max-w-3xl">
+            {!selectedKode && !editingKode && (
               <>
-                <button onClick={() => handleEditOkupasi(null)} className="flex items-center text-red-500 mb-2">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+                <button
+                  onClick={handleAddOkupasi}
+                  className="flex items-center text-black mb-4 bg-slate-300 hover:bg-slate-400 ease-in-out duration-300 p-2 rounded-md dark:text-white dark:bg-slate-700 dark:hover:bg-slate-600"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 4v16m8-8H4"
+                    ></path>
                   </svg>
-                  Back
+                  Data Okupasi
                 </button>
-                <OkupasiEditForm kode={editingKode} onSuccess={() => { handleEditOkupasi(null); handleRefresh(); }} />
               </>
             )}
-            {selectedKode && !editingUnit && (
-              <>
-                <button onClick={() => handleViewUnits(null)} className="flex items-center text-red-500 mb-2">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
-                  </svg>
-                  Back
-                </button>
-                <UnitKompetensiAddForm kode={selectedKode} onSuccess={handleRefresh} />
-              </>
-            )}
-            {selectedKode && editingUnit && (
-              <>
-                <button onClick={() => setEditingUnit(null)} className="flex items-center text-red-500 mb-2">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
-                  </svg>
-                  Back
-                </button>
-                <UnitKompetensiEditForm kode={selectedKode} unitId={editingUnit.id} initialNama={editingUnit.nama} onSuccess={handleEditUnitSuccess} />
-              </>
-            )}
-          </div>
-          <div className="flex-1">
             {!selectedKode && (
-              <OkupasiList onEdit={handleEditOkupasi} onViewUnits={handleViewUnits} refresh={refresh} />
+              <OkupasiList
+                onEdit={handleEditOkupasi}
+                onViewUnits={handleViewUnits}
+                refresh={refresh}
+                onRefresh={handleRefresh} // Add onRefresh handler
+              />
             )}
             {selectedKode && (
-              <UnitKompetensiList kode={selectedKode} onEdit={handleEditUnit} refresh={refresh} editingUnitId={editingUnit?.id} />
+              <>
+                <button
+                  onClick={() => handleViewUnits(null, "")}
+                  className="flex items-center text-red-500 mb-2"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 19l-7-7 7-7"
+                    ></path>
+                  </svg>
+                  Back
+                </button>
+                <button
+                  onClick={handleAddUnitKompetensi}
+                  className="flex items-center text-blue-500 mb-4"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 4v16m8-8H4"
+                    ></path>
+                  </svg>
+                  Tambah Unit Kompetensi
+                </button>
+                <UnitKompetensiList
+                  kode={selectedKode}
+                  okupasiName={okupasiName}
+                  onEdit={handleEditUnit}
+                  refresh={refresh}
+                  editingUnitId={editingUnit?.id || null}
+                />
+              </>
             )}
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={addingOkupasi}
+        onClose={() => setAddingOkupasi(false)}
+      >
+        <OkupasiAddForm
+          onAddSuccess={() => {
+            setAddingOkupasi(false);
+            handleRefresh();
+          }}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={!!editingKode}
+        onClose={() => setEditingKode(null)}
+      >
+        {editingKode && (
+          <OkupasiEditForm
+            kode={editingKode}
+            onSuccess={() => {
+              setEditingKode(null);
+              handleRefresh();
+            }}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={addingUnitKompetensi}
+        onClose={() => setAddingUnitKompetensi(false)}
+      >
+        <UnitKompetensiAddForm
+          kode={selectedKode || ''}
+          onSuccess={() => {
+            setAddingUnitKompetensi(false);
+            handleRefresh();
+          }}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={!!editingUnit}
+        onClose={() => setEditingUnit(null)}
+      >
+        {editingUnit && (
+          <UnitKompetensiEditForm
+            kode={selectedKode || ''}
+            unitId={editingUnit.id}
+            initialNama={editingUnit.nama}
+            onSuccess={() => {
+              setEditingUnit(null);
+              handleRefresh();
+            }}
+          />
+        )}
+      </Modal>
     </div>
   );
 };

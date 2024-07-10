@@ -233,11 +233,11 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
       <div
         className={`fixed bottom-0 left-0 w-full overflow-y-auto overflow-x-hidden bg-white shadow-lg z-50 ${
           isOpen ? "h-96" : "h-12"
-        } transition-all duration-300 flex flex-col rounded-t-lg px-4 sm:px-6`}
+        } transition-all duration-300 flex flex-col rounded-t-lg px-4 sm:px-6 dark:bg-gray-800 dark:text-white`}
       >
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="sticky top-0 p-2 font-extrabold focus:outline-none bg-white bg-opacity-30 backdrop-filter backdrop-blur-md border border-white border-opacity-40 rounded-md z-10 mx-auto"
+          className="sticky top-0 p-2 font-extrabold focus:outline-none bg-white bg-opacity-30 backdrop-filter backdrop-blur-md border border-white border-opacity-40 rounded-md z-10 mx-auto dark:bg-gray-800 dark:border-gray-600"
         >
           {isOpen ? <FaChevronDown /> : <FaChevronUp />}
         </button>
@@ -262,7 +262,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
                   />
                   <button
                     onClick={executeOkupasiSearch}
-                    className="p-2 border rounded ml-2 bg-gray-200 hover:bg-gray-300 transition"
+                    className="p-2 border rounded ml-2 bg-gray-200 hover:bg-gray-300 transition dark:bg-gray-600 dark:hover:bg-gray-700"
                   >
                     <FaSearch />
                   </button>
@@ -270,7 +270,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
               )}
               <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className="p-2 border rounded ml-2"
+                className="p-2 border rounded ml-2 dark:bg-gray-600 dark:hover:bg-gray-700"
                 disabled={!kodeOkupasi || isSearching}
               >
                 <FaFilter />
@@ -279,7 +279,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
             {isFilterOpen && (
               <div
                 ref={filterRef}
-                className="absolute top-14 right-14 bg-white shadow-md border rounded p-4 z-50 w-60"
+                className="absolute top-14 right-14 bg-white shadow-md border rounded p-4 z-50 w-60 dark:bg-gray-700 dark:border-gray-600"
               >
                 <h4 className="font-bold mb-2">Filter by Kota</h4>
                 <div className="max-h-40 overflow-y-auto">
@@ -288,7 +288,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
                       <button
                         onClick={() => handleFilterSelect(kota)}
                         className={`p-2 border rounded w-full text-left ${
-                          selectedFilter === kota ? "bg-orange-500 text-white" : "bg-gray-200"
+                          selectedFilter === kota ? "bg-orange-500 text-white" : "bg-gray-200 dark:bg-gray-600 dark:text-white"
                         }`}
                       >
                         {kota}
@@ -298,7 +298,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
                 </div>
                 <button
                   onClick={handleClearFilter}
-                  className="p-2 border rounded w-full text-left bg-gray-200"
+                  className="p-2 border rounded w-full text-left bg-gray-200 dark:bg-gray-600 dark:text-white"
                 >
                   Clear Filter
                 </button>
@@ -306,14 +306,14 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
                   <button
                     onClick={() => setFilterPage(filterPage - 1)}
                     disabled={filterPage === 0}
-                    className="p-2 border rounded bg-gray-200 hover:bg-gray-300 transition"
+                    className="p-2 border rounded bg-gray-200 hover:bg-gray-300 transition dark:bg-gray-600 dark:hover:bg-gray-700"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setFilterPage(filterPage + 1)}
                     disabled={filterPage >= filterPageCount - 1}
-                    className="p-2 border rounded bg-gray-200 hover:bg-gray-300 transition"
+                    className="p-2 border rounded bg-gray-200 hover:bg-gray-300 transition dark:bg-gray-600 dark:hover:bg-gray-700"
                   >
                     Next
                   </button>
@@ -323,14 +323,14 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
             {(searchResults.length > 0 || isSearching) && (
               <button
                 onClick={handleBackClick}
-                className="p-2 mt-2 border rounded-full w-full bg-gray-200 hover:bg-red-300 text-center"
+                className="p-2 mt-2 border rounded-full w-full bg-gray-200 hover:bg-red-300 text-center dark:bg-gray-600 dark:hover:bg-red-400"
               >
                 Reset Pencarian
               </button>
             )}
             <button
               onClick={handleToggleSchoolSearch}
-              className="p-2 mt-4 border rounded-full w-full text-center bg-gray-300 hover:bg-gray-500 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="p-2 mt-4 border rounded-full w-full text-center bg-gray-300 hover:bg-gray-500 transition disabled:bg-gray-300 disabled:cursor-not-allowed dark:bg-gray-600 dark:hover:bg-gray-700"
               disabled={!kodeOkupasi || isSearching}
             >
               {showSchoolSearch ? "Tutup" : "Cari Sekolah"}
@@ -343,17 +343,17 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
                     value={searchQuery}
                     onChange={handleSearchSchool}
                     placeholder="Cari Nama Sekolah"
-                    className="p-2 border rounded w-full"
+                    className="p-2 border rounded w-full dark:bg-gray-600 dark:text-white"
                   />
                   {searchQuery && (
                     <FaTimes
-                      className="absolute right-12 cursor-pointer text-gray-500"
+                      className="absolute right-12 cursor-pointer text-gray-500 dark:text-white"
                       onClick={clearSchoolNameSearch}
                     />
                   )}
                   <button
                     onClick={executeSchoolSearch}
-                    className="p-2 border rounded ml-2 bg-gray-200 hover:bg-gray-300 transition"
+                    className="p-2 border rounded ml-2 bg-gray-200 hover:bg-gray-300 transition dark:bg-gray-600 dark:hover:bg-gray-700"
                   >
                     <FaSearch />
                   </button>
@@ -365,26 +365,26 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
                 currentItems.map((school) => (
                   <div
                     key={school.id}
-                    className="p-4 border-b cursor-pointer hover:bg-gray-100 transition"
+                    className="p-4 border-b cursor-pointer hover:bg-gray-100 transition dark:hover:bg-gray-700"
                     onClick={() => handleSchoolClick(school)}
                   >
-                    <h3 className="font-bold text-lg">{truncate(school.nama, 20)}</h3>
-                    <p className="text-gray-600">{truncate(school.kota, 20)}</p>
-                    <p className="text-gray-500"><strong>Kecocokan: {school.kecocokan}%</strong></p>
-                    <p className="text-gray-500"><strong>Jumlah Siswa: {school.jumlah_siswa}</strong></p>
-                    <p className="text-gray-500"><strong>Jumlah Kelulusan: {school.jumlah_kelulusan}</strong> <strong>({formatPercentage(school.jumlah_kelulusan, school.jumlah_siswa)})</strong></p>
+                    <h3 className="font-bold text-lg dark:text-white">{truncate(school.nama, 20)}</h3>
+                    <p className="text-gray-600 dark:text-gray-400">{truncate(school.kota, 20)}</p>
+                    <p className="text-gray-500 dark:text-gray-300"><strong>Kecocokan: {school.kecocokan}%</strong></p>
+                    <p className="text-gray-500 dark:text-gray-300"><strong>Jumlah Siswa: {school.jumlah_siswa}</strong></p>
+                    <p className="text-gray-500 dark:text-gray-300"><strong>Jumlah Kelulusan: {school.jumlah_kelulusan}</strong> <strong>({formatPercentage(school.jumlah_kelulusan, school.jumlah_siswa)})</strong></p>
                   </div>
                 ))
               ) : (
                 <p>No schools found.</p>
               )}
             </div>
-            <div className="flex justify-center mt-4 mb-4 sticky bottom-0 bg-white py-2">
+            <div className="flex justify-center mt-4 mb-4 sticky bottom-0 bg-white py-2 dark:bg-gray-800">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
                 className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
-                  currentPage === 1 ? "bg-gray-200 text-gray-400" : "bg-gray-300 text-gray-800 hover:bg-gray-400"
+                  currentPage === 1 ? "bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400" : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
                 }`}
               >
                 Previous
@@ -394,7 +394,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
                   key={index + 1}
                   onClick={() => handlePageChange(index + 1)}
                   className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
-                    currentPage === index + 1 ? "bg-gray-500 text-white" : "bg-gray-300 text-gray-800 hover:bg-gray-400"
+                    currentPage === index + 1 ? "bg-gray-500 text-white dark:bg-gray-800" : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
                   }`}
                 >
                   {index + 1}
@@ -404,7 +404,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
                 className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
-                  currentPage === totalPages ? "bg-gray-200 text-gray-400" : "bg-gray-300 text-gray-800 hover:bg-gray-400"
+                  currentPage === totalPages ? "bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400" : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
                 }`}
               >
                 Next
@@ -413,7 +413,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
             {showBackToTop && (
               <button
                 onClick={scrollToTop}
-                className="fixed bottom-16 right-5 p-2 rounded-full bg-gray-200 hover:bg-gray-300 shadow-md focus:outline-none"
+                className="fixed bottom-16 right-5 p-2 rounded-full bg-gray-200 hover:bg-gray-300 shadow-md focus:outline-none dark:bg-gray-600 dark:hover:bg-gray-700"
               >
                 <FaArrowUp />
               </button>

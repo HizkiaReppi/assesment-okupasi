@@ -56,7 +56,7 @@ const Login = () => {
       const response = await login(email, password);
       if (response) {
         setIsLoggedIn(true);
-        navigate('/home'); // Navigate to home page on successful login
+        navigate('/'); 
       } else {
         setError('Login failed. Please check your email and password.');
       }
@@ -70,12 +70,12 @@ const Login = () => {
 
   return (
     <div 
-      className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 relative overflow-hidden"
+      className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-800 dark:to-gray-900 relative overflow-hidden"
       onMouseMove={(e) => handleMouseMove(e, 'login')}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg p-8 sm:p-12 rounded-lg shadow-2xl text-center w-full max-w-md border border-white border-opacity-30 relative z-10">
-        <h2 className="text-2xl font-bold mb-10 text-gray-800">LOGIN / MASUK</h2>
+      <div className="bg-white bg-opacity-20 dark:bg-black dark:bg-opacity-40 backdrop-filter backdrop-blur-lg p-8 sm:p-12 rounded-lg shadow-2xl text-center w-full max-w-md border border-white border-opacity-30 dark:border-gray-700 relative z-10">
+        <h2 className="text-2xl font-bold mb-10 text-gray-800 dark:text-gray-200">LOGIN / MASUK</h2>
         <form className="space-y-6" onSubmit={handleLogin}>
           {error && <div className="text-red-500">{error}</div>}
           <div className="relative">
@@ -84,7 +84,7 @@ const Login = () => {
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
               required 
-              className="w-full p-4 border border-gray-400 rounded-lg bg-white bg-opacity-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="w-full p-4 border border-gray-400 rounded-lg bg-white bg-opacity-50 dark:bg-gray-700 dark:bg-opacity-50 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600"
               placeholder="Email"
             />
           </div>
@@ -94,11 +94,11 @@ const Login = () => {
               value={password} 
               onChange={(e) => setPassword(e.target.value)} 
               required 
-              className="w-full p-4 border border-gray-400 rounded-lg bg-white bg-opacity-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="w-full p-4 border border-gray-400 rounded-lg bg-white bg-opacity-50 dark:bg-gray-700 dark:bg-opacity-50 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600"
               placeholder="Password"
             />
             <div 
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600 dark:text-gray-300"
               onClick={togglePasswordVisibility}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}

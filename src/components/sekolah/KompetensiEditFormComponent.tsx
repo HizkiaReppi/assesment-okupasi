@@ -22,7 +22,6 @@ const KompetensiEditComponent: React.FC<KompetensiEditComponentProps> = ({ sekol
         const fetchAllOkupasi = async () => {
             try {
                 const data = await getAllOkupasi();
-                console.log('All Okupasi:', data); // Debug log
                 if (data && data.data) {
                     setOkupasiOptions(data.data.map((item: any) => ({ value: item.kode, label: `${item.kode} - ${item.nama}` })));
                 } else {
@@ -42,7 +41,6 @@ const KompetensiEditComponent: React.FC<KompetensiEditComponentProps> = ({ sekol
         const fetchOkupasiByKode = async (kode: string) => {
             try {
                 const data = await getOkupasiByKode(kode);
-                console.log('Okupasi by Kode:', data); // Debug log
                 if (data && data.data && Array.isArray(data.data.unit_kompetensi)) {
                     setUnitKompetensiOptions(data.data.unit_kompetensi.map((unit: any) => ({ value: unit.id, label: unit.nama })));
                 } else {
@@ -67,7 +65,6 @@ const KompetensiEditComponent: React.FC<KompetensiEditComponentProps> = ({ sekol
         const fetchInitialData = async () => {
             try {
                 const data = await getOkupasiByKode(unitId);
-                console.log('Initial Okupasi data:', data); // Debug log
                 if (data && data.data && Array.isArray(data.data.unit_kompetensi)) {
                     const activeUnits = data.data.unit_kompetensi.filter((unit: any) => unit.id === unitId);
                     setSelectedUnits(activeUnits.map((unit: any) => ({ value: unit.id, label: unit.nama })));
@@ -134,20 +131,21 @@ const KompetensiEditComponent: React.FC<KompetensiEditComponentProps> = ({ sekol
 
     return (
         <div>
-            <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white rounded-lg shadow-lg">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">Edit Unit Kompetensi</h3>
+            <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white rounded-lg shadow-lg dark:bg-gray-800 dark:text-white">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 dark:text-white">Edit Unit Kompetensi</h3>
                 <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Okupasi:</label>
+                    <label className="block text-gray-700 mb-2 dark:text-gray-300">Okupasi:</label>
                     <Select
                         value={selectedOkupasi}
                         onChange={setSelectedOkupasi}
                         options={okupasiOptions}
                         placeholder="Select Okupasi"
                         className="mb-3"
+                        classNamePrefix="react-select"
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Unit Kompetensi:</label>
+                    <label className="block text-gray-700 mb-2 dark:text-gray-300">Unit Kompetensi:</label>
                     <Select
                         value={selectedUnits}
                         onChange={handleUnitChange}
@@ -158,11 +156,12 @@ const KompetensiEditComponent: React.FC<KompetensiEditComponentProps> = ({ sekol
                         hideSelectedOptions={false}
                         components={{ Option }}
                         className="mb-3"
+                        classNamePrefix="react-select"
                     />
                 </div>
                 <button
                     type="submit"
-                    className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-900 transition-colors duration-300 ease-in-out"
+                    className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-900 transition-colors duration-300 ease-in-out dark:bg-gray-700 dark:hover:bg-gray-800"
                 >
                     Simpan
                 </button>
