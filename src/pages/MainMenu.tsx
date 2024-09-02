@@ -1,12 +1,17 @@
-import { useState, MouseEvent } from 'react';
+import { useState, useEffect, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import hoverImagePeta from '../assets/FullMap.png';
-import ScrollingText from '../components/ScrollingText'; // Import the ScrollingText component
+import ScrollingText from '../components/ScrollingText';
 
 const MainMenu = () => {
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = hoverImagePeta;
+  }, []);
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>, section: string) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -26,12 +31,13 @@ const MainMenu = () => {
     return (
       hoveredSection === section && (
         <div
-          className="absolute inset-0 pointer-events-none transition-all duration-300 ease-out"
+          className="absolute inset-0 pointer-events-none transition-transform duration-300 ease-out transform"
           style={{
             backgroundImage: `url(${image})`,
             backgroundSize: 'cover',
             clipPath: `circle(150px at ${hoverPosition.x}px ${hoverPosition.y}px)`,
             opacity: 0.8,
+            transform: 'translateZ(0)', // GPU optimization
           }}
         ></div>
       )

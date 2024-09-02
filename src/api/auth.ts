@@ -6,11 +6,12 @@ import { apiClient, handleError } from './apiClient';
 export const login = async (email: string, password: string) => {
   try {
     const response: AxiosResponse = await apiClient.post('/user/login', { email, password });
+
+    // Simpan token di session storage
     const token = response.data.data.token;
     const decodedToken: any = jwtDecode(token);
-
-    sessionStorage.setItem('Authorization', token); // Store token without 'Bearer ' prefix
-    sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false'); // Simpan status super user
+    sessionStorage.setItem('Authorization', token);
+    sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false');
 
     return {
       token,

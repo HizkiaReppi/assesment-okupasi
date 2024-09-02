@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LogoutButton from './Logout';
 import DarkModeToggle from './DarkModeToggle';
+import LogoImage from '../assets/icon.png'
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -56,7 +57,7 @@ const Navbar = () => {
       <div className="flex justify-between items-center px-6 py-4">
         <div className="flex items-center">
           <Link to="/">
-            <img src="src/assets/icon.png" alt="Logo" className="h-10" />
+            <img src={LogoImage} alt="Logo" className="h-10" />
           </Link>
         </div>
         {isMobile ? (

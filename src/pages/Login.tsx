@@ -1,9 +1,9 @@
-import { useState, MouseEvent } from 'react';
+import { useState, useEffect, MouseEvent } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { login } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import hoverImagePeta from '../assets/FullMap.png'; // Import the hover image
+import hoverImagePeta from '../assets/FullMap.png';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -14,9 +14,13 @@ const Login = () => {
   const { setIsLoggedIn } = useAuth();
   const navigate = useNavigate();
 
-  // Hover state and handlers
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = hoverImagePeta;
+  }, []);
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>, section: string) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -32,12 +36,13 @@ const Login = () => {
     return (
       hoveredSection === section && (
         <div
-          className="absolute inset-0 pointer-events-none transition-all duration-300 ease-out"
+          className="absolute inset-0 pointer-events-none transition-transform duration-300 ease-out transform"
           style={{
             backgroundImage: `url(${image})`,
             backgroundSize: 'cover',
             clipPath: `circle(150px at ${hoverPosition.x}px ${hoverPosition.y}px)`,
             opacity: 0.8,
+            transform: 'translateZ(0)', // GPU optimization
           }}
         ></div>
       )
@@ -56,7 +61,7 @@ const Login = () => {
       const response = await login(email, password);
       if (response) {
         setIsLoggedIn(true);
-        navigate('/'); 
+        navigate('/');
       } else {
         setError('Login failed. Please check your email and password.');
       }
@@ -69,7 +74,7 @@ const Login = () => {
   };
 
   return (
-    <div 
+    <div
       className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-800 dark:to-gray-900 relative overflow-hidden"
       onMouseMove={(e) => handleMouseMove(e, 'login')}
       onMouseLeave={handleMouseLeave}
@@ -79,33 +84,33 @@ const Login = () => {
         <form className="space-y-6" onSubmit={handleLogin}>
           {error && <div className="text-red-500">{error}</div>}
           <div className="relative">
-            <input 
-              type="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
               className="w-full p-4 border border-gray-400 rounded-lg bg-white bg-opacity-50 dark:bg-gray-700 dark:bg-opacity-50 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600"
               placeholder="Email"
             />
           </div>
           <div className="relative">
-            <input 
-              type={showPassword ? "text" : "password"} 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
               className="w-full p-4 border border-gray-400 rounded-lg bg-white bg-opacity-50 dark:bg-gray-700 dark:bg-opacity-50 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600"
               placeholder="Password"
             />
-            <div 
+            <div
               className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600 dark:text-gray-300"
               onClick={togglePasswordVisibility}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </div>
           </div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={`w-full bg-gray-700 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={loading}
           >
