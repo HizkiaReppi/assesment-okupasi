@@ -30,12 +30,13 @@ const FormPage = () => {
     return (
       hoveredSection === section && (
         <div
-          className="absolute inset-0 pointer-events-none transition-all duration-300 ease-out"
+          className="absolute inset-0 pointer-events-none transition-transform duration-300 ease-out transform"
           style={{
             backgroundImage: `url(${image})`,
             backgroundSize: 'cover',
             clipPath: `circle(150px at ${hoverPosition.x}px ${hoverPosition.y}px)`,
             opacity: 0.8,
+            transform: 'translateZ(0)', // GPU optimization
           }}
         ></div>
       )
