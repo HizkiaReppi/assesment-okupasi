@@ -266,3 +266,7 @@ const SignUp = () => {
 };
 
 export default SignUp;
+function updateUser(_arg0: string, _arg1: string, _password: string) {
+  throw new Error('Function not implemented.');
+}
+

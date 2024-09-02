@@ -42,7 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [showSchoolSearch, setShowSchoolSearch] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
+  const [, setSelectedSchool] = useState<School | null>(null);
   const [searchBarValue, setSearchBarValue] = useState<string>("");
   const [filterPage, setFilterPage] = useState(0);
   const [okupasiName, setOkupasiName] = useState<string>("");
