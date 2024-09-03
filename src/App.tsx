@@ -13,6 +13,8 @@ import RedirectRoute from './routes/RedirectRoute';
 import FormPage from './pages/FormPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
+// import { initializeAuthState } from './api/auth';
+// import { useEffect } from 'react';
 
 const AppContent = () => {
   return (
@@ -32,6 +34,11 @@ const AppContent = () => {
 };
 
 const App = () => {
+
+  // useEffect(() => {
+  //   initializeAuthState(); // Inisialisasi auth state saat komponen dimuat
+  // }, []);
+  
   return (
     <AuthProvider>
       <FormProvider>
