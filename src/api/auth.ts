@@ -5,13 +5,13 @@ import { apiClient, handleError } from './apiClient';
 // Fungsi login
 export const login = async (email: string, password: string) => {
   try {
-    const response: AxiosResponse = await apiClient.post('/user/login', { email, password });
+    const response: AxiosResponse = await apiClient.post('/user/login', {
+      email,
+      password,
+    });
     const token = response.data.data.token; // Token dari respons body
     const decodedToken: any = jwtDecode(token);
     const currentTime = Math.floor(Date.now() / 1000);
-
-    console.log('Token received:', token);
-    console.log('Token expiry:', decodedToken.exp);
 
     if (decodedToken.exp < currentTime) {
       console.log('Token sudah expired, melakukan refresh token...');
@@ -44,10 +44,12 @@ export const logout = async () => {
 // Fungsi refresh token
 export const refreshToken = async () => {
   try {
-    console.log('Attempting to refresh token...');
-    
     // Menggunakan withCredentials untuk memastikan cookies dikirim dengan permintaan
-    const response: AxiosResponse = await apiClient.put('/authentication/refresh', {}, { withCredentials: true });
+    const response: AxiosResponse = await apiClient.put(
+      '/authentication/refresh',
+      {},
+      { withCredentials: true },
+    );
 
     if (response.data.status === 'success') {
       const token = response.data.data.token; // Ambil token dari respons body
@@ -58,7 +60,10 @@ export const refreshToken = async () => {
       throw new Error('Failed to refresh token');
     }
   } catch (error: unknown) {
-    console.error('Error refreshing token:', error instanceof Error ? error.message : String(error));
+    console.error(
+      'Error refreshing token:',
+      error instanceof Error ? error.message : String(error),
+    );
     forceLogout();
     throw error;
   }
@@ -101,7 +106,8 @@ export const forceLogout = async () => {
 // Fungsi untuk menghapus session storage
 const clearSession = () => {
   // Hapus semua cookie terkait sesi
-  document.cookie = 'Authorization=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+  document.cookie =
+    'Authorization=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   // Hapus dari sessionStorage jika perlu
   sessionStorage.removeItem('Authorization');
   sessionStorage.removeItem('isSuperUser');
@@ -122,13 +128,13 @@ export const isUserSuper = (): boolean => {
 };
 
 // Fungsi untuk menunda eksekusi
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Fungsi untuk memanggil refreshToken setiap 1 menit
 const startPeriodicRefresh = () => {
   // Hentikan interval yang mungkin sudah berjalan
   stopPeriodicRefresh();
-  
+
   // Mulai interval baru
   const intervalId = setInterval(async () => {
     try {
@@ -155,21 +161,19 @@ const stopPeriodicRefresh = () => {
 // Fungsi untuk menginisialisasi auth state saat halaman dimuat
 const initializeAuthState = async () => {
   const token = sessionStorage.getItem('Authorization');
-  console.log('Initializing auth state, token found:', token);
 
   if (token) {
     try {
       // Tunggu 10 detik sebelum memanggil refreshToken
       await delay(10000);
-
-      console.log('Attempting to refresh token after delay...');
       const response = await refreshToken();
-
-      console.log('Token refreshed successfully:', response);
 
       // Jika berhasil, token lama di sessionStorage diganti dengan yang baru
       sessionStorage.setItem('Authorization', response.token);
-      sessionStorage.setItem('isSuperUser', response.isSuperUser ? 'true' : 'false');
+      sessionStorage.setItem(
+        'isSuperUser',
+        response.isSuperUser ? 'true' : 'false',
+      );
 
       // Mulai periodic refresh setelah inisialisasi
       startPeriodicRefresh();
