@@ -10,10 +10,19 @@ export const login = async (email: string, password: string) => {
     // Simpan token di session storage
     const token = response.data.data.token;
     const decodedToken: any = jwtDecode(token);
+    const currentTime = Math.floor(Date.now() / 1000); // Waktu saat ini dalam detik
+
     console.log('Token received:', token);
     console.log('Token expiry:', decodedToken.exp); // Mengecek expiry token
-    sessionStorage.setItem('Authorization', token);
-    sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false');
+
+    // Cek apakah token sudah expire
+    if (decodedToken.exp < currentTime) {
+      console.log('Token sudah expired, melakukan refresh token...');
+      await refreshToken();
+    } else {
+      sessionStorage.setItem('Authorization', token);
+      sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false');
+    }
 
     return {
       token,
