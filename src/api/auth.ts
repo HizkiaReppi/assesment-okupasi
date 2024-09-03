@@ -10,6 +10,8 @@ export const login = async (email: string, password: string) => {
     // Simpan token di session storage
     const token = response.data.data.token;
     const decodedToken: any = jwtDecode(token);
+    console.log('Token received:', token);
+    console.log('Token expiry:', decodedToken.exp); // Mengecek expiry token
     sessionStorage.setItem('Authorization', token);
     sessionStorage.setItem('isSuperUser', decodedToken.is_super ? 'true' : 'false');
 

@@ -16,10 +16,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isLoggedIn, setIsLoggedInState] = useState<boolean>(() => {
+  const [isLoggedIn, setIsLoggedInState] = useState(() => {
     return !!sessionStorage.getItem("Authorization");
   });
-  const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(() =>
+  const [isSuperAdmin, setIsSuperAdmin] = useState(() =>
     isUserSuper()
   );
 
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const refreshAuthToken = async () => {
       try {
         await refreshToken();
-        // console.log('Token berhasil diperbarui di AuthProvider');
+        console.log('Token berhasil diperbarui di AuthProvider');
         setIsSuperAdmin(isUserSuper());
       } catch (error) {
         forceLogout();
@@ -54,20 +54,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const resetLogoutTimeout = () => {
       if (timeout) clearTimeout(timeout);
-      // console.log('Mengatur ulang timeout logout');
+      console.log('Mengatur ulang timeout logout');
       timeout = setTimeout(() => {
         forceLogout();
       }, 15 * 60 * 1000); // 15 menit
     };
 
     if (isLoggedIn) {
-      // console.log('Mengatur handler untuk refresh token dan logout');
+      console.log('Mengatur handler untuk refresh token dan logout');
       interval = setInterval(refreshAuthToken, 14 * 60 * 1000); // Perbarui token setiap 14 menit
       resetLogoutTimeout(); // Atur timeout logout awal
 
       // Dengarkan aktivitas pengguna
       window.addEventListener('mousemove', resetLogoutTimeout);
       window.addEventListener('keydown', resetLogoutTimeout);
+
+      // Lakukan refresh token 5 detik setelah login pertama kali
+      setTimeout(refreshAuthToken, 5000);
 
       return () => {
         clearInterval(interval);
