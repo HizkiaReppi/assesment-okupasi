@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const resetLogoutTimeout = () => {
       if (timeout) clearTimeout(timeout);
-      console.log('Mengatur ulang timeout logout');
+      // console.log('Mengatur ulang timeout logout');
       timeout = setTimeout(() => {
         forceLogout();
       }, 15 * 60 * 1000); // 15 menit
