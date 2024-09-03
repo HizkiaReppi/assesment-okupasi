@@ -1,6 +1,13 @@
 # Getting Started
 
+## About The Project
+
+Vocational schools contribute the largest number of unemployed in Indonesia. With that problem, this program exist.
+
+This project aims to help match vocational school graduates with the industry and help the industry find suitable candidates. It assesses the suitability of graduates competencies based on the curriculum with the industry.
+
 ## Step 1: Clone the repo
+
 ```bash
 git clone https://github.com/RazorTetra/assesment-maps-project.git
 cd assesment-maps-project
@@ -16,11 +23,8 @@ npm install
 
 ## Step 3: Set Environment Variables
 
-Create a `.env` file in the root of your project and add the following environment variable:
-
-```env
-VITE_API_BASE_URL=http://localhost:3000/api/v1
-MAPS = contact developer
+```bash
+cp .env.example .env
 ```
 
 ## Step 4: Run the Development Server
@@ -30,3 +34,7 @@ Finally, start the development server by running:
 ```bash
 npm run dev
 ```
+
+## Backend Repository
+
+[Github](https://github.com/dhichii/assessment-okupasi-api)
