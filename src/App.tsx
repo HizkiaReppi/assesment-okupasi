@@ -7,12 +7,12 @@ import HomePage from './pages/HomePage';
 import DataSekolahPage from './pages/DataSekolahPage';
 import DataOkupasiPage from './pages/DataOkupasiPage';
 import { AuthProvider } from './context/AuthContext';
-import { FormProvider } from './context/FormContext'; 
+import { FormProvider } from './context/FormContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import RedirectRoute from './routes/RedirectRoute';
 import FormPage from './pages/FormPage';
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; 
+import 'react-toastify/dist/ReactToastify.css';
 // import { initializeAuthState } from './api/auth';
 // import { useEffect } from 'react';
 
@@ -21,24 +21,44 @@ const AppContent = () => {
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<MainMenu />} />
-        <Route path="/login" element={<RedirectRoute element={<Login />} />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path='/form' element={<FormPage />} />
-        <Route path="/data-sekolah" element={<ProtectedRoute element={<DataSekolahPage />} />} />
-        <Route path="/data-okupasi" element={<ProtectedRoute element={<DataOkupasiPage />} />} />
+        <Route
+          path='/'
+          element={<MainMenu />}
+        />
+        <Route
+          path='/login'
+          element={<RedirectRoute element={<Login />} />}
+        />
+        <Route
+          path='/pengguna'
+          element={<Signup />}
+        />
+        <Route
+          path='/home'
+          element={<HomePage />}
+        />
+        <Route
+          path='/form'
+          element={<FormPage />}
+        />
+        <Route
+          path='/data-sekolah'
+          element={<ProtectedRoute element={<DataSekolahPage />} />}
+        />
+        <Route
+          path='/data-okupasi'
+          element={<ProtectedRoute element={<DataOkupasiPage />} />}
+        />
       </Routes>
     </>
   );
 };
 
 const App = () => {
-
   // useEffect(() => {
   //   initializeAuthState(); // Inisialisasi auth state saat komponen dimuat
   // }, []);
-  
+
   return (
     <AuthProvider>
       <FormProvider>
