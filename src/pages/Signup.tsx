@@ -1,6 +1,19 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { FaEye, FaEyeSlash, FaEdit, FaTrash, FaPlus, FaTimes } from 'react-icons/fa';
-import { createUser, getAllUsers, deleteUser } from '../api/user-api';
+import {
+  FaEye,
+  FaEyeSlash,
+  FaEdit,
+  FaTrash,
+  FaPlus,
+  FaTimes,
+} from 'react-icons/fa';
+import {
+  createUser,
+  getAllUsers,
+  deleteUser,
+  changeEmail,
+  changePassword,
+} from '../api/user-api';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
@@ -21,7 +34,6 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [editUserId, setEditUserId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
@@ -64,7 +76,8 @@ const SignUp = () => {
       if (axios.isAxiosError(err) && err.response?.status === 403) {
         toast.error('Anda bukan superadmin');
       } else {
-        const errorMessage = (err as Error).message || 'Terjadi kesalahan, silakan coba lagi.';
+        const errorMessage =
+          (err as Error).message || 'Terjadi kesalahan, silakan coba lagi.';
         setError(errorMessage);
       }
     } finally {
@@ -76,8 +89,7 @@ const SignUp = () => {
   const handleEditUser = (user: User) => {
     setUsername(user.nama);
     setEmail(user.email);
-    setPassword(''); 
-    setEditUserId(user.id);
+    setPassword('');
     setIsEditing(true);
     setShowForm(true);
   };
@@ -87,8 +99,8 @@ const SignUp = () => {
     setLoading(true);
     setError('');
     try {
-      if (email) await updateUser(editUserId!, email, '');
-      if (password) await updateUser(editUserId!, '', password);
+      if (email) await changeEmail(email);
+      if (password) await changePassword(password);
       toast.success('Berhasil memperbarui anggota');
       fetchUsers();
       resetForm();
@@ -97,7 +109,8 @@ const SignUp = () => {
       if (axios.isAxiosError(err) && err.response?.status === 403) {
         toast.error('Anda bukan superadmin');
       } else {
-        const errorMessage = (err as Error).message || 'Terjadi kesalahan, silakan coba lagi.';
+        const errorMessage =
+          (err as Error).message || 'Terjadi kesalahan, silakan coba lagi.';
         setError(errorMessage);
       }
     } finally {
@@ -111,7 +124,7 @@ const SignUp = () => {
     try {
       await deleteUser(id);
       toast.success('Berhasil menghapus anggota');
-      fetchUsers();  
+      fetchUsers();
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 403) {
         toast.error('Anda bukan superadmin');
@@ -128,7 +141,6 @@ const SignUp = () => {
     setUsername('');
     setEmail('');
     setPassword('');
-    setEditUserId(null);
     setIsEditing(false);
     setShowForm(false);
   };
@@ -145,43 +157,48 @@ const SignUp = () => {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4 pt-20">
+    <div className='flex flex-col items-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4 pt-20'>
       <ToastContainer />
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center w-full max-w-6xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-200">User Management</h2>
+      <div className='bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center w-full max-w-6xl'>
+        <h2 className='text-3xl font-bold mb-6 text-gray-800 dark:text-gray-200'>
+          User Management
+        </h2>
         <button
-          className="bg-gray-600 text-white px-4 py-2 rounded-lg mb-4 flex items-center justify-center hover:bg-blue-700 transition duration-300"
+          className='bg-gray-600 text-white px-4 py-2 rounded-lg mb-4 flex items-center justify-center hover:bg-blue-700 transition duration-300'
           onClick={handleAddUser}
         >
-          <FaPlus className="mr-2" /> Add User
+          <FaPlus className='mr-2' /> Add User
         </button>
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white dark:bg-gray-800 shadow-md rounded-lg">
+        <div className='overflow-x-auto'>
+          <table className='min-w-full bg-white dark:bg-gray-800 shadow-md rounded-lg'>
             <thead>
-              <tr className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-200 uppercase text-sm leading-normal">
-                <th className="py-3 px-6 text-left">ID</th>
-                <th className="py-3 px-6 text-left">Nama</th>
-                <th className="py-3 px-6 text-left">Email</th>
-                <th className="py-3 px-6 text-center">Actions</th>
+              <tr className='bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-200 uppercase text-sm leading-normal'>
+                <th className='py-3 px-6 text-left'>ID</th>
+                <th className='py-3 px-6 text-left'>Nama</th>
+                <th className='py-3 px-6 text-left'>Email</th>
+                <th className='py-3 px-6 text-center'>Actions</th>
               </tr>
             </thead>
-            <tbody className="text-gray-600 dark:text-gray-200 text-sm font-light">
+            <tbody className='text-gray-600 dark:text-gray-200 text-sm font-light'>
               {currentUsers.map((user: User) => (
-                <tr key={user.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <td className="py-3 px-6 text-left">{user.id}</td>
-                  <td className="py-3 px-6 text-left">{user.nama}</td>
-                  <td className="py-3 px-6 text-left">{user.email}</td>
-                  <td className="py-3 px-6 text-center flex justify-center space-x-4">
+                <tr
+                  key={user.id}
+                  className='border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
+                >
+                  <td className='py-3 px-6 text-left'>{user.id}</td>
+                  <td className='py-3 px-6 text-left'>{user.nama}</td>
+                  <td className='py-3 px-6 text-left'>{user.email}</td>
+                  <td className='py-3 px-6 text-center flex justify-center space-x-4'>
                     <button
-                      className="text-blue-500 hover:text-blue-700"
+                      className='text-blue-500 hover:text-blue-700'
                       onClick={() => handleEditUser(user)}
                     >
                       <FaEdit />
                     </button>
                     <button
-                      className="text-red-500 hover:text-red-700"
+                      className='text-red-500 hover:text-red-700'
                       onClick={() => handleDeleteUser(user.id)}
-                      disabled={loading} 
+                      disabled={loading}
                     >
                       <FaTrash />
                     </button>
@@ -191,68 +208,88 @@ const SignUp = () => {
             </tbody>
           </table>
         </div>
-        <div className="flex justify-center mt-4">
-          {Array.from({ length: Math.ceil(users.length / usersPerPage) }, (_, i) => (
-            <button
-              key={i + 1}
-              onClick={() => paginate(i + 1)}
-              className={`mx-1 px-3 py-1 rounded ${currentPage === i + 1 ? 'bg-gray-400 dark:bg-gray-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'} hover:bg-orange-800 transition duration-300`}
-            >
-              {i + 1}
-            </button>
-          ))}
+        <div className='flex justify-center mt-4'>
+          {Array.from(
+            { length: Math.ceil(users.length / usersPerPage) },
+            (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => paginate(i + 1)}
+                className={`mx-1 px-3 py-1 rounded ${
+                  currentPage === i + 1
+                    ? 'bg-gray-400 dark:bg-gray-600 text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                } hover:bg-orange-800 transition duration-300`}
+              >
+                {i + 1}
+              </button>
+            ),
+          )}
         </div>
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg">
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-lg relative z-10">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">{isEditing ? 'Edit User' : 'Tambah User Baru'}</h2>
+        <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg'>
+          <div className='bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-lg relative z-10'>
+            <div className='flex justify-between items-center mb-6'>
+              <h2 className='text-2xl font-bold text-gray-800 dark:text-gray-200'>
+                {isEditing ? 'Edit User' : 'Tambah User Baru'}
+              </h2>
               <button onClick={() => setShowForm(false)}>
-                <FaTimes className="text-gray-600 dark:text-gray-200 hover:text-gray-800 transition duration-300" />
+                <FaTimes className='text-gray-600 dark:text-gray-200 hover:text-gray-800 transition duration-300' />
               </button>
             </div>
-            <form className="space-y-4" onSubmit={isEditing ? handleUpdateUser : handleSignUp}>
-              {error && <div className="text-red-500">{error}</div>}
-              <div className="relative">
-                <input 
-                  type="text" 
-                  value={username} 
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)} 
-                  required 
-                  className="w-full p-3 border rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:border-orange-500"
-                  placeholder="Username"
+            <form
+              className='space-y-4'
+              onSubmit={isEditing ? handleUpdateUser : handleSignUp}
+            >
+              {error && <div className='text-red-500'>{error}</div>}
+              <div className='relative'>
+                <input
+                  type='text'
+                  value={username}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setUsername(e.target.value)
+                  }
+                  required
+                  className='w-full p-3 border rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:border-orange-500'
+                  placeholder='Username'
                 />
               </div>
-              <div className="relative">
-                <input 
-                  type="email" 
-                  value={email} 
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} 
-                  required 
-                  className="w-full p-3 border rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:border-orange-500"
-                  placeholder="Email"
+              <div className='relative'>
+                <input
+                  type='email'
+                  value={email}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setEmail(e.target.value)
+                  }
+                  required
+                  className='w-full p-3 border rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:border-orange-500'
+                  placeholder='Email'
                 />
               </div>
-              <div className="relative">
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  value={password} 
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} 
-                  className="w-full p-3 border rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:border-orange-500"
-                  placeholder="Kata Sandi"
+              <div className='relative'>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setPassword(e.target.value)
+                  }
+                  className='w-full p-3 border rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:border-orange-500'
+                  placeholder='Kata Sandi'
                 />
-                <div 
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600 dark:text-gray-200"
+                <div
+                  className='absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600 dark:text-gray-200'
                   onClick={togglePasswordVisibility}
                 >
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </div>
               </div>
-              <button 
-                type="submit" 
-                className={`w-full bg-orange-700 text-white p-3 rounded-lg font-semibold hover:bg-orange-800 transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              <button
+                type='submit'
+                className={`w-full bg-orange-700 text-white p-3 rounded-lg font-semibold hover:bg-orange-800 transition duration-300 ${
+                  loading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
                 disabled={loading}
               >
                 {loading ? 'Memuat...' : isEditing ? 'Perbarui' : 'Daftar'}
@@ -266,7 +303,3 @@ const SignUp = () => {
 };
 
 export default SignUp;
-function updateUser(_arg0: string, _arg1: string, _password: string) {
-  throw new Error('Function not implemented.');
-}
-
