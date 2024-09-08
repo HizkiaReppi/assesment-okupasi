@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import Sidebar from '../components/homepage/Sidebar';
-import BottomBar from '../components/homepage/BottomBar';
-import Loading from '../components/Loading';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import { getAllSekolah } from '../api/sekolah-api';
-import L from 'leaflet';
-import debounce from 'lodash.debounce';
-import '../index.css';
-import useSidebarBottombar from '../hooks/useSidebarBottombar';
+import React, { useState, useEffect, useCallback } from "react";
+import Sidebar from "../components/homepage/Sidebar";
+import BottomBar from "../components/homepage/BottomBar";
+import Loading from "../components/Loading";
+import { MapContainer, TileLayer, Popup, useMap } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import { getAllSekolah } from "../api/sekolah-api";
+import L from "leaflet";
+import debounce from "lodash.debounce";
+import "../index.css";
+import useSidebarBottombar from "../hooks/useSidebarBottombar";
+import CustomMarker from "../components/CustomMarker"; // Import CustomMarker
 
 interface School {
   id: string;
@@ -190,7 +191,9 @@ const HomePage: React.FC = () => {
       {isLoadingLocation && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-gray-700 bg-opacity-50">
           <div className="bg-white p-4 rounded shadow dark:bg-gray-800">
-            <p className="text-lg font-semibold dark:text-gray-200">Mencari lokasi...</p>
+            <p className="text-lg font-semibold dark:text-gray-200">
+              Mencari lokasi...
+            </p>
           </div>
         </div>
       )}
@@ -212,7 +215,7 @@ const HomePage: React.FC = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           {markers.map((position, index) => (
-            <Marker key={index} position={position}>
+            <CustomMarker key={index} position={position}>
               <Popup>
                 <div className="max-h-72 max-w-96 overflow-y-auto pt-4 pb-4 pr-6 dark:bg-gray-900 dark:text-gray-200">
                   <h3 className="text-xl font-semibold mb-2 underline mr-3">
@@ -235,7 +238,8 @@ const HomePage: React.FC = () => {
                   {popupInfo?.details.jumlah_kelulusan && (
                     <p className="text-base text-gray-700 dark:text-gray-400 mb-4">
                       <strong>Jumlah Kelulusan:</strong>{" "}
-                      {popupInfo.details.jumlah_kelulusan}({popupInfo.details.persentase_kelulusan})
+                      {popupInfo.details.jumlah_kelulusan}(
+                      {popupInfo.details.persentase_kelulusan})
                     </p>
                   )}
                   {popupInfo?.details.okupasi && (
@@ -265,13 +269,13 @@ const HomePage: React.FC = () => {
                     )}
                 </div>
               </Popup>
-            </Marker>
+            </CustomMarker>
           ))}
         </MapContainer>
       </div>
-      {screenSize === 'desktop' ? (
+      {screenSize === "desktop" ? (
         <Sidebar onSelectSchool={handleSchoolClick} />
-      ) : screenSize === 'mobile' ? (
+      ) : screenSize === "mobile" ? (
         <BottomBar onSelectSchool={handleSchoolClick} />
       ) : (
         <Sidebar onSelectSchool={handleSchoolClick} />
