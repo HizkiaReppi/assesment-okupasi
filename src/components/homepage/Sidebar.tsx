@@ -2,7 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { FaFilter, FaTimes, FaSearch } from "react-icons/fa";
 import SearchBar from "../SearchBar";
 import { useFormContext } from "../../context/FormContext";
-import { fetchSchoolsByOkupasi, fetchOkupasi } from "../../hooks/sidebarApiHooks";
+import {
+  fetchSchoolsByOkupasi,
+  fetchOkupasi,
+} from "../../hooks/sidebarApiHooks";
+import Loading from "../Loading2"; // Import the Loading component
 
 interface Kompetensi {
   id: string;
@@ -46,6 +50,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   const [searchBarValue, setSearchBarValue] = useState<string>("");
   const [filterPage, setFilterPage] = useState(0);
   const [okupasiName, setOkupasiName] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -55,7 +60,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+      if (
+        filterRef.current &&
+        !filterRef.current.contains(event.target as Node)
+      ) {
         setIsFilterOpen(false);
       }
     };
@@ -82,11 +90,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
     setSelectedSchool(school);
   };
 
-  const handleSearch = async (selectedKode: string, searchQuery: string = "") => {
+  const handleSearch = async (
+    selectedKode: string,
+    searchQuery: string = ""
+  ) => {
     setIsSearching(true);
+    setIsLoading(true); // Set loading to true when search starts
     setFilteredSchools([]);
     try {
-      const { result, selectedOkupasi } = await fetchSchoolsByOkupasi(selectedKode, searchQuery);
+      const { result, selectedOkupasi } = await fetchSchoolsByOkupasi(
+        selectedKode,
+        searchQuery
+      );
 
       setSearchResults(result);
       setFilteredSchools(result);
@@ -99,6 +114,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
       setFilteredSchools([]);
     }
     setIsSearching(false);
+    setIsLoading(false); // Set loading to false when search completes
   };
 
   const executeOkupasiSearch = () => {
@@ -108,7 +124,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   };
 
   const handleSearchEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       executeOkupasiSearch();
     }
   };
@@ -189,7 +205,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
     setCurrentPage(pageNumber);
   };
 
-  const filteredKota = Array.from(new Set(searchResults.map((school) => school.kota)));
+  const filteredKota = Array.from(
+    new Set(searchResults.map((school) => school.kota))
+  );
   const itemsPerFilterPage = 10;
   const paginatedKota = filteredKota.slice(
     filterPage * itemsPerFilterPage,
@@ -198,8 +216,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   const filterPageCount = Math.ceil(filteredKota.length / itemsPerFilterPage);
 
   const formatPercentage = (numerator: number, denominator: number): string => {
-    if (denominator === 0) return '0%';
-    return ((numerator / denominator) * 100).toFixed(2) + '%';
+    if (denominator === 0) return "0%";
+    return ((numerator / denominator) * 100).toFixed(2) + "%";
   };
 
   return (
@@ -209,7 +227,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
           isOpen ? "w-80" : "w-10"
         } transition-all duration-300 flex flex-col rounded-sm dark:bg-gray-800 dark:text-white`}
       >
-        <button onClick={() => setIsOpen(!isOpen)} className="flex ml-2 p-2 font-extrabold focus:outline-none mt-4">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex ml-2 p-2 font-extrabold focus:outline-none mt-4"
+        >
           {isOpen ? ">" : "<"}
         </button>
         {isOpen && (
@@ -229,7 +250,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                     onSearch={setKodeOkupasi}
                     searchBarValue={searchBarValue}
                     setSearchBarValue={setSearchBarValue}
-                    onKeyDown={handleSearchEnter} // Added this to handle 'Enter' key press
+                    onKeyDown={handleSearchEnter}
                   />
                   <button
                     onClick={executeOkupasiSearch}
@@ -247,140 +268,176 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                 <FaFilter />
               </button>
             </div>
-            {isFilterOpen && (
-              <div
-                ref={filterRef}
-                className="absolute top-14 right-14 bg-white shadow-md border rounded p-4 z-50 w-60 dark:bg-gray-700"
-              >
-                <h4 className="font-bold mb-2">Filter by Kota</h4>
-                <div className="max-h-40 overflow-y-auto">
-                  {paginatedKota.map((kota) => (
-                    <div key={kota} className="mb-2">
+            {isLoading ? (
+              <div className="flex-grow flex items-center justify-center">
+                <Loading />
+              </div>
+            ) : (
+              <>
+                {isFilterOpen && (
+                  <div
+                    ref={filterRef}
+                    className="absolute top-14 right-14 bg-white shadow-md border rounded p-4 z-50 w-60 dark:bg-gray-700"
+                  >
+                    <h4 className="font-bold mb-2">Filter by Kota</h4>
+                    <div className="max-h-40 overflow-y-auto">
+                      {paginatedKota.map((kota) => (
+                        <div key={kota} className="mb-2">
+                          <button
+                            onClick={() => handleFilterSelect(kota)}
+                            className={`p-2 border rounded w-full text-left ${
+                              selectedFilter === kota
+                                ? "bg-orange-500 text-white"
+                                : "bg-gray-200 dark:bg-gray-600 dark:text-white"
+                            }`}
+                          >
+                            {kota}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      onClick={handleClearFilter}
+                      className="p-2 border rounded w-full text-left bg-gray-200 dark:bg-gray-600 dark:text-white"
+                    >
+                      Clear Filter
+                    </button>
+                    <div className="flex justify-between mt-4">
                       <button
-                        onClick={() => handleFilterSelect(kota)}
-                        className={`p-2 border rounded w-full text-left ${
-                          selectedFilter === kota ? "bg-orange-500 text-white" : "bg-gray-200 dark:bg-gray-600 dark:text-white"
-                        }`}
+                        onClick={() => setFilterPage(filterPage - 1)}
+                        disabled={filterPage === 0}
+                        className="p-2 border rounded bg-gray-200 hover:bg-gray-300 transition dark:bg-gray-600 dark:hover:bg-gray-700"
                       >
-                        {kota}
+                        Previous
+                      </button>
+                      <button
+                        onClick={() => setFilterPage(filterPage + 1)}
+                        disabled={filterPage >= filterPageCount - 1}
+                        className="p-2 border rounded bg-gray-200 hover:bg-gray-300 transition dark:bg-gray-600 dark:hover:bg-gray-700"
+                      >
+                        Next
                       </button>
                     </div>
-                  ))}
-                </div>
-                <button
-                  onClick={handleClearFilter}
-                  className="p-2 border rounded w-full text-left bg-gray-200 dark:bg-gray-600 dark:text-white"
-                >
-                  Clear Filter
-                </button>
-                <div className="flex justify-between mt-4">
+                  </div>
+                )}
+                {(searchResults.length > 0 || isSearching) && (
                   <button
-                    onClick={() => setFilterPage(filterPage - 1)}
-                    disabled={filterPage === 0}
-                    className="p-2 border rounded bg-gray-200 hover:bg-gray-300 transition dark:bg-gray-600 dark:hover:bg-gray-700"
+                    onClick={handleBackClick}
+                    className="p-2 mt-2 border rounded-full w-full bg-gray-200 hover:bg-red-300 text-center dark:bg-gray-600 dark:hover:bg-red-400"
+                  >
+                    Reset Pencarian
+                  </button>
+                )}
+                <button
+                  onClick={handleToggleSchoolSearch}
+                  className="p-2 mt-4 border rounded-full w-full text-center bg-gray-300 hover:bg-gray-500 transition disabled:bg-gray-300 disabled:cursor-not-allowed dark:bg-gray-600 dark:hover:bg-gray-700"
+                  disabled={!kodeOkupasi || isSearching}
+                >
+                  {showSchoolSearch ? "Tutup" : "Cari Sekolah"}
+                </button>
+                {showSchoolSearch && (
+                  <div className="mt-4 relative">
+                    <div className="flex items-center mb-4">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={handleSearchSchool}
+                        placeholder="Cari Nama Sekolah"
+                        className="p-2 border rounded w-full dark:bg-gray-600 dark:text-white"
+                      />
+                      {searchQuery && (
+                        <FaTimes
+                          className="absolute right-12 cursor-pointer text-gray-500 dark:text-white"
+                          onClick={clearSchoolNameSearch}
+                        />
+                      )}
+                      <button
+                        onClick={executeSchoolSearch}
+                        className="p-2 border rounded ml-2 bg-gray-200 hover:bg-gray-300 transition dark:bg-gray-600 dark:hover:bg-gray-700"
+                      >
+                        <FaSearch />
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <div className="mt-4 overflow-y-auto flex-grow">
+                  {currentItems.length > 0 ? (
+                    currentItems.map((school) => (
+                      <div
+                        key={school.id}
+                        className="p-4 border-b cursor-pointer hover:bg-gray-100 transition dark:hover:bg-gray-700"
+                        onClick={() => handleSchoolClick(school)}
+                      >
+                        <h3 className="font-bold text-lg dark:text-white">
+                          {truncate(school.nama, 20)}
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400">
+                          {truncate(school.kota, 20)}
+                        </p>
+                        <p className="text-gray-500 dark:text-gray-300">
+                          <strong>Kecocokan: {school.kecocokan}%</strong>
+                        </p>
+                        <p className="text-gray-500 dark:text-gray-300">
+                          <strong>Jumlah Siswa: {school.jumlah_siswa}</strong>
+                        </p>
+                        <p className="text-gray-500 dark:text-gray-300">
+                          <strong>
+                            Jumlah Kelulusan: {school.jumlah_kelulusan}
+                          </strong>{" "}
+                          <strong>
+                            (
+                            {formatPercentage(
+                              school.jumlah_kelulusan,
+                              school.jumlah_siswa
+                            )}
+                            )
+                          </strong>
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No schools found.</p>
+                  )}
+                </div>
+                <div className="flex justify-center mt-4 mb-4">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                      currentPage === 1
+                        ? "bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400"
+                        : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
+                    }`}
                   >
                     Previous
                   </button>
+                  {[...Array(totalPages)].map((_, index) => (
+                    <button
+                      key={index + 1}
+                      onClick={() => handlePageChange(index + 1)}
+                      className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                        currentPage === index + 1
+                          ? "bg-gray-500 text-white dark:bg-gray-800"
+                          : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
+                      }`}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
                   <button
-                    onClick={() => setFilterPage(filterPage + 1)}
-                    disabled={filterPage >= filterPageCount - 1}
-                    className="p-2 border rounded bg-gray-200 hover:bg-gray-300 transition dark:bg-gray-600 dark:hover:bg-gray-700"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                      currentPage === totalPages
+                        ? "bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400"
+                        : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
+                    }`}
                   >
                     Next
                   </button>
                 </div>
-              </div>
+              </>
             )}
-            {(searchResults.length > 0 || isSearching) && (
-              <button
-                onClick={handleBackClick}
-                className="p-2 mt-2 border rounded-full w-full bg-gray-200 hover:bg-red-300 text-center dark:bg-gray-600 dark:hover:bg-red-400"
-              >
-                Reset Pencarian
-              </button>
-            )}
-            <button
-              onClick={handleToggleSchoolSearch}
-              className="p-2 mt-4 border rounded-full w-full text-center bg-gray-300 hover:bg-gray-500 transition disabled:bg-gray-300 disabled:cursor-not-allowed dark:bg-gray-600 dark:hover:bg-gray-700"
-              disabled={!kodeOkupasi || isSearching}
-            >
-              {showSchoolSearch ? "Tutup" : "Cari Sekolah"}
-            </button>
-            {showSchoolSearch && (
-              <div className="mt-4 relative">
-                <div className="flex items-center mb-4">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={handleSearchSchool}
-                    placeholder="Cari Nama Sekolah"
-                    className="p-2 border rounded w-full dark:bg-gray-600 dark:text-white"
-                  />
-                  {searchQuery && (
-                    <FaTimes
-                      className="absolute right-12 cursor-pointer text-gray-500 dark:text-white"
-                      onClick={clearSchoolNameSearch}
-                    />
-                  )}
-                  <button
-                    onClick={executeSchoolSearch}
-                    className="p-2 border rounded ml-2 bg-gray-200 hover:bg-gray-300 transition dark:bg-gray-600 dark:hover:bg-gray-700"
-                  >
-                    <FaSearch />
-                  </button>
-                </div>
-              </div>
-            )}
-            <div className="mt-4 overflow-y-auto flex-grow">
-              {currentItems.length > 0 ? (
-                currentItems.map((school) => (
-                  <div
-                    key={school.id}
-                    className="p-4 border-b cursor-pointer hover:bg-gray-100 transition dark:hover:bg-gray-700"
-                    onClick={() => handleSchoolClick(school)}
-                  >
-                    <h3 className="font-bold text-lg dark:text-white">{truncate(school.nama, 20)}</h3>
-                    <p className="text-gray-600 dark:text-gray-400">{truncate(school.kota, 20)}</p>
-                    <p className="text-gray-500 dark:text-gray-300"><strong>Kecocokan: {school.kecocokan}%</strong></p>
-                    <p className="text-gray-500 dark:text-gray-300"><strong>Jumlah Siswa: {school.jumlah_siswa}</strong></p>
-                    <p className="text-gray-500 dark:text-gray-300"><strong>Jumlah Kelulusan: {school.jumlah_kelulusan}</strong> <strong>({formatPercentage(school.jumlah_kelulusan, school.jumlah_siswa)})</strong></p>
-                  </div>
-                ))
-              ) : (
-                <p>No schools found.</p>
-              )}
-            </div>
-            <div className="flex justify-center mt-4 mb-4">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
-                  currentPage === 1 ? "bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400" : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
-                }`}
-              >
-                Previous
-              </button>
-              {[...Array(totalPages)].map((_, index) => (
-                <button
-                  key={index + 1}
-                  onClick={() => handlePageChange(index + 1)}
-                  className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
-                    currentPage === index + 1 ? "bg-gray-500 text-white dark:bg-gray-800" : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
-                  currentPage === totalPages ? "bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400" : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
-                }`}
-              >
-                Next
-              </button>
-            </div>
           </div>
         )}
       </div>
