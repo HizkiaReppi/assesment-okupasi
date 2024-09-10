@@ -1,12 +1,16 @@
 import { createContext, useState, ReactNode, useContext } from 'react';
 
+interface UnitKompetensi {
+  id: string;
+  kode_unit: string;
+  nama: string;
+  standard_kompetensi: string;
+}
+
 interface Kompetensi {
   kode: string;
   nama: string;
-  unit_kompetensi: {
-    id: string;
-    nama: string;
-  }[];
+  unit_kompetensi: UnitKompetensi[];
 }
 
 interface School {
@@ -16,6 +20,9 @@ interface School {
   lat: number;
   lng: number;
   kecocokan?: string;
+  jumlah_siswa?: number;
+  jumlah_kelulusan?: number;
+  persentase_kelulusan?: string;
   kompetensi?: Kompetensi[];
 }
 

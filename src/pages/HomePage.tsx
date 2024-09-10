@@ -9,7 +9,20 @@ import L from "leaflet";
 import debounce from "lodash.debounce";
 import "../index.css";
 import useSidebarBottombar from "../hooks/useSidebarBottombar";
-import CustomMarker from "../components/CustomMarker"; // Import CustomMarker
+import CustomMarker from "../components/CustomMarker";
+
+interface UnitKompetensi {
+  id: string;
+  kode_unit: string;
+  nama: string;
+  standard_kompetensi: string;
+}
+
+interface Kompetensi {
+  kode: string;
+  nama: string;
+  unit_kompetensi: UnitKompetensi[];
+}
 
 interface School {
   id: string;
@@ -21,27 +34,13 @@ interface School {
   jumlah_siswa?: number;
   jumlah_kelulusan?: number;
   persentase_kelulusan?: string;
-}
-
-interface Kompetensi {
-  id: string;
-  nama: string;
+  kompetensi?: Kompetensi[];
 }
 
 interface PopupInfo {
   name: string;
   position: L.LatLng;
-  details: {
-    nama: string;
-    kota: string;
-    kecocokan?: string;
-    jumlah_siswa?: number;
-    jumlah_kelulusan?: number;
-    persentase_kelulusan?: string;
-    okupasi?: string;
-    kode_okupasi?: string;
-    unit_kompetensi?: Kompetensi[];
-  };
+  details: School;
 }
 
 const HomePage: React.FC = () => {
@@ -49,7 +48,7 @@ const HomePage: React.FC = () => {
   const [center, setCenter] = useState<{ lat: number; lng: number }>({
     lat: 1.3017,
     lng: 124.9113,
-  }); // Koordinat Tondano
+  });
   const [loading, setLoading] = useState<boolean>(true);
   const [isLoadingLocation, setIsLoadingLocation] = useState<boolean>(false);
   const [markers, setMarkers] = useState<L.LatLng[]>([]);
@@ -63,7 +62,7 @@ const HomePage: React.FC = () => {
     west: 122.932839,
   };
 
-  const screenSize = useSidebarBottombar(); // Get the current screen size
+  const screenSize = useSidebarBottombar();
 
   useEffect(() => {
     const fetchInitialSchools = async () => {
@@ -101,8 +100,8 @@ const HomePage: React.FC = () => {
     fetchInitialSchools();
   }, []);
 
-  const fetchGeocode = async (schoolName: string, schoolDetails: any) => {
-    setIsLoadingLocation(true); // Mulai loading
+  const fetchGeocode = async (schoolName: string, schoolDetails: School) => {
+    setIsLoadingLocation(true);
     try {
       const response = await fetch(
         `https://us1.locationiq.com/v1/search.php?key=${
@@ -111,7 +110,7 @@ const HomePage: React.FC = () => {
       );
       if (response.status === 429) {
         setRateLimitExceeded(true);
-        setIsLoadingLocation(false); // Selesai loading
+        setIsLoadingLocation(false);
         return;
       }
       const data = await response.json();
@@ -122,20 +121,7 @@ const HomePage: React.FC = () => {
         setPopupInfo({
           name: schoolName,
           position,
-          details: {
-            nama: schoolDetails.nama,
-            kota: schoolDetails.kota,
-            kecocokan: schoolDetails.kecocokan,
-            jumlah_siswa: schoolDetails.jumlah_siswa,
-            jumlah_kelulusan: schoolDetails.jumlah_kelulusan,
-            persentase_kelulusan: formatPercentage(
-              schoolDetails.jumlah_kelulusan,
-              schoolDetails.jumlah_siswa
-            ),
-            okupasi: schoolDetails.okupasi,
-            kode_okupasi: schoolDetails.kode_okupasi, // Include kodeOkupasi here
-            unit_kompetensi: schoolDetails.unit_kompetensi || [],
-          },
+          details: schoolDetails,
         });
         setCenter({ lat: parseFloat(lat), lng: parseFloat(lon) });
         setRateLimitExceeded(false);
@@ -149,7 +135,7 @@ const HomePage: React.FC = () => {
 
   const debouncedFetchGeocode = useCallback(debounce(fetchGeocode, 1000), []);
 
-  const handleSchoolClick = (schoolName: string, schoolDetails: any) => {
+  const handleSchoolClick = (schoolName: string, schoolDetails: School) => {
     debouncedFetchGeocode(schoolName, schoolDetails);
   };
 
@@ -204,8 +190,8 @@ const HomePage: React.FC = () => {
         <MapContainer
           center={center}
           zoom={12}
-          minZoom={10} // Set the minimum zoom level
-          maxZoom={16} // Set the maximum zoom level
+          minZoom={10}
+          maxZoom={16}
           scrollWheelZoom={true}
           className="h-full w-full sm:h-screen sm:w-screen"
         >
@@ -238,35 +224,38 @@ const HomePage: React.FC = () => {
                   {popupInfo?.details.jumlah_kelulusan && (
                     <p className="text-base text-gray-700 dark:text-gray-400 mb-4">
                       <strong>Jumlah Kelulusan:</strong>{" "}
-                      {popupInfo.details.jumlah_kelulusan}(
-                      {popupInfo.details.persentase_kelulusan})
+                      {popupInfo.details.jumlah_kelulusan} (
+                      {formatPercentage(
+                        popupInfo.details.jumlah_kelulusan,
+                        popupInfo.details.jumlah_siswa || 1
+                      )}
+                      )
                     </p>
                   )}
-                  {popupInfo?.details.okupasi && (
-                    <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
-                      <strong>Okupasi:</strong>{" "}
-                      {popupInfo.details.okupasi.toUpperCase()}
-                      <br />
-                      <strong>Kode:</strong>{" "}
-                      {popupInfo.details.kode_okupasi &&
-                        ` ${popupInfo.details.kode_okupasi}`}
-                    </p>
+                  {popupInfo?.details.kompetensi && popupInfo.details.kompetensi.length > 0 && (
+                    <div>
+                      <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
+                        <strong>Kompetensi:</strong> {popupInfo.details.kompetensi[0].nama}
+                      </p>
+                      <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
+                        <strong>Kode:</strong> {popupInfo.details.kompetensi[0].kode}
+                      </p>
+                      {popupInfo.details.kompetensi[0].unit_kompetensi.length > 0 && (
+                        <div className="mt-2">
+                          <h4 className="text-base sm:text-lg font-semibold dark:text-gray-300">
+                            Unit Kompetensi:
+                          </h4>
+                          <ul className="list-disc list-inside text-base sm:text-lg text-gray-700 dark:text-gray-400">
+                            {popupInfo.details.kompetensi[0].unit_kompetensi.map(
+                              (unit) => (
+                                <li key={unit.id}>{unit.nama}</li>
+                              )
+                            )}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
                   )}
-                  {popupInfo?.details.unit_kompetensi &&
-                    popupInfo.details.unit_kompetensi.length > 0 && (
-                      <div className="mt-2">
-                        <h4 className="text-base sm:text-lg font-semibold dark:text-gray-300">
-                          Unit Kompetensi:
-                        </h4>
-                        <ul className="list-disc list-inside text-base sm:text-lg text-gray-700 dark:text-gray-400">
-                          {popupInfo.details.unit_kompetensi.map(
-                            (kompetensi) => (
-                              <li key={kompetensi.id}>{kompetensi.nama}</li>
-                            )
-                          )}
-                        </ul>
-                      </div>
-                    )}
                 </div>
               </Popup>
             </CustomMarker>

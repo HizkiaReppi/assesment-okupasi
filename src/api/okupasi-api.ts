@@ -1,7 +1,7 @@
 import { apiClient, handleError } from './apiClient';
 
 // Add Okupasi
-export const addOkupasi = async (kode: string, nama: string, unitKompetensi: { nama: string }[]) => {
+export const addOkupasi = async (kode: string, nama: string, unitKompetensi: { kode_unit: string; nama: string; standard_kompetensi: string }[]) => {
   try {
     const payload = { kode, nama, unit_kompetensi: unitKompetensi };
     const response = await apiClient.post('/okupasi', payload);
@@ -20,7 +20,6 @@ export const getAllOkupasi = async (search = '', limit = 10, page = 1) => {
         limit,
         page,
       },
-      withCredentials: true,
     });
     return response.data;
   } catch (error) {
@@ -31,7 +30,7 @@ export const getAllOkupasi = async (search = '', limit = 10, page = 1) => {
 // Get Okupasi By Kode
 export const getOkupasiByKode = async (kode: string) => {
   try {
-    const response = await apiClient.get(`/okupasi/${kode}`, { withCredentials: true });
+    const response = await apiClient.get(`/okupasi/${kode}`);
     return response.data;
   } catch (error) {
     handleError(error);
@@ -39,20 +38,19 @@ export const getOkupasiByKode = async (kode: string) => {
 };
 
 // Edit Okupasi By Kode
-export const updateOkupasi = async (kode: string, newKode: string, nama: string) => {
+export const updateOkupasi = async (kode: string, newData: { kode?: string; nama?: string }) => {
   try {
-    const response = await apiClient.put(`/okupasi/${kode}`, { kode: newKode, nama }, { withCredentials: true });
+    const response = await apiClient.put(`/okupasi/${kode}`, newData);
     return response.data;
   } catch (error) {
     handleError(error);
   }
 };
 
-
 // Delete Okupasi By Kode
 export const deleteOkupasi = async (kode: string) => {
   try {
-    const response = await apiClient.delete(`/okupasi/${kode}`, { withCredentials: true });
+    const response = await apiClient.delete(`/okupasi/${kode}`);
     return response.data;
   } catch (error) {
     handleError(error);
@@ -60,9 +58,9 @@ export const deleteOkupasi = async (kode: string) => {
 };
 
 // Add Unit Kompetensi
-export const addUnitKompetensi = async (kode: string, nama: string) => {
+export const addUnitKompetensi = async (kode: string, unitKompetensi: { kode_unit: string; nama: string; standard_kompetensi: string }) => {
   try {
-    const response = await apiClient.post(`/okupasi/${kode}/unit-kompetensi`, { nama }, { withCredentials: true });
+    const response = await apiClient.post(`/okupasi/${kode}/unit-kompetensi`, unitKompetensi);
     return response.data;
   } catch (error) {
     handleError(error);
@@ -70,9 +68,9 @@ export const addUnitKompetensi = async (kode: string, nama: string) => {
 };
 
 // Edit Unit Kompetensi By Id
-export const updateUnitKompetensi = async (kode: string, id: string, nama: string) => {
+export const updateUnitKompetensi = async (kode: string, id: string, unitKompetensi: { kode_unit?: string; nama?: string; standard_kompetensi?: string }) => {
   try {
-    const response = await apiClient.put(`/okupasi/${kode}/unit-kompetensi/${id}`, { nama }, { withCredentials: true });
+    const response = await apiClient.put(`/okupasi/${kode}/unit-kompetensi/${id}`, unitKompetensi);
     return response.data;
   } catch (error) {
     handleError(error);
@@ -82,7 +80,7 @@ export const updateUnitKompetensi = async (kode: string, id: string, nama: strin
 // Delete Unit Kompetensi By Id
 export const deleteUnitKompetensi = async (kode: string, id: string) => {
   try {
-    const response = await apiClient.delete(`/okupasi/${kode}/unit-kompetensi/${id}`, { withCredentials: true });
+    const response = await apiClient.delete(`/okupasi/${kode}/unit-kompetensi/${id}`);
     return response.data;
   } catch (error) {
     handleError(error);

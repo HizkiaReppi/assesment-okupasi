@@ -11,7 +11,7 @@ import Modal from '../components/EditModal';
 const DataOkupasiPage: React.FC = () => {
   const [selectedKode, setSelectedKode] = useState<string | null>(null);
   const [editingKode, setEditingKode] = useState<string | null>(null);
-  const [editingUnit, setEditingUnit] = useState<{ id: string; nama: string } | null>(null);
+  const [editingUnit, setEditingUnit] = useState<{ id: string; kode_unit: string; nama: string; standard_kompetensi: string } | null>(null);
   const [addingOkupasi, setAddingOkupasi] = useState<boolean>(false);
   const [addingUnitKompetensi, setAddingUnitKompetensi] = useState<boolean>(false);
   const [refresh, setRefresh] = useState(false);
@@ -22,8 +22,8 @@ const DataOkupasiPage: React.FC = () => {
     setRefresh(prevRefresh => !prevRefresh);
   };
 
-  const handleEditUnit = (unitId: string, initialNama: string) => {
-    setEditingUnit({ id: unitId, nama: initialNama });
+  const handleEditUnit = (unitId: string, kode_unit: string, nama: string, standard_kompetensi: string) => {
+    setEditingUnit({ id: unitId, kode_unit, nama, standard_kompetensi });
   };
 
   const handleEditOkupasi = (kode: string | null) => {
@@ -72,7 +72,7 @@ const DataOkupasiPage: React.FC = () => {
                       d="M12 4v16m8-8H4"
                     ></path>
                   </svg>
-                  Data Okupasi
+                  Tambah Data Okupasi
                 </button>
               </>
             )}
@@ -81,7 +81,7 @@ const DataOkupasiPage: React.FC = () => {
                 onEdit={handleEditOkupasi}
                 onViewUnits={handleViewUnits}
                 refresh={refresh}
-                onRefresh={handleRefresh} // Add onRefresh handler
+                onRefresh={handleRefresh}
               />
             )}
             {selectedKode && (
@@ -104,7 +104,7 @@ const DataOkupasiPage: React.FC = () => {
                       d="M15 19l-7-7 7-7"
                     ></path>
                   </svg>
-                  Back
+                  Kembali
                 </button>
                 <button
                   onClick={handleAddUnitKompetensi}
@@ -187,7 +187,9 @@ const DataOkupasiPage: React.FC = () => {
           <UnitKompetensiEditForm
             kode={selectedKode || ''}
             unitId={editingUnit.id}
+            initialKodeUnit={editingUnit.kode_unit}
             initialNama={editingUnit.nama}
+            initialStandardKompetensi={editingUnit.standard_kompetensi}
             onSuccess={() => {
               setEditingUnit(null);
               handleRefresh();

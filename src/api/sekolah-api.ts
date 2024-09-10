@@ -1,6 +1,6 @@
 import { apiClient, handleError } from './apiClient';
 
-// Add sekolah
+// Add Sekolah
 export const addSekolah = async (
   nama: string,
   kota: string,
@@ -8,11 +8,12 @@ export const addSekolah = async (
   jumlah_kelulusan: number
 ): Promise<any> => {
   try {
-    const response = await apiClient.post(
-      "/sekolah",
-      { nama, kota, jumlah_siswa, jumlah_kelulusan },
-      { withCredentials: true }
-    );
+    const response = await apiClient.post("/sekolah", {
+      nama,
+      kota,
+      jumlah_siswa,
+      jumlah_kelulusan
+    });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -23,17 +24,11 @@ export const addSekolah = async (
 export const getAllSekolah = async (
   search?: string,
   limit?: number,
-  page?: number,
-  kota?: string
+  page?: number
 ) => {
   try {
-    const params: any = { search, limit, page };
-    if (kota) {
-      params.kota = kota;
-    }
     const response = await apiClient.get("/sekolah", {
-      params,
-      withCredentials: true,
+      params: { search, limit, page }
     });
     return response.data;
   } catch (error) {
@@ -44,9 +39,7 @@ export const getAllSekolah = async (
 // Get Sekolah By Id
 export const getSekolahById = async (id: string) => {
   try {
-    const response = await apiClient.get(`/sekolah/${id}`, {
-      withCredentials: true,
-    });
+    const response = await apiClient.get(`/sekolah/${id}`);
     return response.data;
   } catch (error) {
     handleError(error);
@@ -62,11 +55,12 @@ export const editSekolahById = async (
   jumlah_kelulusan: number
 ): Promise<any> => {
   try {
-    const response = await apiClient.put(
-      `/sekolah/${id}`,
-      { nama, kota, jumlah_siswa, jumlah_kelulusan },
-      { withCredentials: true }
-    );
+    const response = await apiClient.put(`/sekolah/${id}`, {
+      nama,
+      kota,
+      jumlah_siswa,
+      jumlah_kelulusan
+    });
     return response.data;
   } catch (error) {
     handleError(error);
@@ -76,9 +70,7 @@ export const editSekolahById = async (
 // Delete Sekolah By Id
 export const deleteSekolahById = async (id: string) => {
   try {
-    const response = await apiClient.delete(`/sekolah/${id}`, {
-      withCredentials: true,
-    });
+    const response = await apiClient.delete(`/sekolah/${id}`);
     return response.data;
   } catch (error) {
     handleError(error);
@@ -92,17 +84,17 @@ export const addKompetensi = async (
   unit_kompetensi: { id: string }[]
 ) => {
   try {
-    const response = await apiClient.post(
-      `/sekolah/${id}/kompetensi`,
-      { kode, unit_kompetensi },
-      { withCredentials: true }
-    );
+    const response = await apiClient.post(`/sekolah/${id}/kompetensi`, {
+      kode,
+      unit_kompetensi
+    });
     return response.data;
   } catch (error) {
     handleError(error);
   }
 };
 
+// Get All Kompetensi
 export const getAllKompetensi = async (
   id: string,
   search = "",
@@ -111,8 +103,7 @@ export const getAllKompetensi = async (
 ) => {
   try {
     const response = await apiClient.get(`/sekolah/${id}/kompetensi`, {
-      params: { search, limit, page },
-      withCredentials: true,
+      params: { search, limit, page }
     });
     return response.data;
   } catch (error) {
@@ -127,46 +118,40 @@ export const editKompetensi = async (
   unit_kompetensi: { id: string }[]
 ) => {
   try {
-    const response = await apiClient.put(
-      `/sekolah/${id}/kompetensi`,
-      { kode, unit_kompetensi },
-      { withCredentials: true }
-    );
+    const response = await apiClient.put(`/sekolah/${id}/kompetensi`, {
+      kode,
+      unit_kompetensi
+    });
     return response.data;
   } catch (error) {
     handleError(error);
   }
 };
 
-// Delete Kompetensi By Kode Okupasi atau Delete semua kompetensi
+// Delete Kompetensi By Kode Okupasi
 export const deleteKompetensiByKodeOkupasi = async (
   id: string,
   kode: string
 ) => {
   try {
-    const response = await apiClient.delete(
-      `/sekolah/${id}/kompetensi/okupasi/${kode}`,
-      { withCredentials: true }
-    );
+    const response = await apiClient.delete(`/sekolah/${id}/kompetensi/okupasi/${kode}`);
     return response.data;
   } catch (error) {
     handleError(error);
   }
 };
 
-// Delete Kompetensi By Id atau delete satu kompetensi
+// Delete Kompetensi By Id
 export const deleteKompetensiById = async (id: string, idUnit: string) => {
   try {
-    const response = await apiClient.delete(
-      `/sekolah/${id}/kompetensi/unit/${idUnit}`,
-      { withCredentials: true }
-    );
+    const response = await apiClient.delete(`/sekolah/${id}/kompetensi/unit/${idUnit}`);
     return response.data;
   } catch (error) {
     handleError(error);
   }
 };
 
+// Get All Sekolah Stat By Kode Okupasi
 export const getAllSekolahStatByKodeOkupasi = async (
   kode: string,
   search?: string,
@@ -174,12 +159,9 @@ export const getAllSekolahStatByKodeOkupasi = async (
   page?: number
 ): Promise<any> => {
   try {
-    const response = await apiClient.get(
-      `/sekolah/stat/okupasi/${kode}`,
-      {
-        params: { search, limit, page },
-      }
-    );
+    const response = await apiClient.get(`/sekolah/stat/okupasi/${kode}`, {
+      params: { search, limit, page }
+    });
     return response.data;
   } catch (error) {
     handleError(error);

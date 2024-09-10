@@ -6,22 +6,29 @@ import ConfirmationModal from '../ConfirmationModal';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+interface UnitKompetensi {
+  id: string;
+  kode_unit: string;
+  nama: string;
+  standard_kompetensi: string;
+}
+
 interface UnitKompetensiListProps {
   kode: string;
-  okupasiName: string; // New prop for okupasi name
-  onEdit: (unitId: string, initialNama: string) => void;
+  okupasiName: string;
+  onEdit: (unitId: string, kode_unit: string, nama: string, standard_kompetensi: string) => void;
   refresh: boolean;
   editingUnitId?: string | null;
 }
 
 const UnitKompetensiList: React.FC<UnitKompetensiListProps> = ({ kode, okupasiName, onEdit, refresh, editingUnitId }) => {
-  const [unitKompetensi, setUnitKompetensi] = useState<{ id: string; nama: string }[]>([]);
+  const [unitKompetensi, setUnitKompetensi] = useState<UnitKompetensi[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [searchTerm, setSearchTerm] = useState(''); // State untuk input pencarian sementara
+  const [searchTerm, setSearchTerm] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [selectedUnit, setSelectedUnit] = useState<{ id: string; nama: string } | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<UnitKompetensi | null>(null);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -58,24 +65,24 @@ const UnitKompetensiList: React.FC<UnitKompetensiListProps> = ({ kode, okupasiNa
     }
   };
 
-  const confirmDelete = (unit: { id: string; nama: string }) => {
+  const confirmDelete = (unit: UnitKompetensi) => {
     setSelectedUnit(unit);
     setShowModal(true);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value); // Update searchTerm ketika input berubah
+    setSearchTerm(e.target.value);
   };
 
   const handleSearch = () => {
-    setSearchQuery(searchTerm); // Set searchQuery ketika tombol ditekan
-    setCurrentPage(1); // Reset ke halaman pertama
+    setSearchQuery(searchTerm);
+    setCurrentPage(1);
   };
 
   const handleClearSearch = () => {
-    setSearchTerm(''); // Clear search term
-    setSearchQuery(''); // Clear search query
-    setCurrentPage(1); // Reset ke halaman pertama
+    setSearchTerm('');
+    setSearchQuery('');
+    setCurrentPage(1);
   };
 
   const filteredUnits = unitKompetensi.filter((unit) =>
@@ -101,17 +108,21 @@ const UnitKompetensiList: React.FC<UnitKompetensiListProps> = ({ kode, okupasiNa
   };
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
   return (
     <div className="mb-6 p-4 bg-white rounded-lg shadow-md dark:bg-gray-800 dark:text-white">
-      <h3 className="text-lg font-bold text-gray-800 mb-4 dark:text-white">Daftar Unit Kompetensi - {okupasiName}</h3> {/* Display okupasi name */}
+      <h3 className="text-lg font-bold text-gray-800 mb-4 dark:text-white">Daftar Unit Kompetensi - {okupasiName}</h3>
       <div className="flex mb-4">
         <input
           type="text"
           placeholder="Cari unit kompetensi"
-          value={searchTerm} // Bind ke searchTerm
+          value={searchTerm}
           onChange={handleSearchChange}
           className="p-2 border border-gray-300 rounded-md w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         />
@@ -138,7 +149,7 @@ const UnitKompetensiList: React.FC<UnitKompetensiListProps> = ({ kode, okupasiNa
               <span className="block text-gray-800 font-semibold dark:text-white">{unit.nama}</span>
               <div className="flex items-center">
                 <button
-                  onClick={() => onEdit(unit.id, unit.nama)}
+                  onClick={() => onEdit(unit.id, unit.kode_unit, unit.nama, unit.standard_kompetensi)}
                   className="text-blue-500 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-500 mr-2"
                   title="Edit"
                 >

@@ -13,6 +13,7 @@ const OkupasiEditForm: React.FC<OkupasiEditFormProps> = ({ kode, onSuccess }) =>
   const [newKode, setNewKode] = useState<string>(kode);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchOkupasi = async () => {
@@ -24,7 +25,7 @@ const OkupasiEditForm: React.FC<OkupasiEditFormProps> = ({ kode, onSuccess }) =>
           setNewKode(data.data.kode);
         }
       } catch (err) {
-        setError('Error fetching okupasi data.');
+        setError('Gagal mengambil data okupasi. Silakan coba lagi.');
       } finally {
         setLoading(false);
       }
@@ -35,64 +36,85 @@ const OkupasiEditForm: React.FC<OkupasiEditFormProps> = ({ kode, onSuccess }) =>
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
     try {
-      setLoading(true);
-      const response = await updateOkupasi(kode, newKode, nama);
+      const response = await updateOkupasi(kode, { kode: newKode, nama });
       if (response && response.status === 'success') {
         toast.success(
-          <span dangerouslySetInnerHTML={{ __html: `Item dengan kode <strong>${kode}</strong> dan nama <strong>${nama}</strong> berhasil diupdate.` }} />,
+          <span>
+            Item dengan kode <strong>{kode}</strong> berhasil diupdate menjadi kode <strong>{newKode}</strong> dan nama <strong>{nama}</strong>.
+          </span>,
           { position: "bottom-right" }
         );
         onSuccess();
       } else {
-        setError('Error updating okupasi. Response: ' + JSON.stringify(response));
+        setError('Gagal memperbarui okupasi. Silakan coba lagi.');
       }
     } catch (err) {
-      setError('Error updating okupasi. Check the console for more details.');
+      setError('Terjadi kesalahan saat memperbarui okupasi. Silakan coba lagi.');
+      console.error('Error updating okupasi:', err);
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex justify-center items-center h-40">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
   return (
-    <>
-      <form onSubmit={handleSubmit} className="p-4 bg-white rounded-lg shadow-md dark:bg-gray-800 dark:text-white">
-        <h3 className="text-lg font-bold mb-4">Edit Okupasi</h3>
-        {error && <p className="text-red-500 dark:text-red-400">{error}</p>}
-        <div className="mb-4">
-          <label htmlFor="kode" className="block text-gray-700 mb-2 dark:text-gray-300">Kode</label>
+    <div className="bg-white rounded-lg shadow-md dark:bg-gray-800 overflow-hidden">
+      <form onSubmit={handleSubmit} className="p-6">
+        <h3 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Edit Okupasi</h3>
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 dark:bg-red-900 dark:text-red-300" role="alert">
+            <p>{error}</p>
+          </div>
+        )}
+        <div className="mb-6">
+          <label htmlFor="kode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Kode
+          </label>
           <input
             type="text"
             id="kode"
             value={newKode}
             onChange={(e) => setNewKode(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             required
           />
         </div>
-        <div className="mb-4">
-          <label htmlFor="nama" className="block text-gray-700 mb-2 dark:text-gray-300">Nama</label>
+        <div className="mb-6">
+          <label htmlFor="nama" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Nama
+          </label>
           <input
             type="text"
             id="nama"
             value={nama}
             onChange={(e) => setNama(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             required
           />
         </div>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-800"
-        >
-          Update
-        </button>
+        <div className="flex items-center justify-between">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 ${
+              isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {isSubmitting ? 'Memperbarui...' : 'Update'}
+          </button>
+        </div>
       </form>
-    </>
+    </div>
   );
 };
 
