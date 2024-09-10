@@ -37,24 +37,29 @@ const SekolahAddForm: React.FC<SekolahAddFormProps> = ({ onAddSuccess }) => {
             return;
         }
 
-        if (jumlahSiswa.trim() === '' || !validateNumber(jumlahSiswa)) {
-            setError('Jumlah siswa harus berupa angka dan tidak boleh kosong.');
-            toast.error('Jumlah siswa harus berupa angka dan tidak boleh kosong.', {
+        if (!validateNumber(jumlahSiswa)) {
+            setError('Jumlah siswa harus berupa angka.');
+            toast.error('Jumlah siswa harus berupa angka.', {
                 position: "bottom-right"
             });
             return;
         }
 
-        if (jumlahKelulusan.trim() === '' || !validateNumber(jumlahKelulusan)) {
-            setError('Jumlah kelulusan harus berupa angka dan tidak boleh kosong.');
-            toast.error('Jumlah kelulusan harus berupa angka dan tidak boleh kosong.', {
+        if (!validateNumber(jumlahKelulusan)) {
+            setError('Jumlah kelulusan harus berupa angka.');
+            toast.error('Jumlah kelulusan harus berupa angka.', {
                 position: "bottom-right"
             });
             return;
         }
 
         try {
-            await addSekolah(nama, kota, parseInt(jumlahSiswa), parseInt(jumlahKelulusan));
+            await addSekolah(
+               nama, 
+               kota, 
+               isNaN(parseInt(jumlahSiswa)) ? 0 : parseInt(jumlahSiswa), 
+               isNaN(parseInt(jumlahKelulusan)) ? 0 : parseInt(jumlahKelulusan)
+            );
 
             setNama('');
             setKota('');
@@ -84,6 +89,7 @@ const SekolahAddForm: React.FC<SekolahAddFormProps> = ({ onAddSuccess }) => {
                     type="text"
                     value={nama}
                     onChange={(e) => setNama(e.target.value)}
+                    required
                     className="mt-1 p-3 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-white"
                 />
             </div>
@@ -93,6 +99,7 @@ const SekolahAddForm: React.FC<SekolahAddFormProps> = ({ onAddSuccess }) => {
                     type="text"
                     value={kota}
                     onChange={(e) => setKota(e.target.value)}
+                    required
                     className="mt-1 p-3 block w-full rounded-md border-2 border-gray-300 focus:border-black focus:ring focus:ring-black focus:ring-opacity-50 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-white"
                 />
             </div>
