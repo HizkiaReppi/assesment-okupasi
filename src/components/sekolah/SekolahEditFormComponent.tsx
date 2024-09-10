@@ -13,7 +13,7 @@ interface EditSekolahFormProps {
     onError: (message: string | string[]) => void;
 }
 
-const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, initialKota, initialJumlahSiswa = 0, initialJumlahKelulusan = 0, onSuccess }) => {
+const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, initialKota, initialJumlahSiswa = 0, initialJumlahKelulusan = 0, onSuccess, onError }) => {
     const [nama, setNama] = useState<string>(initialNama || '');
     const [kota, setKota] = useState<string>(initialKota || '');
     const [jumlahSiswa, setJumlahSiswa] = useState<string>(initialJumlahSiswa.toString());
@@ -35,6 +35,22 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, init
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
+
+        // Validation for empty fields
+        if (nama.trim() === '' || kota.trim() === '') {
+            toast.error('Nama Sekolah dan Kota tidak boleh kosong.', {
+                position: 'bottom-right',
+            });
+            return;
+        }
+
+        if (!validateNumber(jumlahSiswa) || !validateNumber(jumlahKelulusan)) {
+            toast.error('Jumlah Siswa dan Kelulusan harus berupa angka.', {
+                position: 'bottom-right',
+            });
+            return;
+        }
+
         setLoading(true);
         try {
             await editSekolahById(id, nama, kota, parseInt(jumlahSiswa), parseInt(jumlahKelulusan));
@@ -44,7 +60,8 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, init
             onSuccess();
             setIsEdited(false);
         } catch (error) {
-            toast.error('Error updating Sekolah.', {
+            onError('Gagal mengupdate data sekolah. Silakan coba lagi.');
+            toast.error('Gagal mengupdate data sekolah.', {
                 position: "bottom-right"
             });
             console.error('Error updating Sekolah:', error);
@@ -67,6 +84,7 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, init
                     value={nama} 
                     onChange={(e) => handleInputChange(setNama, e.target.value)} 
                     className={`w-full p-3 border ${isEdited ? 'border-blue-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-white`}
+                    required
                 />
             </div>
             <div className="mb-4">
@@ -76,6 +94,7 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, init
                     value={kota} 
                     onChange={(e) => handleInputChange(setKota, e.target.value)} 
                     className={`w-full p-3 border ${isEdited ? 'border-blue-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-white`}
+                    required
                 />
             </div>
             <div className="mb-4">
@@ -85,6 +104,7 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, init
                     value={jumlahSiswa} 
                     onChange={(e) => validateNumber(e.target.value) && handleInputChange(setJumlahSiswa, e.target.value)} 
                     className={`w-full p-3 border ${isEdited ? 'border-blue-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-white`}
+                    required
                 />
             </div>
             <div className="mb-4">
@@ -94,6 +114,7 @@ const SekolahEditForm: React.FC<EditSekolahFormProps> = ({ id, initialNama, init
                     value={jumlahKelulusan} 
                     onChange={(e) => validateNumber(e.target.value) && handleInputChange(setJumlahKelulusan, e.target.value)} 
                     className={`w-full p-3 border ${isEdited ? 'border-blue-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-white`}
+                    required
                 />
             </div>
             <button 
