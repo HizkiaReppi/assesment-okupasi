@@ -26,6 +26,7 @@ components/
 ├── ErrorNotification.tsx                   # component for error notification
 ├── InfoBar.tsx                             # component for info bar
 ├── Loading.tsx                             # component for loading
+├── Loading2.tsx                            # component for loading
 ├── Logout.tsx                              # component for logout
 ├── Navbar.tsx                              # component for navbar
 ├── SearchBar.tsx                           # component for search bar
