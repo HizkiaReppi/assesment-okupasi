@@ -155,6 +155,7 @@ const HomePage: React.FC = () => {
   // };
 
   // Google maps api
+
   const fetchGeocode = async (schoolName: string, schoolDetails: School) => {
     setIsLoadingLocation(true);
     try {
@@ -266,7 +267,15 @@ const HomePage: React.FC = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           {markers.map((position, index) => (
-            <CustomMarker key={index} position={position}>
+            <CustomMarker
+              key={index}
+              position={position}
+              eventHandlers={{
+                click: () => {
+                  // console.log("Marker clicked", e);
+                },
+              }}
+            >
               <Popup>
                 <div className="max-h-72 max-w-96 overflow-y-auto pt-4 pb-4 pr-6 dark:bg-gray-900 dark:text-gray-200">
                   <h3 className="text-xl font-semibold mb-2 underline mr-3">
