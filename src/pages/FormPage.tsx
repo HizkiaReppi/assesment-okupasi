@@ -103,7 +103,7 @@ const FormPage = () => {
               {isLoading ? 'Memuat...' : 'Search'}
             </button>
           </div>
-          {isLoading && <p className="mt-4 text-center text-gray-500">Loading...</p>}
+          {isLoading}
         </div>
       </div>
       {renderHoverImage('form', hoverImagePeta)}

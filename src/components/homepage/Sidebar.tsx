@@ -95,7 +95,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
     searchQuery: string = ""
   ) => {
     setIsSearching(true);
-    setIsLoading(true); // Set loading to true when search starts
+    setIsLoading(true); 
     setFilteredSchools([]);
     try {
       const { result, selectedOkupasi } = await fetchSchoolsByOkupasi(
@@ -114,7 +114,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
       setFilteredSchools([]);
     }
     setIsSearching(false);
-    setIsLoading(false); // Set loading to false when search completes
+    setIsLoading(false); 
   };
 
   const executeOkupasiSearch = () => {

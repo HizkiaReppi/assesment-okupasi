@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { updateUnitKompetensi } from '../../api/okupasi-api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -24,6 +24,13 @@ const UnitKompetensiEditForm: React.FC<UnitKompetensiEditFormProps> = ({
     const [nama, setNama] = useState(initialNama);
     const [standardKompetensi, setStandardKompetensi] = useState(initialStandardKompetensi);
 
+    useEffect(() => {
+        console.log('Initial values:', { initialKodeUnit, initialNama, initialStandardKompetensi });
+        setKodeUnit(initialKodeUnit);
+        setNama(initialNama);
+        setStandardKompetensi(initialStandardKompetensi);
+    }, [initialKodeUnit, initialNama, initialStandardKompetensi]);
+
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
@@ -37,6 +44,7 @@ const UnitKompetensiEditForm: React.FC<UnitKompetensiEditFormProps> = ({
             });
             onSuccess(true);  
         } catch (error) {
+            console.error('Error updating unit kompetensi:', error);
             toast.error('Gagal mengupdate unit kompetensi.', {
                 position: "bottom-right"
             });
