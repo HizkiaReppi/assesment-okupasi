@@ -69,33 +69,6 @@ export const refreshToken = async () => {
   }
 };
 
-// // Fungsi untuk memulai refresh token periodik
-// export const startPeriodicRefresh = () => {
-//   stopPeriodicRefresh(); // Hentikan interval yang mungkin sudah berjalan
-//   const intervalId = setInterval(periodicRefreshToken, 60000); // 60000 ms = 1 minute
-//   localStorage.setItem('refreshTokenIntervalId', intervalId.toString());
-// };
-
-// // Fungsi untuk menghentikan refresh token periodik
-// export const stopPeriodicRefresh = () => {
-//   const intervalId = localStorage.getItem('refreshTokenIntervalId');
-//   if (intervalId) {
-//     clearInterval(parseInt(intervalId));
-//     localStorage.removeItem('refreshTokenIntervalId');
-//   }
-// };
-
-// // Fungsi untuk melakukan refresh token secara periodik
-// const periodicRefreshToken = async () => {
-//   try {
-//     await refreshToken();
-//     console.log('Periodic token refresh successful');
-//   } catch (error) {
-//     console.error('Periodic token refresh failed:', error);
-//     // Jangan force logout di sini, biarkan logika refresh token utama yang menanganinya
-//   }
-// };
-
 // Fungsi force logout
 export const forceLogout = async () => {
   stopPeriodicRefresh();
