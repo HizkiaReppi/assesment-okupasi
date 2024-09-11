@@ -3,8 +3,8 @@ import { jwtDecode } from 'jwt-decode';
 import { apiClient, handleError } from './apiClient';
 
 // Constants
-const REFRESH_INTERVAL = 60000; // 60 seconds
-const INITIAL_DELAY = 10000; // 10 seconds
+const REFRESH_INTERVAL = 6000000; // 60 seconds
+const INITIAL_DELAY = 1000000; // 10 seconds
 
 // Types
 interface DecodedToken {
