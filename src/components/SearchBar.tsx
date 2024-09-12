@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaTimes } from 'react-icons/fa';
 
 interface SearchBarProps {
@@ -23,15 +23,19 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [data, setData] = useState<any[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string>(initialValue);
+  const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const fetchDataAsync = async () => {
-      const result = await fetchData();
-      setData(result);
-    };
-    fetchDataAsync();
+  const fetchDataAsync = useCallback(async () => {
+    setIsLoading(true);
+    const result = await fetchData();
+    setData(result);
+    setIsLoading(false);
   }, [fetchData]);
+
+  useEffect(() => {
+    fetchDataAsync();
+  }, [fetchDataAsync]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -87,7 +91,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
           />
         )}
       </div>
-      {isDropdownOpen && (
+      {isLoading && <div className="mt-2 text-sm text-gray-500">Loading...</div>}
+      {isDropdownOpen && !isLoading && (
         <div className="absolute mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto w-full z-10 dark:bg-gray-800 dark:border-gray-700">
           {data
             .filter(item => 

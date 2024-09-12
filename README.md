@@ -27,6 +27,16 @@ npm install
 cp .env.example .env
 ```
 
+Use case :
+```bash
+# When using Google Geocoding API
+VITE_MAPS_API_KEY=
+```
+```bash
+# When using Location IQ API
+VITE_LOCATION_IQ_API_KEY=
+```
+
 ## Step 4: Run the Development Server
 
 Finally, start the development server by running:
