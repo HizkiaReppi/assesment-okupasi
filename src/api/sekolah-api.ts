@@ -23,7 +23,7 @@ export const addSekolah = async (
 // Get All Sekolah
 export const getAllSekolah = async (
   search?: string,
-  limit?: 1000,
+  limit?: number,
   page?: number
 ) => {
   try {
