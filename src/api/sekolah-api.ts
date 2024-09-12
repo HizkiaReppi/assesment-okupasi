@@ -23,7 +23,7 @@ export const addSekolah = async (
 // Get All Sekolah
 export const getAllSekolah = async (
   search?: string,
-  limit?: number,
+  limit?: 1000,
   page?: number
 ) => {
   try {
@@ -98,7 +98,7 @@ export const addKompetensi = async (
 export const getAllKompetensi = async (
   id: string,
   search = "",
-  limit = 10,
+  limit = 1000,
   page = 1
 ) => {
   try {

@@ -12,7 +12,7 @@ export const addOkupasi = async (kode: string, nama: string, unitKompetensi: { k
 };
 
 // Get All Okupasi
-export const getAllOkupasi = async (search = '', limit = 10, page = 1) => {
+export const getAllOkupasi = async (search = '', limit = 1000, page = 1) => {
   try {
     const response = await apiClient.get('/okupasi', {
       params: {
