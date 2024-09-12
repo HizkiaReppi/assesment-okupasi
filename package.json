@@ -22,6 +22,7 @@
     "@types/lodash.debounce": "^4.0.9",
     "axios": "^1.7.2",
     "cors": "^2.8.5",
+    "framer-motion": "^11.5.4",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
