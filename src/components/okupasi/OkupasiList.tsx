@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAllOkupasi, deleteOkupasi } from "../../api/okupasi-api";
+import { getAllOkupasi, deleteOkupasi, getOkupasiByKode } from "../../api/okupasi-api";
 import ConfirmationModal from "../ConfirmationModal";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,7 +11,7 @@ interface OkupasiListProps {
   onEdit: (kode: string) => void;
   onViewUnits: (kode: string, name: string) => void;
   refresh: boolean;
-  onRefresh: () => void; // Add onRefresh handler
+  onRefresh: () => void;
 }
 
 const OkupasiList: React.FC<OkupasiListProps> = ({
@@ -20,28 +20,46 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
   refresh,
   onRefresh,
 }) => {
-  const [okupasi, setOkupasi] = useState<any[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState(""); // State untuk input pencarian sementara
-  const [searchQuery, setSearchQuery] = useState("");
-  const [totalItems, setTotalItems] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deleteKode, setDeleteKode] = useState<string | null>(null);
-  const itemsPerPage = 10;
+  const [okupasi, setOkupasi] = useState<any[]>([]);                      //State simpan list okupasi
+  const [currentPage, setCurrentPage] = useState(1);                      //State nomor halaman okupasi
+  const [searchTerm, setSearchTerm] = useState("");                       //State pencarian
+  const [searchType, setSearchType] = useState<"name" | "code">("name");  //State tipe pencarian
+  const [totalItems, setTotalItems] = useState(0);                        //State hasil pencarian yang sesuai
+  const [isModalOpen, setIsModalOpen] = useState(false);                  //State confimation modal
+  const [deleteKode, setDeleteKode] = useState<string | null>(null);      //State hapus kode
+  const itemsPerPage = 10;                                                //Jumlah data yang ditampilkan setiap page
 
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await getAllOkupasi(searchQuery, itemsPerPage, currentPage);
-      if (data && data.status === "success") {
-        setOkupasi(data.data);
-        setTotalItems(data.total_result);
-      } else {
-        console.error("Data is not valid:", data);
-      }
-    };
-
     fetchData();
-  }, [refresh, searchQuery, currentPage]);
+  }, [refresh, searchTerm, currentPage, searchType]);
+
+  // Cari okupasi menggunakan endpoint
+  const fetchData = async () => {
+    try {
+      if (searchType === "code" && searchTerm) {
+        const data = await getOkupasiByKode(searchTerm);
+        if (data && data.status === "success") {
+          setOkupasi([data.data]);
+          setTotalItems(1);
+        } else {
+          setOkupasi([]);
+          setTotalItems(0);
+        }
+      } else {
+        const data = await getAllOkupasi(searchTerm, itemsPerPage, currentPage);
+        if (data && data.status === "success") {
+          setOkupasi(data.data);
+          setTotalItems(data.total_result);
+        } else {
+          console.error("Data is not valid:", data);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setOkupasi([]);
+      setTotalItems(0);
+    }
+  };
 
   const handleDelete = async () => {
     if (!deleteKode) return;
@@ -50,7 +68,7 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
       await deleteOkupasi(deleteKode);
       const deletedItem = okupasi.find((item) => item.kode === deleteKode);
       setOkupasi(okupasi.filter((item) => item.kode !== deleteKode));
-      setTotalItems(totalItems - 1); // Update totalItems after deletion
+      setTotalItems(totalItems - 1);
       toast.error(
         `Item dengan kode ${deletedItem.kode} dan nama ${deletedItem.nama} berhasil dihapus.`,
         {
@@ -58,39 +76,33 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
         }
       );
       closeModal();
-      onRefresh(); // Call onRefresh to refresh data
+      onRefresh();
     } catch (error) {
       console.error("Error deleting Okupasi:", error);
     }
   };
-
-  const openModal = (kode: string) => {
-    setDeleteKode(kode);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setDeleteKode(null);
-    setIsModalOpen(false);
+  
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setSearchType("name");
+    setCurrentPage(1);
+    fetchData();
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value); // Update searchTerm ketika input berubah
+    setSearchTerm(e.target.value);
   };
 
   const handleSearch = () => {
-    setSearchQuery(searchTerm); // Set searchQuery ketika tombol ditekan
-    setCurrentPage(1); // Reset ke halaman pertama
+    setCurrentPage(1);
+    fetchData();
   };
 
-  const handleClearSearch = () => {
-    setSearchTerm(''); // Clear search term
-    setSearchQuery(''); // Clear search query
-    setCurrentPage(1); // Reset ke halaman pertama
+  const handleSearchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSearchType(e.target.value as "name" | "code");
   };
 
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-
+  
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
@@ -191,17 +203,40 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
 
     return pageButtons;
   };
+  
+
+  // ============================================ Modal 
+  const openModal = (kode: string) => {
+    setDeleteKode(kode);
+    setIsModalOpen(true);
+  };
+  
+  const closeModal = () => {
+    setDeleteKode(null);
+    setIsModalOpen(false);
+  };
+  
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
 
   return (
     <div className="mb-6 p-4 bg-white rounded-lg shadow-md relative dark:bg-gray-800 dark:text-white">
       <h2 className="text-xl font-bold text-gray-800 mb-4 dark:text-white">Daftar Okupasi</h2>
       <div className="flex mb-4">
+        <select
+          value={searchType}
+          onChange={handleSearchTypeChange}
+          className="p-2 border border-gray-300 rounded-l-md dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+        >
+          <option value="name">Nama</option>
+          <option value="code">Kode</option>
+        </select>
         <input
           type="text"
-          placeholder="Cari nama okupasi"
-          value={searchTerm} // Bind ke searchTerm
+          placeholder={searchType === "name" ? "Cari nama okupasi" : "Cari kode okupasi"}
+          value={searchTerm}
           onChange={handleSearchChange}
-          className="p-2 border border-gray-300 rounded-md w-full dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+          className="p-2 border border-gray-300 w-full dark:bg-gray-600 dark:border-gray-500 dark:text-white"
         />
         <button
           onClick={handleSearch}
