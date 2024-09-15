@@ -93,7 +93,7 @@ const initializeAuthState = async () => {
 
   if (token) {
     try {
-      await delay(360000);
+      await delay(6000000); // 1 jam
       console.log('Attempting to refresh token after delay...');
       const response = await refreshToken();
 
