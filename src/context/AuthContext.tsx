@@ -5,7 +5,7 @@ import {
   ReactNode,
   useEffect,
 } from "react";
-import { isUserSuper} from "../api/auth";
+import { isUserSuper } from "../api/auth";
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedInState] = useState(() => {
-    return !!sessionStorage.getItem("Authorization");
+    return !!localStorage.getItem("Authorization");
   });
   const [isSuperAdmin, setIsSuperAdmin] = useState(() => isUserSuper());
 
