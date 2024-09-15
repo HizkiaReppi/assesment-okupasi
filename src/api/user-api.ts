@@ -1,47 +1,28 @@
 import { AxiosResponse } from 'axios';
 import { apiClient, handleError } from './apiClient';
 
-export const getAllUsers = async () => {
+const authenticatedRequest = async (requestFunction: () => Promise<AxiosResponse>) => {
   try {
-    const response: AxiosResponse = await apiClient.get('/user');
+    const response = await requestFunction();
+    console.log('Request headers:', response.config.headers);
+    console.log('Response headers:', response.headers);
     return response.data;
   } catch (error) {
-    handleError(error);
+    console.error('Error in authenticated request:', error);
+    throw handleError(error);
   }
 };
 
-export const createUser = async (nama: string, email: string, password: string) => {
-  try {
-    const response: AxiosResponse = await apiClient.post('/user', { nama, email, password });
-    return response.data;
-  } catch (error) {
-    handleError(error);
-  }
-};
+export const getAllUsers = () => authenticatedRequest(() => apiClient.get('/user'));
 
-export const deleteUser = async (id: string) => {
-  try {
-    const response: AxiosResponse = await apiClient.delete(`/user/${id}`);
-    return response.data;
-  } catch (error) {
-    handleError(error);
-  }
-};
+export const createUser = (nama: string, email: string, password: string) => 
+  authenticatedRequest(() => apiClient.post('/user', { nama, email, password }));
 
-export const changeEmail = async (email: string) => {
-  try {
-    const response: AxiosResponse = await apiClient.patch('/user/email', { email });
-    return response.data;
-  } catch (error) {
-    handleError(error);
-  }
-};
+export const deleteUser = (id: string) => 
+  authenticatedRequest(() => apiClient.delete(`/user/${id}`));
 
-export const changePassword = async (password: string) => {
-  try {
-    const response: AxiosResponse = await apiClient.patch('/user/password', { password });
-    return response.data;
-  } catch (error) {
-    handleError(error);
-  }
-};
+export const changeEmail = (email: string) => 
+  authenticatedRequest(() => apiClient.patch('/user/email', { email }));
+
+export const changePassword = (password: string) => 
+  authenticatedRequest(() => apiClient.patch('/user/password', { password }));

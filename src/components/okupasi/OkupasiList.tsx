@@ -20,26 +20,25 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
   refresh,
   onRefresh,
 }) => {
-  const [okupasi, setOkupasi] = useState<any[]>([]);                      //State simpan list okupasi
-  const [currentPage, setCurrentPage] = useState(1);                      //State nomor halaman okupasi
-  const [searchTerm, setSearchTerm] = useState("");                       //State pencarian
-  const [searchType, setSearchType] = useState<"name" | "code">("name");  //State tipe pencarian
-  const [totalItems, setTotalItems] = useState(0);                        //State hasil pencarian yang sesuai
-  const [isModalOpen, setIsModalOpen] = useState(false);                  //State confimation modal
-  const [deleteKode, setDeleteKode] = useState<string | null>(null);      //State hapus kode
-  const itemsPerPage = 10;                                                //Jumlah data yang ditampilkan setiap page
+  const [okupasi, setOkupasi] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchType, setSearchType] = useState<"name" | "code">("name");
+  const [totalItems, setTotalItems] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteKode, setDeleteKode] = useState<string | null>(null);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchData();
   }, [refresh, searchTerm, currentPage, searchType]);
 
-  // Cari okupasi menggunakan endpoint
   const fetchData = async () => {
     try {
       if (searchType === "code" && searchTerm) {
         const data = await getOkupasiByKode(searchTerm);
-        if (data && data.status === "success") {
-          setOkupasi([data.data]);
+        if (data && data.status === "success" && data.data) {
+          setOkupasi([data.data]); // Wrap dalam array karena getOkupasiByKode mengembalikan objek tunggal
           setTotalItems(1);
         } else {
           setOkupasi([]);
@@ -52,6 +51,8 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
           setTotalItems(data.total_result);
         } else {
           console.error("Data is not valid:", data);
+          setOkupasi([]);
+          setTotalItems(0);
         }
       }
     } catch (error) {
@@ -100,9 +101,10 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
 
   const handleSearchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSearchType(e.target.value as "name" | "code");
+    setSearchTerm(''); // Reset searchTerm when changing search type
+    setCurrentPage(1); // Reset to first page
   };
 
-  
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
@@ -203,9 +205,7 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
 
     return pageButtons;
   };
-  
 
-  // ============================================ Modal 
   const openModal = (kode: string) => {
     setDeleteKode(kode);
     setIsModalOpen(true);
@@ -217,7 +217,6 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
   };
   
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-
 
   return (
     <div className="mb-6 p-4 bg-white rounded-lg shadow-md relative dark:bg-gray-800 dark:text-white">
@@ -287,6 +286,13 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
             </div>
           </li>
         ))}
+        {okupasi.length === 0 && (
+          <li className="mb-4 p-4 bg-gray-50 rounded-lg shadow-sm dark:bg-gray-700">
+            <span className="block text-gray-900 font-semibold mb-2 dark:text-white">
+              Tidak ada hasil yang ditemukan.
+            </span>
+          </li>
+        )}
       </ul>
       <div className="mt-4 flex justify-center">
         {renderPagination()}
