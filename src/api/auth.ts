@@ -10,8 +10,8 @@ export const login = async (email: string, password: string) => {
     const decodedToken: any = jwtDecode(token);
     const currentTime = Math.floor(Date.now() / 1000);
 
-    console.log('Token received:', token);
-    console.log('Token expiry:', decodedToken.exp);
+    // console.log('Token received:', token);
+    // console.log('Token expiry:', decodedToken.exp);
 
     if (decodedToken.exp < currentTime) {
       console.log('Token sudah expired, melakukan refresh token...');
@@ -40,7 +40,7 @@ export const logout = async () => {
 // Fungsi refresh token
 export const refreshToken = async () => {
   try {
-    console.log('Attempting to refresh token...');
+    // console.log('Attempting to refresh token...');
     const response: AxiosResponse = await apiClient.put('/authentication/refresh', {}, { withCredentials: true });
 
     if (response.data.status === 'success') {
@@ -89,11 +89,11 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 // Fungsi untuk menginisialisasi auth state saat halaman dimuat
 const initializeAuthState = async () => {
   const token = localStorage.getItem('Authorization');
-  console.log('Initializing auth state, token found:', token);
+  // console.log('Initializing auth state, token found:', token);
 
   if (token) {
     try {
-      await delay(10000);
+      await delay(360000);
       console.log('Attempting to refresh token after delay...');
       const response = await refreshToken();
 
