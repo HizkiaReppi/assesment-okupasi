@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 .env
 .env.production
+
+#files
+BubbleChat.tsx
+model-api.ts
