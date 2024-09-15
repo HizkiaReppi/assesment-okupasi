@@ -1,5 +1,6 @@
 /*
 List of constants:
+- allOkupasi: OkupasiItem[]
 - okupasiList: OkupasiItem[]
 - currentPage: number
 - searchTerm: string
@@ -12,11 +13,9 @@ List of constants:
 
 List of functions:
 - fetchOkupasiData()
-- handleSingleOkupasiResult(data: any)
-- handleMultipleOkupasiResult(data: any)
+- filterAndPaginateData(data: OkupasiItem[] = allOkupasi)
 - resetOkupasiList()
 - handleDelete()
-- updateOkupasiListAfterDelete(deletedKode: string)
 - showDeleteSuccessToast(deletedItem: OkupasiItem | undefined)
 - handleClearSearch()
 - handleSearchChange(e: React.ChangeEvent<HTMLInputElement>)
@@ -35,7 +34,6 @@ import React, { useEffect, useState } from "react";
 import {
   getAllOkupasi,
   deleteOkupasi,
-  getOkupasiByKode,
 } from "../../api/okupasi-api";
 import ConfirmationModal from "../ConfirmationModal";
 import { toast } from "react-toastify";
@@ -63,6 +61,7 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
   refresh,
   onRefresh,
 }) => {
+  const [allOkupasi, setAllOkupasi] = useState<OkupasiItem[]>([]);
   const [okupasiList, setOkupasiList] = useState<OkupasiItem[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -74,17 +73,22 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
   const itemsPerPage = 10;
 
   useEffect(() => {
-    fetchOkupasiData();
-  }, [refresh, searchTerm, currentPage, searchType]);
+    if (allOkupasi.length === 0 || refresh) {
+      fetchOkupasiData();
+    } else {
+      filterAndPaginateData();
+    }
+  }, [refresh, searchTerm, currentPage, searchType, allOkupasi]);
 
   const fetchOkupasiData = async () => {
     try {
-      if (searchType === "code" && searchTerm) {
-        const data = await getOkupasiByKode(searchTerm);
-        handleSingleOkupasiResult(data);
+      const data = await getAllOkupasi("", 1000, 1); // Fetch all data
+      if (data && data.status === "success") {
+        setAllOkupasi(data.data);
+        filterAndPaginateData(data.data);
       } else {
-        const data = await getAllOkupasi(searchTerm, itemsPerPage, currentPage);
-        handleMultipleOkupasiResult(data);
+        console.error("Data is not valid:", data);
+        resetOkupasiList();
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -92,26 +96,27 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
     }
   };
 
-  const handleSingleOkupasiResult = (data: any) => {
-    if (data && data.status === "success" && data.data) {
-      setOkupasiList([data.data]);
-      setTotalItems(1);
-    } else {
-      resetOkupasiList();
-    }
-  };
+  const filterAndPaginateData = (data: OkupasiItem[] = allOkupasi) => {
+    let filteredData = data;
 
-  const handleMultipleOkupasiResult = (data: any) => {
-    if (data && data.status === "success") {
-      setOkupasiList(data.data);
-      setTotalItems(data.total_result);
-    } else {
-      console.error("Data is not valid:", data);
-      resetOkupasiList();
+    if (searchTerm) {
+      filteredData = data.filter((item) => {
+        if (searchType === "name") {
+          return item.nama.toLowerCase().includes(searchTerm.toLowerCase());
+        } else {
+          return item.kode.includes(searchTerm);
+        }
+      });
     }
+
+    setTotalItems(filteredData.length);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    setOkupasiList(filteredData.slice(startIndex, endIndex));
   };
 
   const resetOkupasiList = () => {
+    setAllOkupasi([]);
     setOkupasiList([]);
     setTotalItems(0);
   };
@@ -121,19 +126,16 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
 
     try {
       await deleteOkupasi(deleteKode);
-      const deletedItem = okupasiList.find((item) => item.kode === deleteKode);
-      updateOkupasiListAfterDelete(deleteKode);
+      const deletedItem = allOkupasi.find((item) => item.kode === deleteKode);
+      const updatedAllOkupasi = allOkupasi.filter((item) => item.kode !== deleteKode);
+      setAllOkupasi(updatedAllOkupasi);
+      filterAndPaginateData(updatedAllOkupasi);
       showDeleteSuccessToast(deletedItem);
       closeModal();
       onRefresh();
     } catch (error) {
       console.error("Error deleting Okupasi:", error);
     }
-  };
-
-  const updateOkupasiListAfterDelete = (deletedKode: string) => {
-    setOkupasiList(okupasiList.filter((item) => item.kode !== deletedKode));
-    setTotalItems(totalItems - 1);
   };
 
   const showDeleteSuccessToast = (deletedItem: OkupasiItem | undefined) => {
@@ -149,7 +151,7 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
     setSearchTerm("");
     setSearchType("name");
     setCurrentPage(1);
-    fetchOkupasiData();
+    filterAndPaginateData();
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,13 +160,14 @@ const OkupasiList: React.FC<OkupasiListProps> = ({
 
   const handleSearch = () => {
     setCurrentPage(1);
-    fetchOkupasiData();
+    filterAndPaginateData();
   };
 
   const handleSearchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSearchType(e.target.value as "name" | "code");
     setSearchTerm("");
     setCurrentPage(1);
+    filterAndPaginateData();
   };
 
   const handlePageChange = (pageNumber: number) => {
