@@ -201,9 +201,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
 
   const totalPages = Math.ceil(filteredSchools.length / itemsPerPage);
 
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
+  // const handlePageChange = (pageNumber: number) => {
+  //   setCurrentPage(pageNumber);
+  // };
 
   const filteredKota = Array.from(
     new Set(searchResults.map((school) => school.kota))
@@ -399,10 +399,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                     <p>No schools found.</p>
                   )}
                 </div>
-                <div className="flex justify-center mt-4 mb-4">
+                {/* <div className="flex justify-center mt-4 mb-4">
                   <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
+                    // onClick={() => handlePageChange(currentPage - 1)}
+                    // disabled={currentPage === 1}
                     className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
                       currentPage === 1
                         ? "bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400"
@@ -413,8 +413,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                   </button>
                   {[...Array(totalPages)].map((_, index) => (
                     <button
-                      key={index + 1}
-                      onClick={() => handlePageChange(index + 1)}
+                      // key={index + 1}
+                      // onClick={() => handlePageChange(index + 1)}
                       className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
                         currentPage === index + 1
                           ? "bg-gray-500 text-white dark:bg-gray-800"
@@ -425,8 +425,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                     </button>
                   ))}
                   <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
+                    // onClick={() => handlePageChange(currentPage + 1)}
+                    // disabled={currentPage === totalPages}
                     className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
                       currentPage === totalPages
                         ? "bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400"
@@ -435,7 +435,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                   >
                     Next
                   </button>
-                </div>
+                </div> */}
               </>
             )}
           </div>
