@@ -173,19 +173,19 @@ const SignUp = () => {
           <table className='min-w-full bg-white dark:bg-gray-800 shadow-md rounded-lg'>
             <thead>
               <tr className='bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-200 uppercase text-sm leading-normal'>
-                <th className='py-3 px-6 text-left'>ID</th>
+                <th className='py-3 px-6 text-left'>Nomor</th>
                 <th className='py-3 px-6 text-left'>Nama</th>
                 <th className='py-3 px-6 text-left'>Email</th>
                 <th className='py-3 px-6 text-center'>Actions</th>
               </tr>
             </thead>
             <tbody className='text-gray-600 dark:text-gray-200 text-sm font-light'>
-              {currentUsers.map((user: User) => (
+              {currentUsers.map((user: User, index) => (
                 <tr
                   key={user.id}
                   className='border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
                 >
-                  <td className='py-3 px-6 text-left'>{user.id}</td>
+                  <td className='py-3 px-6 text-left'>{index+1}</td>
                   <td className='py-3 px-6 text-left'>{user.nama}</td>
                   <td className='py-3 px-6 text-left'>{user.email}</td>
                   <td className='py-3 px-6 text-center flex justify-center space-x-4'>
