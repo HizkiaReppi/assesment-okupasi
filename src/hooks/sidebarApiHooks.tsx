@@ -26,7 +26,7 @@ interface School {
 export const fetchSchoolsByOkupasi = async (
   selectedKode: string,
   searchQuery: string = "",
-  limit: number = 10
+  limit: number = 1000
 ): Promise<{ result: School[]; selectedOkupasi: Okupasi | undefined }> => {
   const okupasiData = await getAllOkupasi();
   const selectedOkupasi = okupasiData.data.find(

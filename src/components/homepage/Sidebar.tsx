@@ -208,7 +208,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   const filteredKota = Array.from(
     new Set(searchResults.map((school) => school.kota))
   );
-  const itemsPerFilterPage = 10;
+  const itemsPerFilterPage = 1000;
   const paginatedKota = filteredKota.slice(
     filterPage * itemsPerFilterPage,
     (filterPage + 1) * itemsPerFilterPage
