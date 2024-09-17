@@ -199,7 +199,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredSchools.slice(indexOfFirstItem, indexOfLastItem);
 
-  const totalPages = Math.ceil(filteredSchools.length / itemsPerPage);
+  // const totalPages = Math.ceil(filteredSchools.length / itemsPerPage);
 
   // const handlePageChange = (pageNumber: number) => {
   //   setCurrentPage(pageNumber);
