@@ -96,6 +96,12 @@ const Navbar = () => {
                 >
                   Data Okupasi
                 </Link>
+                <Link
+                  to='/data-konsentrasi'
+                  className={getLinkClasses('/data-konsentrasi')}
+                >
+                  Data Konsentrasi
+                </Link>
                 <div
                   className='relative'
                   ref={dropdownRef}
@@ -196,6 +202,13 @@ const Navbar = () => {
               >
                 Data Okupasi
               </Link>
+              <Link
+                to='/data-konsentrasi'
+                className={getLinkClasses('/data-konsentrasi')}
+                onClick={toggleMenu}
+              >
+                Data Konsentrasi
+              </Link>
               <div
                 className='relative'
                 ref={dropdownRef}
@@ -208,40 +221,40 @@ const Navbar = () => {
                 </button>
                 {dropdownOpen && (
                   <div className='absolute mt-2 w-48 bg-white shadow-lg rounded-md z-10 dark:bg-gray-700'>
-                      <a
-                        // href='https://docs.google.com/forms/d/e/1FAIpQLSc0TleUB6HGjj2bSmqmOphFgvXPMFM-WTU3HGGhFXd6gWugyQ/viewform?usp=sf_link'
-                        href='https://forms.gle/2kHhPrrgowgLfmTj9'
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='block px-4 py-2 text-gray-800 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600'
-                      >
-                        Desain Komunikasi Visual (DKV)
-                      </a>
-                      <a
-                        // href='https://docs.google.com/forms/d/e/1FAIpQLScGgTdXSjmMheZjhyXQBYr_WDX8p8zqHBt20BqcdpwJyH-HXA/viewform?usp=sf_link'
-                        href='https://forms.gle/TeE1HTdTCsNTWov86'
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='block px-4 py-2 text-gray-800 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600'
-                      >
-                        Teknik Komputer dan Jaringan (TKJ)
-                      </a>
                     <a
-                        href='https://forms.gle/YZfbU1T9m6mHToCk9'
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='block px-4 py-2 text-gray-800 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600'
-                      >
-                        Rekayasa Perangkat Lunak (RPL)
-                      </a>
+                      // href='https://docs.google.com/forms/d/e/1FAIpQLSc0TleUB6HGjj2bSmqmOphFgvXPMFM-WTU3HGGhFXd6gWugyQ/viewform?usp=sf_link'
+                      href='https://forms.gle/2kHhPrrgowgLfmTj9'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='block px-4 py-2 text-gray-800 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600'
+                    >
+                      Desain Komunikasi Visual (DKV)
+                    </a>
                     <a
-                        href='https://forms.gle/RRbDFtYHt4xDtwZ1A'
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='block px-4 py-2 text-gray-800 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600'
-                      >
-                        Teknologi Informasi dan Komunikasi(TIK)
-                      </a>
+                      // href='https://docs.google.com/forms/d/e/1FAIpQLScGgTdXSjmMheZjhyXQBYr_WDX8p8zqHBt20BqcdpwJyH-HXA/viewform?usp=sf_link'
+                      href='https://forms.gle/TeE1HTdTCsNTWov86'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='block px-4 py-2 text-gray-800 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600'
+                    >
+                      Teknik Komputer dan Jaringan (TKJ)
+                    </a>
+                    <a
+                      href='https://forms.gle/YZfbU1T9m6mHToCk9'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='block px-4 py-2 text-gray-800 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600'
+                    >
+                      Rekayasa Perangkat Lunak (RPL)
+                    </a>
+                    <a
+                      href='https://forms.gle/RRbDFtYHt4xDtwZ1A'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='block px-4 py-2 text-gray-800 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600'
+                    >
+                      Teknologi Informasi dan Komunikasi(TIK)
+                    </a>
                   </div>
                 )}
               </div>

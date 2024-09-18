@@ -13,6 +13,7 @@ import RedirectRoute from './routes/RedirectRoute';
 import FormPage from './pages/FormPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import DataKonsentrasiPage from './pages/DataKonsentrasiPage';
 
 const AppContent = () => {
   return (
@@ -42,6 +43,10 @@ const AppContent = () => {
         <Route
           path='/data-sekolah'
           element={<ProtectedRoute element={<DataSekolahPage />} />}
+        />
+        <Route
+          path='/data-konsentrasi'
+          element={<ProtectedRoute element={<DataKonsentrasiPage />} />}
         />
         <Route
           path='/data-okupasi'

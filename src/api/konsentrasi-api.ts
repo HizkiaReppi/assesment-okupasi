@@ -1,6 +1,7 @@
 import { apiClient, handleError } from './apiClient';
 
 interface Konsentrasi {
+  id: string;
   kode: string;
   nama: string;
 }
@@ -24,7 +25,10 @@ interface KonsentrasiListResponse {
 export const konsentrasiApi = {
   add: async (data: { sekolahId: string; nama: string }): Promise<string> => {
     try {
-      const response = await apiClient.post<KonsentrasiResponse>('/konsentrasi', data);
+      const response = await apiClient.post<KonsentrasiResponse>(
+        '/konsentrasi',
+        data,
+      );
       if (response.data.status === 'success' && response.data.data) {
         return response.data.data.kode;
       }
@@ -35,14 +39,21 @@ export const konsentrasiApi = {
     }
   },
 
-  getAll: async (search?: string, limit?: number, page?: number): Promise<KonsentrasiListResponse> => {
+  getAll: async (
+    search?: string,
+    limit?: number,
+    page?: number,
+  ): Promise<KonsentrasiListResponse> => {
     try {
       const params = new URLSearchParams();
       if (search) params.append('search', search);
       if (limit) params.append('limit', limit.toString());
       if (page) params.append('page', page.toString());
 
-      const response = await apiClient.get<KonsentrasiListResponse>('/konsentrasi', { params });
+      const response = await apiClient.get<KonsentrasiListResponse>(
+        '/konsentrasi',
+        { params },
+      );
       return response.data;
     } catch (error) {
       handleError(error);
@@ -52,7 +63,10 @@ export const konsentrasiApi = {
 
   edit: async (id: string, nama: string): Promise<void> => {
     try {
-      const response = await apiClient.put<KonsentrasiResponse>(`/konsentrasi/${id}`, { nama });
+      const response = await apiClient.put<KonsentrasiResponse>(
+        `/konsentrasi/${id}`,
+        { nama },
+      );
       if (response.data.status !== 'success') {
         throw new Error('Failed to edit konsentrasi');
       }
@@ -64,7 +78,9 @@ export const konsentrasiApi = {
 
   delete: async (id: string): Promise<void> => {
     try {
-      const response = await apiClient.delete<KonsentrasiResponse>(`/konsentrasi/${id}`);
+      const response = await apiClient.delete<KonsentrasiResponse>(
+        `/konsentrasi/${id}`,
+      );
       if (response.data.status !== 'success') {
         throw new Error('Failed to delete konsentrasi');
       }
@@ -72,5 +88,5 @@ export const konsentrasiApi = {
       handleError(error);
       throw error;
     }
-  }
+  },
 };
