@@ -12,13 +12,6 @@ import useSidebarBottombar from "../hooks/useSidebarBottombar";
 import CustomMarker from "../components/CustomMarker";
 import { geocodeAddress } from "../utils/geocodeAddress";
 
-interface UnitKompetensi {
-  id: string;
-  kode_unit: string;
-  nama: string;
-  standard_kompetensi: string;
-}
-
 interface Kompetensi {
   kode: string;
   nama: string;
@@ -36,6 +29,22 @@ interface School {
   jumlah_kelulusan?: number;
   persentase_kelulusan?: string;
   kompetensi?: Kompetensi[];
+  okupasi?: string;
+  kode_okupasi?: string;
+  unit_kompetensi?: UnitKompetensi[];
+  konsentrasi?: Konsentrasi[];
+}
+
+interface UnitKompetensi {
+  id: string;
+  kode_unit: string;
+  nama: string;
+  standard_kompetensi: string;
+}
+
+interface Konsentrasi {
+  kode: string;
+  nama: string;
 }
 
 interface PopupInfo {
@@ -279,59 +288,76 @@ const HomePage: React.FC = () => {
               <Popup>
                 <div className="max-h-72 max-w-96 overflow-y-auto pt-4 pb-4 pr-6 dark:bg-gray-900 dark:text-gray-200">
                   <h3 className="text-xl font-semibold mb-2 underline mr-3">
-                    {popupInfo?.details.nama}
+                    {popupInfo?.name}
                   </h3>
                   <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
                     <strong>Kota:</strong> {popupInfo?.details.kota}
                   </p>
-                  {popupInfo?.details.kecocokan && (
+                  {popupInfo?.details.kecocokan !== undefined && (
                     <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400 mb-2">
                       <strong>Kecocokan:</strong> {popupInfo.details.kecocokan}%
                     </p>
                   )}
-                  {popupInfo?.details.jumlah_siswa && (
+                  {popupInfo?.details.jumlah_siswa !== undefined && (
                     <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
                       <strong>Jumlah Siswa:</strong>{" "}
                       {popupInfo.details.jumlah_siswa}
                     </p>
                   )}
-                  {popupInfo?.details.jumlah_kelulusan && (
+                  {popupInfo?.details.jumlah_kelulusan !== undefined && (
                     <p className="text-base text-gray-700 dark:text-gray-400 mb-4">
                       <strong>Jumlah Kelulusan:</strong>{" "}
-                      {popupInfo.details.jumlah_kelulusan} (
-                      {formatPercentage(
-                        popupInfo.details.jumlah_kelulusan,
-                        popupInfo.details.jumlah_siswa || 1
+                      {popupInfo.details.jumlah_kelulusan}
+                      {popupInfo.details.jumlah_siswa && (
+                        <span>
+                          {" "}
+                          (
+                          {formatPercentage(
+                            popupInfo.details.jumlah_kelulusan,
+                            popupInfo.details.jumlah_siswa
+                          )}
+                          )
+                        </span>
                       )}
-                      )
                     </p>
                   )}
-                  {popupInfo?.details.kompetensi &&
-                    popupInfo.details.kompetensi.length > 0 && (
-                      <div>
-                        <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
-                          <strong>Kompetensi:</strong>{" "}
-                          {popupInfo.details.kompetensi[0].nama}
-                        </p>
-                        <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
-                          <strong>Kode:</strong>{" "}
-                          {popupInfo.details.kompetensi[0].kode}
-                        </p>
-                        {popupInfo.details.kompetensi[0].unit_kompetensi
-                          .length > 0 && (
+                  {popupInfo?.details.okupasi && (
+                    <div>
+                      {/* <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
+                        <strong>Okupasi:</strong> {popupInfo.details.okupasi}
+                      </p>
+                      <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
+                        <strong>Kode Okupasi:</strong>{" "}
+                        {popupInfo.details.kode_okupasi}
+                      </p> */}
+                      {popupInfo.details.unit_kompetensi &&
+                        popupInfo.details.unit_kompetensi.length > 0 && (
                           <div className="mt-2">
                             <h4 className="text-base sm:text-lg font-semibold dark:text-gray-300">
                               Unit Kompetensi:
                             </h4>
                             <ul className="list-disc list-inside text-base sm:text-lg text-gray-700 dark:text-gray-400">
-                              {popupInfo.details.kompetensi[0].unit_kompetensi.map(
-                                (unit) => (
-                                  <li key={unit.id}>{unit.nama}</li>
-                                )
-                              )}
+                              {popupInfo.details.unit_kompetensi.map((unit) => (
+                                <li key={unit.id}>{unit.nama}</li>
+                              ))}
                             </ul>
                           </div>
                         )}
+                    </div>
+                  )}
+                  {popupInfo?.details.konsentrasi &&
+                    popupInfo.details.konsentrasi.length > 0 && (
+                      <div className="mt-2">
+                        <h4 className="text-base sm:text-lg font-semibold dark:text-gray-300">
+                          Konsentrasi:
+                        </h4>
+                        <ul className="list-disc list-inside text-base sm:text-lg text-gray-700 dark:text-gray-400">
+                          {popupInfo.details.konsentrasi.map(
+                            (konsentrasi, index) => (
+                              <li key={index}>{konsentrasi.nama}</li>
+                            )
+                          )}
+                        </ul>
                       </div>
                     )}
                 </div>
