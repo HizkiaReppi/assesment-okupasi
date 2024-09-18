@@ -4,31 +4,35 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ConfirmationModal from '../ConfirmationModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
-import BackToTopButton from '../BackToTopButton'; // Import BackToTopButton
+import { faArrowLeft, faArrowRight, faEdit, faGraduationCap } from '@fortawesome/free-solid-svg-icons';
+import BackToTopButton from '../BackToTopButton';
+import KonsentrasiList from './KonsentrasiList';
+import KonsentrasiAdd from './KonsentrasiAdd';
 
 interface SekolahListProps {
     onEdit: (id: string, nama: string, kota: string, jumlah_siswa: number, jumlah_kelulusan: number) => void;
-    onViewKompetensi: (id: string, nama: string) => void; // Update the parameter to include nama
+    onViewKompetensi: (id: string, nama: string) => void;
     refresh: boolean;
     editingId: string | null;
-    onRefresh: () => void; // Add onRefresh handler
+    onRefresh: () => void;
 }
 
 const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, refresh, editingId, onRefresh }) => {
     const [sekolah, setSekolah] = useState<any[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [searchTerm, setSearchTerm] = useState(''); // State untuk input pencarian sementara
+    const [searchTerm, setSearchTerm] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [totalItems, setTotalItems] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [showAddKonsentrasi, setShowAddKonsentrasi] = useState(false);
+    const [selectedSekolahId, setSelectedSekolahId] = useState<string | null>(null);
     const itemsPerPage = 10;
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await getAllSekolah(searchQuery, itemsPerPage, currentPage); // Kirim currentPage ke API
+                const data = await getAllSekolah(searchQuery, itemsPerPage, currentPage);
                 if (data && Array.isArray(data.data)) {
                     setSekolah(data.data);
                     setTotalItems(data.total_result);
@@ -48,12 +52,12 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
             await deleteSekolahById(deleteId);
             const deletedItem = sekolah.find((item) => item.id === deleteId);
             setSekolah(sekolah.filter((item) => item.id !== deleteId));
-            setTotalItems(totalItems - 1); // Update totalItems after deletion
+            setTotalItems(totalItems - 1);
             toast.error(`Sekolah dengan nama ${deletedItem.nama} berhasil dihapus.`, {
                 position: "bottom-right"
             });
             closeModal();
-            onRefresh(); // Call onRefresh to refresh data
+            onRefresh();
         } catch (error) {
             console.error('Error deleting Sekolah:', error);
         }
@@ -70,28 +74,32 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
     };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value); // Update searchTerm ketika input berubah
+        setSearchTerm(e.target.value);
     };
 
     const handleSearch = () => {
-        setSearchQuery(searchTerm); // Set searchQuery ketika tombol ditekan
-        setCurrentPage(1); // Reset ke halaman pertama
+        setSearchQuery(searchTerm);
+        setCurrentPage(1);
     };
 
     const handleClearSearch = () => {
-        setSearchTerm(''); // Clear search term
-        setSearchQuery(''); // Clear search query
-        setCurrentPage(1); // Reset ke halaman pertama
+        setSearchTerm('');
+        setSearchQuery('');
+        setCurrentPage(1);
     };
-
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
 
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
     };
 
+    const handleAddKonsentrasi = (sekolahId: string) => {
+        setSelectedSekolahId(sekolahId);
+        setShowAddKonsentrasi(true);
+    };
+
     const renderPagination = () => {
         const pageButtons = [];
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
 
         if (totalPages <= 1) return null;
 
@@ -188,13 +196,13 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
     };
 
     return (
-        <div className="mb-6 p-4 bg-white rounded-lg shadow-md relative dark:bg-gray-800 dark:text-gray-200"> {/* Add relative positioning */}
+        <div className="mb-6 p-4 bg-white rounded-lg shadow-md relative dark:bg-gray-800 dark:text-gray-200">
             <h2 className="text-xl font-bold text-gray-800 mb-4 dark:text-white">Daftar Sekolah</h2>
             <div className="flex mb-4">
                 <input
                     type="text"
                     placeholder="Cari nama sekolah"
-                    value={searchTerm} // Bind ke searchTerm
+                    value={searchTerm}
                     onChange={handleSearchChange}
                     className="p-2 border border-gray-300 rounded-md w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
@@ -223,25 +231,36 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                         <span className="block text-gray-900 font-semibold mb-2 dark:text-white">
                             {item.nama.toUpperCase()} <br />
                             Kota: {item.kota} <br />
+                            <KonsentrasiList
+                                sekolahId={item.id}
+                                konsentrasi={item.konsentrasi || []}
+                                onRefresh={onRefresh}
+                            />
                             Jumlah Siswa: {item.jumlah_siswa} <br />
-                            Jumlah Kelulusan: {item.jumlah_kelulusan} ({formatPercentage(item.jumlah_kelulusan, item.jumlah_siswa)} )
+                            Jumlah Kelulusan: {item.jumlah_kelulusan} ({formatPercentage(item.jumlah_kelulusan, item.jumlah_siswa)})
                         </span>
-                        <div className="mt-2 flex flex-col space-y-2 sm:flex-row sm:justify-end sm:space-y-0 sm:space-x-2">
+                        <div className="mt-2 flex flex-wrap gap-2 justify-end">
                             <button 
                                 onClick={() => onEdit(item.id, item.nama, item.kota, item.jumlah_siswa, item.jumlah_kelulusan)} 
-                                className="relative overflow-hidden text-sm bg-gray-300 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-400 before:absolute before:inset-0 before:bg-gray-400 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-30 before:rounded-full before:scale-0 hover:before:scale-150 before:blur dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 dark:before:bg-gray-500"
+                                className="relative overflow-hidden text-sm bg-gray-300 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
                             >
-                                Edit
+                                <FontAwesomeIcon icon={faEdit} className="mr-1" /> Edit
                             </button>
                             <button 
-                                onClick={() => onViewKompetensi(item.id, item.nama)}  // Send the school name as well
-                                className="relative overflow-hidden text-sm bg-blue-300 text-blue-800 px-3 py-1 rounded-md hover:bg-blue-400 before:absolute before:inset-0 before:bg-blue-400 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-30 before:rounded-full before:scale-0 hover:before:scale-150 before:blur dark:bg-blue-600 dark:text-blue-200 dark:hover:bg-blue-500 dark:before:bg-blue-500"
+                                onClick={() => handleAddKonsentrasi(item.id)}
+                                className="relative overflow-hidden text-sm bg-blue-300 text-blue-800 px-3 py-1 rounded-md hover:bg-blue-400 dark:bg-blue-600 dark:text-blue-200 dark:hover:bg-blue-500"
+                            >
+                                <FontAwesomeIcon icon={faGraduationCap} className="mr-1" /> Edit Konsentrasi
+                            </button>
+                            <button 
+                                onClick={() => onViewKompetensi(item.id, item.nama)}
+                                className="relative overflow-hidden text-sm bg-green-300 text-green-800 px-3 py-1 rounded-md hover:bg-green-400 dark:bg-green-600 dark:text-green-200 dark:hover:bg-green-500"
                             >
                                 Cek Kompetensi
                             </button>
                             <button 
                                 onClick={() => openModal(item.id)} 
-                                className="relative overflow-hidden text-sm bg-red-300 text-red-800 px-3 py-1 rounded-md hover:bg-red-400 before:absolute before:inset-0 before:bg-red-400 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-30 before:rounded-full before:scale-0 hover:before:scale-150 before:blur dark:bg-red-600 dark:text-red-200 dark:hover:bg-red-500 dark:before:bg-red-500"
+                                className="relative overflow-hidden text-sm bg-red-300 text-red-800 px-3 py-1 rounded-md hover:bg-red-400 dark:bg-red-600 dark:text-red-200 dark:hover:bg-red-500"
                             >
                                 Delete
                             </button>
@@ -252,13 +271,23 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
             <div className="mt-4 flex justify-center">
                 {renderPagination()}
             </div>
-            <BackToTopButton /> 
+            <BackToTopButton />
             <ConfirmationModal
                 isOpen={isModalOpen}
                 onClose={closeModal}
                 onConfirm={handleDelete}
                 message="Yakin untuk menghapus item ini?"
             />
+            {showAddKonsentrasi && selectedSekolahId && (
+                <KonsentrasiAdd
+                    sekolahId={selectedSekolahId}
+                    onClose={() => setShowAddKonsentrasi(false)}
+                    onSuccess={() => {
+                        setShowAddKonsentrasi(false);
+                        onRefresh();
+                    }}
+                />
+            )}
         </div>
     );
 };

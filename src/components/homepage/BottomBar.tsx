@@ -3,7 +3,6 @@ import {
   FaFilter,
   FaTimes,
   FaSearch,
-  FaArrowUp,
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
@@ -13,17 +12,24 @@ import {
   fetchSchoolsByOkupasi,
   fetchOkupasi,
 } from "../../hooks/sidebarApiHooks";
-import Loading from "../Loading2"; // Import the Loading component
+import Loading from "../Loading2";
 
 interface Kompetensi {
   id: string;
+  kode_unit: string;
   nama: string;
+  standard_kompetensi: string;
 }
 
 interface Okupasi {
   kode: string;
   nama: string;
   unit_kompetensi: Kompetensi[];
+}
+
+interface Konsentrasi {
+  kode: string;
+  nama: string;
 }
 
 interface School {
@@ -35,6 +41,7 @@ interface School {
   jumlah_kelulusan: number;
   persentase_kelulusan: string;
   okupasi?: Okupasi;
+  konsentrasi?: Konsentrasi[];
 }
 
 interface BottomBarProps {
@@ -43,12 +50,13 @@ interface BottomBarProps {
 
 const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
   const { kodeOkupasi, setKodeOkupasi } = useFormContext();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
   const [searchResults, setSearchResults] = useState<School[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const itemsPerPage = 6;
+  const [totalPages, setTotalPages] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [showSchoolSearch, setShowSchoolSearch] = useState(false);
@@ -57,7 +65,6 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
   const [searchBarValue, setSearchBarValue] = useState<string>("");
   const [filterPage, setFilterPage] = useState(0);
   const [okupasiName, setOkupasiName] = useState<string>("");
-  const [showBackToTop, setShowBackToTop] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const filterRef = useRef<HTMLDivElement>(null);
@@ -83,22 +90,9 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
     };
   }, []);
 
-  const handleScroll = () => {
-    if (contentRef.current) {
-      setShowBackToTop(contentRef.current.scrollTop > 0);
-    }
-  };
-
   useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.addEventListener("scroll", handleScroll);
-    }
-    return () => {
-      if (contentRef.current) {
-        contentRef.current.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, []);
+    setTotalPages(Math.ceil(filteredSchools.length / itemsPerPage));
+  }, [filteredSchools]);
 
   const handleSchoolClick = (school: School) => {
     const schoolDetails = {
@@ -111,11 +105,28 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
       okupasi: school.okupasi?.nama,
       kode_okupasi: kodeOkupasi,
       unit_kompetensi: school.okupasi?.unit_kompetensi,
+      konsentrasi: school.konsentrasi,
     };
     onSelectSchool(school.nama, schoolDetails);
     setSelectedSchool(school);
-    setIsOpen(false); // Close the BottomBar when an item is clicked
+    setIsOpen(false);
   };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  useEffect(() => {
+    setTotalPages(Math.ceil(filteredSchools.length / itemsPerPage));
+  }, [filteredSchools]);
 
   const handleSearch = async (
     selectedKode: string,
@@ -164,7 +175,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
 
   const handleSearchSchool = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    setCurrentPage(1); // Reset to first page when search query changes
+    setCurrentPage(1);
   };
 
   const executeSchoolSearch = () => {
@@ -187,14 +198,14 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
       setFilteredSchools(searchResults);
     }
     setFilterPage(0);
-    setCurrentPage(1); // Reset pagination to first page
+    setCurrentPage(1);
   };
 
   const handleClearFilter = () => {
     setSelectedFilter(null);
     setFilteredSchools(searchResults);
     setFilterPage(0);
-    setCurrentPage(1); // Reset pagination to first page
+    setCurrentPage(1);
   };
 
   const handleBackClick = () => {
@@ -226,16 +237,10 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredSchools.slice(indexOfFirstItem, indexOfLastItem);
 
-  const totalPages = Math.ceil(filteredSchools.length / itemsPerPage);
-
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
-
   const filteredKota = Array.from(
     new Set(searchResults.map((school) => school.kota))
   );
-  const itemsPerFilterPage = 10;
+  const itemsPerFilterPage = 1000;
   const paginatedKota = filteredKota.slice(
     filterPage * itemsPerFilterPage,
     (filterPage + 1) * itemsPerFilterPage
@@ -247,14 +252,8 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
     return ((numerator / denominator) * 100).toFixed(2) + "%";
   };
 
-  const scrollToTop = () => {
-    if (contentRef.current) {
-      contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
-
   return (
-    <div className="fixed bottom-0 left-0 w-full flex flex-col rounded-t-lg z-40">
+    <div className="fixed bottom-0 left-0 w-full flex flex-col rounded-t-lg z-40 md:hidden">
       <div
         className={`fixed bottom-0 left-0 w-full overflow-y-auto overflow-x-hidden bg-white shadow-lg z-50 ${
           isOpen ? "h-96" : "h-12"
@@ -310,7 +309,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
                 {isFilterOpen && (
                   <div
                     ref={filterRef}
-                    className="absolute top-14 right-14 bg-white shadow-md border rounded p-4 z-50 w-60 dark:bg-gray-700 dark:border-gray-600"
+                    className="absolute top-14 right-14 bg-white shadow-md border rounded p-4 z-50 w-60 dark:bg-gray-700"
                   >
                     <h4 className="font-bold mb-2">Filter by Kota</h4>
                     <div className="max-h-40 overflow-y-auto">
@@ -432,52 +431,34 @@ const BottomBar: React.FC<BottomBarProps> = ({ onSelectSchool }) => {
                     <p>No schools found.</p>
                   )}
                 </div>
-                <div className="flex justify-center mt-4 mb-4 sticky bottom-0 bg-white py-2 dark:bg-gray-800">
+                <div className="flex justify-between items-center mt-4 mb-4">
                   <button
-                    onClick={() => handlePageChange(currentPage - 1)}
+                    onClick={handlePrevPage}
                     disabled={currentPage === 1}
-                    className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                    className={`relative overflow-hidden text-sm px-3 py-1 rounded-md ${
                       currentPage === 1
                         ? "bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400"
-                        : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
+                        : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
                     }`}
                   >
                     Previous
                   </button>
-                  {[...Array(totalPages)].map((_, index) => (
-                    <button
-                      key={index + 1}
-                      onClick={() => handlePageChange(index + 1)}
-                      className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
-                        currentPage === index + 1
-                          ? "bg-gray-500 text-white dark:bg-gray-800"
-                          : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
-                      }`}
-                    >
-                      {index + 1}
-                    </button>
-                  ))}
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Page {currentPage} / {totalPages}
+                  </span>
                   <button
-                    onClick={() => handlePageChange(currentPage + 1)}
+                    onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    className={`relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md ${
+                    className={`relative overflow-hidden text-sm px-3 py-1 rounded-md ${
                       currentPage === totalPages
                         ? "bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-400"
-                        : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
+                        : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
                     }`}
                   >
                     Next
                   </button>
-                </div>
+                </div>{" "}
               </>
-            )}
-            {showBackToTop && (
-              <button
-                onClick={scrollToTop}
-                className="fixed bottom-16 right-5 p-2 rounded-full bg-gray-200 hover:bg-gray-300 shadow-md focus:outline-none dark:bg-gray-600 dark:hover:bg-gray-700"
-              >
-                <FaArrowUp />
-              </button>
             )}
           </div>
         )}

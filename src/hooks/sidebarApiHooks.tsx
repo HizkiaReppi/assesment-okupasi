@@ -1,15 +1,17 @@
 import { getAllSekolahStatByKodeOkupasi } from "../api/sekolah-api";
 import { getAllOkupasi } from "../api/okupasi-api";
 
-interface Kompetensi {
+interface UnitKompetensi {
   id: string;
+  kode_unit: string;
   nama: string;
+  standard_kompetensi: string;
 }
 
 interface Okupasi {
   kode: string;
   nama: string;
-  unit_kompetensi: Kompetensi[];
+  unit_kompetensi: UnitKompetensi[];
 }
 
 interface School {
