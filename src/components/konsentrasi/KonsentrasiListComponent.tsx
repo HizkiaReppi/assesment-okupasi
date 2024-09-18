@@ -14,7 +14,6 @@ import BackToTopButton from '../BackToTopButton';
 
 interface KonsentrasiListProps {
   onEdit: (id: string, nama: string) => void;
-  onViewKompetensi: (id: string, nama: string) => void;
   refresh: boolean;
   editingId: string | null;
   onRefresh: () => void;
