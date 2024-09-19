@@ -1,6 +1,6 @@
 import { apiClient, handleError } from './apiClient';
 
-interface Konsentrasi {
+export interface Konsentrasi {
   id: string;
   kode: string;
   nama: string;

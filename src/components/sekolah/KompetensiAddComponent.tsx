@@ -136,7 +136,7 @@ const KompetensiAddComponent: React.FC<KompetensiAddComponentProps> = ({
             onChange={setSelectedOkupasi}
             options={okupasiOptions}
             placeholder='Select Okupasi'
-            className='mb-3'
+            className='mb-3 dark:text-gray-700'
             classNamePrefix='react-select'
           />
         </div>
@@ -153,7 +153,7 @@ const KompetensiAddComponent: React.FC<KompetensiAddComponentProps> = ({
             closeMenuOnSelect={false}
             hideSelectedOptions={false}
             components={{ Option }}
-            className='mb-3'
+            className='mb-3 dark:text-gray-700'
             classNamePrefix='react-select'
           />
         </div>

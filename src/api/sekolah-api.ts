@@ -5,14 +5,16 @@ export const addSekolah = async (
   nama: string,
   kota: string,
   jumlah_siswa: number,
-  jumlah_kelulusan: number
+  jumlah_kelulusan: number,
+  konsentrasi: { id: string }[]
 ): Promise<any> => {
   try {
     const response = await apiClient.post("/sekolah", {
       nama,
       kota,
       jumlah_siswa,
-      jumlah_kelulusan
+      jumlah_kelulusan,
+      konsentrasi
     });
     return response.data;
   } catch (error) {
@@ -165,5 +167,17 @@ export const getAllSekolahStatByKodeOkupasi = async (
     return response.data;
   } catch (error) {
     handleError(error);
+  }
+};
+
+// Add Konsentrasi to Sekolah
+export const updateSekolahKonsentrasi = async (id: string, konsentrasiIds: string[]) => {
+  try {
+      const response = await apiClient.put(`/sekolah/${id}/konsentrasi`, {
+          konsentrasi: konsentrasiIds.map(konsentrasiId => ({ id: konsentrasiId }))
+      });
+      return response.data;
+  } catch (error) {
+      handleError(error); 
   }
 };

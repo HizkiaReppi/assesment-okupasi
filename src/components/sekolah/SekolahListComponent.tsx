@@ -4,10 +4,23 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ConfirmationModal from '../ConfirmationModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faArrowRight, faEdit, faGraduationCap } from '@fortawesome/free-solid-svg-icons';
+import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import BackToTopButton from '../BackToTopButton';
-import KonsentrasiList from './KonsentrasiList';
-import KonsentrasiAdd from './KonsentrasiAdd';
+import Pagination from '../pagination';
+
+interface Konsentrasi {
+    id: string;
+    nama: string;
+}
+
+interface Sekolah {
+    id: string;
+    nama: string;
+    kota: string;
+    jumlah_siswa: number;
+    jumlah_kelulusan: number;
+    konsentrasi: Konsentrasi[];
+}
 
 interface SekolahListProps {
     onEdit: (id: string, nama: string, kota: string, jumlah_siswa: number, jumlah_kelulusan: number) => void;
@@ -18,15 +31,13 @@ interface SekolahListProps {
 }
 
 const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, refresh, editingId, onRefresh }) => {
-    const [sekolah, setSekolah] = useState<any[]>([]);
+    const [sekolah, setSekolah] = useState<Sekolah[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [totalItems, setTotalItems] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState<string | null>(null);
-    const [showAddKonsentrasi, setShowAddKonsentrasi] = useState(false);
-    const [selectedSekolahId, setSelectedSekolahId] = useState<string | null>(null);
     const itemsPerPage = 10;
 
     useEffect(() => {
@@ -53,7 +64,7 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
             const deletedItem = sekolah.find((item) => item.id === deleteId);
             setSekolah(sekolah.filter((item) => item.id !== deleteId));
             setTotalItems(totalItems - 1);
-            toast.error(`Sekolah dengan nama ${deletedItem.nama} berhasil dihapus.`, {
+            toast.error(`Sekolah dengan nama ${deletedItem?.nama} berhasil dihapus.`, {
                 position: "bottom-right"
             });
             closeModal();
@@ -92,108 +103,7 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
         setCurrentPage(pageNumber);
     };
 
-    const handleAddKonsentrasi = (sekolahId: string) => {
-        setSelectedSekolahId(sekolahId);
-        setShowAddKonsentrasi(true);
-    };
-
-    const renderPagination = () => {
-        const pageButtons = [];
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-        if (totalPages <= 1) return null;
-
-        if (currentPage > 1) {
-            pageButtons.push(
-                <button
-                    key="prev"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    className="relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                >
-                    <FontAwesomeIcon icon={faArrowLeft} />
-                </button>
-            );
-        }
-
-        if (currentPage > 2) {
-            pageButtons.push(
-                <button
-                    key={1}
-                    onClick={() => handlePageChange(1)}
-                    className="relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                >
-                    1
-                </button>
-            );
-        }
-
-        if (currentPage > 3) {
-            pageButtons.push(<span key="dots1" className="px-3 py-1 mx-1">...</span>);
-        }
-
-        if (currentPage > 1) {
-            pageButtons.push(
-                <button
-                    key={currentPage - 1}
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    className="relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                >
-                    {currentPage - 1}
-                </button>
-            );
-        }
-
-        pageButtons.push(
-            <button
-                key={currentPage}
-                className="relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md bg-gray-500 text-white dark:bg-gray-800 dark:text-white"
-            >
-                {currentPage}
-            </button>
-        );
-
-        if (currentPage < totalPages) {
-            pageButtons.push(
-                <button
-                    key={currentPage + 1}
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    className="relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                >
-                    {currentPage + 1}
-                </button>
-            );
-        }
-
-        if (currentPage < totalPages - 2) {
-            pageButtons.push(<span key="dots2" className="px-3 py-1 mx-1">...</span>);
-        }
-
-        if (currentPage < totalPages - 1) {
-            pageButtons.push(
-                <button
-                    key={totalPages}
-                    onClick={() => handlePageChange(totalPages)}
-                    className="relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                >
-                    {totalPages}
-                </button>
-            );
-        }
-
-        if (currentPage < totalPages) {
-            pageButtons.push(
-                <button
-                    key="next"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    className="relative overflow-hidden text-sm px-3 py-1 mx-1 rounded-md bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                >
-                    <FontAwesomeIcon icon={faArrowRight} />
-                </button>
-            );
-        }
-
-        return pageButtons;
-    };
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
 
     return (
         <div className="mb-6 p-4 bg-white rounded-lg shadow-md relative dark:bg-gray-800 dark:text-gray-200">
@@ -231,13 +141,9 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                         <span className="block text-gray-900 font-semibold mb-2 dark:text-white">
                             {item.nama.toUpperCase()} <br />
                             Kota: {item.kota} <br />
-                            <KonsentrasiList
-                                sekolahId={item.id}
-                                konsentrasi={item.konsentrasi || []}
-                                onRefresh={onRefresh}
-                            />
                             Jumlah Siswa: {item.jumlah_siswa} <br />
-                            Jumlah Kelulusan: {item.jumlah_kelulusan} ({formatPercentage(item.jumlah_kelulusan, item.jumlah_siswa)})
+                            Jumlah Kelulusan: {item.jumlah_kelulusan} ({formatPercentage(item.jumlah_kelulusan, item.jumlah_siswa)}) <br />
+                            Konsentrasi: {item.konsentrasi.map(k => k.nama).join(', ')} {/* Menampilkan konsentrasi */}
                         </span>
                         <div className="mt-2 flex flex-wrap gap-2 justify-end">
                             <button 
@@ -245,12 +151,6 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                                 className="relative overflow-hidden text-sm bg-gray-300 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
                             >
                                 <FontAwesomeIcon icon={faEdit} className="mr-1" /> Edit
-                            </button>
-                            <button 
-                                onClick={() => handleAddKonsentrasi(item.id)}
-                                className="relative overflow-hidden text-sm bg-blue-300 text-blue-800 px-3 py-1 rounded-md hover:bg-blue-400 dark:bg-blue-600 dark:text-blue-200 dark:hover:bg-blue-500"
-                            >
-                                <FontAwesomeIcon icon={faGraduationCap} className="mr-1" /> Edit Konsentrasi
                             </button>
                             <button 
                                 onClick={() => onViewKompetensi(item.id, item.nama)}
@@ -268,9 +168,11 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                     </li>
                 ))}
             </ul>
-            <div className="mt-4 flex justify-center">
-                {renderPagination()}
-            </div>
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
             <BackToTopButton />
             <ConfirmationModal
                 isOpen={isModalOpen}
@@ -278,16 +180,6 @@ const SekolahList: React.FC<SekolahListProps> = ({ onEdit, onViewKompetensi, ref
                 onConfirm={handleDelete}
                 message="Yakin untuk menghapus item ini?"
             />
-            {showAddKonsentrasi && selectedSekolahId && (
-                <KonsentrasiAdd
-                    sekolahId={selectedSekolahId}
-                    onClose={() => setShowAddKonsentrasi(false)}
-                    onSuccess={() => {
-                        setShowAddKonsentrasi(false);
-                        onRefresh();
-                    }}
-                />
-            )}
         </div>
     );
 };
