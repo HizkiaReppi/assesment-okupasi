@@ -345,7 +345,7 @@ const HomePage: React.FC = () => {
                         )}
                     </div>
                   )}
-                  {popupInfo?.details.konsentrasi &&
+                  {/* {popupInfo?.details.konsentrasi &&
                     popupInfo.details.konsentrasi.length > 0 && (
                       <div className="mt-2">
                         <h4 className="text-base sm:text-lg font-semibold dark:text-gray-300">
@@ -359,7 +359,7 @@ const HomePage: React.FC = () => {
                           )}
                         </ul>
                       </div>
-                    )}
+                    )} */}
                 </div>
               </Popup>
             </CustomMarker>

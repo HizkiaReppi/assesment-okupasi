@@ -7,7 +7,7 @@ import {
   fetchOkupasi,
   School,
 } from "../../hooks/sidebarApiHooks";
-import Loading from "../Loading2"; // Import the Loading component
+import Loading from "../Loading2";
 
 interface SidebarProps {
   onSelectSchool: (schoolName: string, schoolDetails: any) => void;
@@ -72,16 +72,25 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
 
   const handleSchoolClick = (school: School) => {
     const schoolDetails = {
+      id: school.id,
       nama: school.nama,
       kota: school.kota,
       kecocokan: school.kecocokan,
-      konsentrasi: school.konsentrasi, 
       jumlah_siswa: school.jumlah_siswa,
       jumlah_kelulusan: school.jumlah_kelulusan,
       persentase_kelulusan: school.persentase_kelulusan,
       okupasi: school.okupasi?.nama,
       kode_okupasi: kodeOkupasi,
       unit_kompetensi: school.okupasi?.unit_kompetensi,
+      konsentrasi:
+        school.konsentrasi && school.konsentrasi.length > 0
+          ? school.konsentrasi
+          : [
+              {
+                id: "no-concentration",
+                nama: "Tidak ada konsentrasi terdaftar",
+              },
+            ],
     };
     onSelectSchool(school.nama, schoolDetails);
     setSelectedSchool(school);
@@ -384,6 +393,28 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
                             )
                           </strong>
                         </p>
+                        <div className="mt-2">
+                          <strong className="text-sm text-gray-600 dark:text-gray-400">
+                            Konsentrasi:
+                          </strong>
+                          {school.konsentrasi &&
+                          school.konsentrasi.length > 0 ? (
+                            <ul className="list-disc list-inside">
+                              {school.konsentrasi.map((k, index) => (
+                                <li
+                                  key={k.id}
+                                  className="text-sm text-gray-500 dark:text-gray-300"
+                                >
+                                  {k.nama || `Konsentrasi ${index + 1}`}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-sm text-gray-500 dark:text-gray-300 italic">
+                              Tidak ada konsentrasi terdaftar
+                            </p>
+                          )}
+                        </div>
                       </div>
                     ))
                   ) : (

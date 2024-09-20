@@ -170,7 +170,7 @@ export const getAllSekolahStatByKodeOkupasi = async (
   }
 };
 
-// Add Konsentrasi to Sekolah
+// update Konsentrasi to Sekolah
 export const updateSekolahKonsentrasi = async (id: string, konsentrasiIds: string[]) => {
   try {
       const response = await apiClient.put(`/sekolah/${id}/konsentrasi`, {
