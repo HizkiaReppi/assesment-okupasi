@@ -18,6 +18,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
 import axios from 'axios';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 interface User {
   id: string;
@@ -36,6 +37,8 @@ const UsersManagement = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const usersPerPage = 10;
 
   useEffect(() => {
@@ -119,12 +122,25 @@ const UsersManagement = () => {
     }
   };
 
-  const handleDeleteUser = async (id: string) => {
-    setLoading(true);
+  const openModal = (id: string) => {
+    setDeleteId(id);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setDeleteId(null);
+    setIsModalOpen(false);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+
     try {
-      await deleteUser(id);
+      setLoading(true);
+      await deleteUser(deleteId);
       toast.success('Berhasil menghapus anggota');
       fetchUsers();
+      closeModal();
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 403) {
         toast.error('Anda bukan superadmin');
@@ -197,7 +213,7 @@ const UsersManagement = () => {
                     </button>
                     <button
                       className='text-red-500 hover:text-red-700'
-                      onClick={() => handleDeleteUser(user.id)}
+                      onClick={() => openModal(user.id)}
                       disabled={loading}
                     >
                       <FaTrash />
@@ -298,6 +314,13 @@ const UsersManagement = () => {
           </div>
         </div>
       )}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onConfirm={handleDelete}
+        message='Yakin untuk menghapus item ini?'
+        isLoading={loading}
+      />
     </div>
   );
 };
