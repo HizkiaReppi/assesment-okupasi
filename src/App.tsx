@@ -15,6 +15,7 @@ import DataKonsentrasiPage from './pages/DataKonsentrasiPage';
 import DataAssessmentPage from './pages/DataAssessmentPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import RedirectRoute from './routes/RedirectRoute';
+import AssessmentPage from './pages/AssesmentPage';
 
 const AppContent = () => {
   return (
@@ -56,6 +57,10 @@ const AppContent = () => {
         <Route
           path='/data-okupasi'
           element={<ProtectedRoute element={<DataOkupasiPage />} />}
+        />
+        <Route
+          path='/assesment'
+          element={<ProtectedRoute element={<AssessmentPage />} />}
         />
       </Routes>
     </>

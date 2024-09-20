@@ -15,10 +15,6 @@ interface AssessmentResponse {
 
 interface AssessmentListResponse {
   status: string;
-  limit?: number;
-  total_page?: number;
-  total_result?: number;
-  page?: number;
   data?: Assessment[];
 }
 
@@ -32,57 +28,63 @@ export const assessmentApi = {
       if (response.data.status === 'success' && response.data.data) {
         return response.data.data.id;
       }
-      throw new Error('Failed to add Assessment');
+      throw new Error('Failed to add assessment');
     } catch (error) {
       handleError(error);
       throw error;
     }
   },
 
-  getAll: async (
-    limit?: number,
-    page?: number,
-  ): Promise<AssessmentListResponse> => {
+  getAll: async (): Promise<Assessment[]> => {
     try {
-      const params = new URLSearchParams();
-      if (limit) params.append('limit', limit.toString());
-      if (page) params.append('page', page.toString());
-
       const response = await apiClient.get<AssessmentListResponse>(
         '/assessment',
-        { params },
       );
-      return response.data;
+      if (response.data.status === 'success' && response.data.data) {
+        return response.data.data;
+      }
+      throw new Error('Failed to get assessments');
     } catch (error) {
       handleError(error);
       throw error;
     }
   },
 
-  edit: async (id: string, title: string, url: string): Promise<void> => {
+  edit: async (
+    id: string,
+    data: { title: string; url: string },
+  ): Promise<void> => {
+    if (!id) {
+      throw new Error('Assessment ID is required');
+    }
     try {
       const response = await apiClient.put<AssessmentResponse>(
         `/assessment/${id}`,
-        { title, url },
+        data,
       );
       if (response.data.status !== 'success') {
-        throw new Error('Failed to edit Assessment');
+        throw new Error('Failed to edit assessment');
       }
     } catch (error) {
+      console.error('Error in edit assessment:', error);
       handleError(error);
       throw error;
     }
   },
 
   delete: async (id: string): Promise<void> => {
+    if (!id) {
+      throw new Error('Assessment ID is required');
+    }
     try {
       const response = await apiClient.delete<AssessmentResponse>(
         `/assessment/${id}`,
       );
       if (response.data.status !== 'success') {
-        throw new Error('Failed to delete Assessment');
+        throw new Error('Failed to delete assessment');
       }
     } catch (error) {
+      console.error('Error in delete assessment:', error);
       handleError(error);
       throw error;
     }
