@@ -25,7 +25,7 @@ interface User {
   email: string;
 }
 
-const SignUp = () => {
+const UsersManagement = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -185,7 +185,7 @@ const SignUp = () => {
                   key={user.id}
                   className='border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
                 >
-                  <td className='py-3 px-6 text-left'>{index+1}</td>
+                  <td className='py-3 px-6 text-left'>{index + 1}</td>
                   <td className='py-3 px-6 text-left'>{user.nama}</td>
                   <td className='py-3 px-6 text-left'>{user.email}</td>
                   <td className='py-3 px-6 text-center flex justify-center space-x-4'>
@@ -302,4 +302,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default UsersManagement;
