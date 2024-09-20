@@ -5,8 +5,10 @@ import { useAuth } from '../context/AuthContext';
 import LogoutButton from './Logout';
 import DarkModeToggle from './DarkModeToggle';
 import LogoImage from '../assets/icon.png';
+import { Assessment, assessmentApi } from '../api/assessment-api';
 
 const Navbar = () => {
+  const [assessment, setAssessment] = useState<Assessment[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1080);
@@ -27,6 +29,21 @@ const Navbar = () => {
       ? 'text-orange-700 border-b-2 border-orange-700 font-medium dark:text-orange-500'
       : 'text-gray-800 hover:text-orange-700 transition duration-300 font-medium dark:text-gray-200 dark:hover:text-orange-500';
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await assessmentApi.getAll();
+        if (data && Array.isArray(data.data)) {
+          setAssessment(data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching Konsentrasi:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -114,40 +131,28 @@ const Navbar = () => {
                   </button>
                   {dropdownOpen && (
                     <div className='absolute mt-2 w-48 bg-white shadow-lg rounded-md z-10 dark:bg-gray-700'>
-                      <a
-                        // href='https://docs.google.com/forms/d/e/1FAIpQLSc0TleUB6HGjj2bSmqmOphFgvXPMFM-WTU3HGGhFXd6gWugyQ/viewform?usp=sf_link'
-                        href='https://forms.gle/2kHhPrrgowgLfmTj9'
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='block px-4 py-2 text-gray-800 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600'
+                      {assessment.map((item) => (
+                        <Link
+                          key={item.id}
+                          to={item.url}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className='block px-4 py-2 text-gray-800 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600'
+                        >
+                          {item.title}
+                        </Link>
+                      ))}
+                      <hr className='my-2 border-2' />
+                      <Link
+                        to='/data-assessment'
+                        className={
+                          'block px-4 py-2 mb-3' +
+                          ' ' +
+                          getLinkClasses('/data-assessment')
+                        }
                       >
-                        Desain Komunikasi Visual (DKV)
-                      </a>
-                      <a
-                        // href='https://docs.google.com/forms/d/e/1FAIpQLScGgTdXSjmMheZjhyXQBYr_WDX8p8zqHBt20BqcdpwJyH-HXA/viewform?usp=sf_link'
-                        href='https://forms.gle/TeE1HTdTCsNTWov86'
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='block px-4 py-2 text-gray-800 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600'
-                      >
-                        Teknik Komputer dan Jaringan (TKJ)
-                      </a>
-                      <a
-                        href='https://forms.gle/YZfbU1T9m6mHToCk9'
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='block px-4 py-2 text-gray-800 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600'
-                      >
-                        Rekayasa Perangkat Lunak (RPL)
-                      </a>
-                      <a
-                        href='https://forms.gle/RRbDFtYHt4xDtwZ1A'
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='block px-4 py-2 text-gray-800 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600'
-                      >
-                        Teknologi Informasi dan Komunikasi(TIK)
-                      </a>
+                        Data Assessment
+                      </Link>
                     </div>
                   )}
                 </div>

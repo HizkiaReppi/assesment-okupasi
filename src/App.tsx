@@ -1,4 +1,8 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { AuthProvider } from './context/AuthContext';
+import { FormProvider } from './context/FormContext';
 import Navbar from './components/Navbar';
 import MainMenu from './pages/MainMenu';
 import Login from './pages/Login';
@@ -6,14 +10,11 @@ import Signup from './pages/Signup';
 import HomePage from './pages/HomePage';
 import DataSekolahPage from './pages/DataSekolahPage';
 import DataOkupasiPage from './pages/DataOkupasiPage';
-import { AuthProvider } from './context/AuthContext';
-import { FormProvider } from './context/FormContext';
+import FormPage from './pages/FormPage';
+import DataKonsentrasiPage from './pages/DataKonsentrasiPage';
+import DataAssessmentPage from './pages/DataAssessmentPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import RedirectRoute from './routes/RedirectRoute';
-import FormPage from './pages/FormPage';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import DataKonsentrasiPage from './pages/DataKonsentrasiPage';
 
 const AppContent = () => {
   return (
@@ -47,6 +48,10 @@ const AppContent = () => {
         <Route
           path='/data-konsentrasi'
           element={<ProtectedRoute element={<DataKonsentrasiPage />} />}
+        />
+        <Route
+          path='/data-assessment'
+          element={<ProtectedRoute element={<DataAssessmentPage />} />}
         />
         <Route
           path='/data-okupasi'
