@@ -21,7 +21,10 @@ interface AssessmentListResponse {
 export const assessmentApi = {
   add: async (data: { title: string; url: string }): Promise<string> => {
     try {
-      const response = await apiClient.post<AssessmentResponse>('/assessment', data);
+      const response = await apiClient.post<AssessmentResponse>(
+        '/assessment',
+        data,
+      );
       if (response.data.status === 'success' && response.data.data) {
         return response.data.data.id;
       }
@@ -34,7 +37,9 @@ export const assessmentApi = {
 
   getAll: async (): Promise<Assessment[]> => {
     try {
-      const response = await apiClient.get<AssessmentListResponse>('/assessment');
+      const response = await apiClient.get<AssessmentListResponse>(
+        '/assessment',
+      );
       if (response.data.status === 'success' && response.data.data) {
         return response.data.data;
       }
@@ -45,12 +50,18 @@ export const assessmentApi = {
     }
   },
 
-  edit: async (id: string, data: { title: string; url: string }): Promise<void> => {
+  edit: async (
+    id: string,
+    data: { title: string; url: string },
+  ): Promise<void> => {
     if (!id) {
       throw new Error('Assessment ID is required');
     }
     try {
-      const response = await apiClient.put<AssessmentResponse>(`/assessment/${id}`, data);
+      const response = await apiClient.put<AssessmentResponse>(
+        `/assessment/${id}`,
+        data,
+      );
       if (response.data.status !== 'success') {
         throw new Error('Failed to edit assessment');
       }
@@ -66,7 +77,9 @@ export const assessmentApi = {
       throw new Error('Assessment ID is required');
     }
     try {
-      const response = await apiClient.delete<AssessmentResponse>(`/assessment/${id}`);
+      const response = await apiClient.delete<AssessmentResponse>(
+        `/assessment/${id}`,
+      );
       if (response.data.status !== 'success') {
         throw new Error('Failed to delete assessment');
       }
@@ -76,4 +89,4 @@ export const assessmentApi = {
       throw error;
     }
   },
-}
+};

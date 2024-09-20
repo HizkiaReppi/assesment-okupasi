@@ -18,6 +18,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
 import axios from 'axios';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 interface User {
   id: string;
@@ -25,7 +26,7 @@ interface User {
   email: string;
 }
 
-const SignUp = () => {
+const UsersManagement = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,6 +37,8 @@ const SignUp = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const usersPerPage = 10;
 
   useEffect(() => {
@@ -119,12 +122,25 @@ const SignUp = () => {
     }
   };
 
-  const handleDeleteUser = async (id: string) => {
-    setLoading(true);
+  const openModal = (id: string) => {
+    setDeleteId(id);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setDeleteId(null);
+    setIsModalOpen(false);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+
     try {
-      await deleteUser(id);
+      setLoading(true);
+      await deleteUser(deleteId);
       toast.success('Berhasil menghapus anggota');
       fetchUsers();
+      closeModal();
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 403) {
         toast.error('Anda bukan superadmin');
@@ -185,7 +201,7 @@ const SignUp = () => {
                   key={user.id}
                   className='border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
                 >
-                  <td className='py-3 px-6 text-left'>{index+1}</td>
+                  <td className='py-3 px-6 text-left'>{index + 1}</td>
                   <td className='py-3 px-6 text-left'>{user.nama}</td>
                   <td className='py-3 px-6 text-left'>{user.email}</td>
                   <td className='py-3 px-6 text-center flex justify-center space-x-4'>
@@ -197,7 +213,7 @@ const SignUp = () => {
                     </button>
                     <button
                       className='text-red-500 hover:text-red-700'
-                      onClick={() => handleDeleteUser(user.id)}
+                      onClick={() => openModal(user.id)}
                       disabled={loading}
                     >
                       <FaTrash />
@@ -298,8 +314,15 @@ const SignUp = () => {
           </div>
         </div>
       )}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onConfirm={handleDelete}
+        message='Yakin untuk menghapus item ini?'
+        isLoading={loading}
+      />
     </div>
   );
 };
 
-export default SignUp;
+export default UsersManagement;

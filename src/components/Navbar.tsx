@@ -2,18 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FaDoorOpen, FaBars, FaCaretDown } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { assessmentApi, Assessment } from '../api/assessment-api';
+import { useAssessments } from '../context/AssessmentContext';
 import LogoutButton from './Logout';
 import DarkModeToggle from './DarkModeToggle';
 import LogoImage from '../assets/icon.png';
 
 const Navbar: React.FC = () => {
+  const { assessments } = useAssessments();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dataDropdownOpen, setDataDropdownOpen] = useState(false);
   const [assessmentDropdownOpen, setAssessmentDropdownOpen] = useState(false);
   const [settingsDropdownOpen, setSettingsDropdownOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1080);
-  const [assessments, setAssessments] = useState<Assessment[]>([]);
   const { isLoggedIn, isSuperAdmin } = useAuth();
   const location = useLocation();
   const dataDropdownRef = useRef<HTMLDivElement>(null);
@@ -44,21 +44,6 @@ const Navbar: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchAssessments = async () => {
-      try {
-        const fetchedAssessments = await assessmentApi.getAll();
-        setAssessments(fetchedAssessments);
-      } catch (error) {
-        console.error('Failed to fetch assessments:', error);
-      }
-    };
-
-    if (isLoggedIn) {
-      fetchAssessments();
-    }
-  }, [isLoggedIn]);
-
-  useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1080);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -85,7 +70,10 @@ const Navbar: React.FC = () => {
   }, []);
 
   const renderDataDropdown = () => (
-    <div className='relative' ref={dataDropdownRef}>
+    <div
+      className='relative'
+      ref={dataDropdownRef}
+    >
       <button
         onClick={toggleDataDropdown}
         className='text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center dark:text-gray-200 dark:hover:text-orange-500'
@@ -121,7 +109,10 @@ const Navbar: React.FC = () => {
   );
 
   const renderAssessmentDropdown = () => (
-    <div className='relative' ref={assessmentDropdownRef}>
+    <div
+      className='relative'
+      ref={assessmentDropdownRef}
+    >
       <button
         onClick={toggleAssessmentDropdown}
         className='text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center dark:text-gray-200 dark:hover:text-orange-500'
@@ -147,7 +138,10 @@ const Navbar: React.FC = () => {
   );
 
   const renderSettingsDropdown = () => (
-    <div className='relative' ref={settingsDropdownRef}>
+    <div
+      className='relative'
+      ref={settingsDropdownRef}
+    >
       <button
         onClick={toggleSettingsDropdown}
         className='text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center dark:text-gray-200 dark:hover:text-orange-500'
@@ -182,16 +176,26 @@ const Navbar: React.FC = () => {
       <div className='flex justify-between items-center px-6 py-4'>
         <div className='flex items-center'>
           <Link to='/'>
-            <img src={LogoImage} alt='Logo' className='h-10' />
+            <img
+              src={LogoImage}
+              alt='Logo'
+              className='h-10'
+            />
           </Link>
         </div>
         {isMobile ? (
-          <div className='flex' onClick={toggleMenu}>
+          <div
+            className='flex'
+            onClick={toggleMenu}
+          >
             <FaBars className='text-gray-800 hover:text-orange-700 transition duration-300 dark:text-white' />
           </div>
         ) : (
           <div className='flex items-center space-x-6'>
-            <Link to='/' className={getLinkClasses('/')}>
+            <Link
+              to='/'
+              className={getLinkClasses('/')}
+            >
               Home
             </Link>
             {isLoggedIn && (
@@ -207,7 +211,9 @@ const Navbar: React.FC = () => {
             ) : (
               <Link
                 to='/login'
-                className={`text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center dark:text-gray-200 dark:hover:text-orange-500 ${getLinkClasses('/login')}`}
+                className={`text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center dark:text-gray-200 dark:hover:text-orange-500 ${getLinkClasses(
+                  '/login',
+                )}`}
               >
                 <FaDoorOpen className='mr-2' /> Login
               </Link>
@@ -217,7 +223,11 @@ const Navbar: React.FC = () => {
       </div>
       {isMobile && menuOpen && (
         <div className='bg-white w-full absolute top-16 left-0 right-0 shadow-md z-10 flex flex-col items-center space-y-4 py-4 dark:bg-gray-800'>
-          <Link to='/' className={getLinkClasses('/')} onClick={toggleMenu}>
+          <Link
+            to='/'
+            className={getLinkClasses('/')}
+            onClick={toggleMenu}
+          >
             Home
           </Link>
           {isLoggedIn && (
@@ -230,7 +240,9 @@ const Navbar: React.FC = () => {
           {!isLoggedIn && (
             <Link
               to='/login'
-              className={`text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center dark:text-gray-200 dark:hover:text-orange-500 ${getLinkClasses('/login')}`}
+              className={`text-gray-800 hover:text-orange-700 transition duration-300 font-medium flex items-center dark:text-gray-200 dark:hover:text-orange-500 ${getLinkClasses(
+                '/login',
+              )}`}
               onClick={toggleMenu}
             >
               <FaDoorOpen className='mr-2' /> Login
