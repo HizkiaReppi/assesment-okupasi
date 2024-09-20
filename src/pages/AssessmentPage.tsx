@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useAssessments } from '../context/AssessmentContext';
 import { assessmentApi, Assessment } from '../api/assessment-api';
 import ReusableTable from '../components/ReusableTable';
 import Pagination from '../components/pagination';
 import PopupForm from '../components/PopupForm';
-import Loading from '../components/Loading';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
@@ -11,8 +11,8 @@ import { FaTimes } from 'react-icons/fa';
 import ConfirmationModal from '../components/ConfirmationModal';
 
 const AssessmentPage: React.FC = () => {
-  const [assessments, setAssessments] = useState<Assessment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { assessments, refreshAssessments } = useAssessments();
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -26,19 +26,11 @@ const AssessmentPage: React.FC = () => {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    fetchAssessments();
+    refreshAssessments();
   }, [currentPage]);
 
-  const fetchAssessments = async () => {
-    setLoading(true);
-    try {
-      const data = await assessmentApi.getAll();
-      setAssessments(data);
-      setTotalPages(Math.ceil(data.length / itemsPerPage));
-    } catch (error) {
-      toast.error('Failed to fetch assessments');
-    }
-    setLoading(false);
+  const updateTotalPages = () => {
+    setTotalPages(Math.ceil(assessments.length / itemsPerPage));
   };
 
   const handleAddAssessment = async () => {
@@ -47,7 +39,8 @@ const AssessmentPage: React.FC = () => {
       toast.success('Assessment added successfully');
       setIsFormOpen(false);
       setFormData({ title: '', url: '' });
-      fetchAssessments();
+      refreshAssessments();
+      updateTotalPages();
     } catch (error) {
       toast.error('Failed to add assessment');
     }
@@ -67,7 +60,8 @@ const AssessmentPage: React.FC = () => {
       setIsFormOpen(false);
       setEditingAssessment(null);
       setFormData({ title: '', url: '' });
-      fetchAssessments();
+      refreshAssessments();
+      updateTotalPages();
     } catch (error) {
       console.error('Error updating assessment:', error);
       toast.error('Failed to update assessment');
@@ -109,13 +103,14 @@ const AssessmentPage: React.FC = () => {
       setLoading(true);
       await assessmentApi.delete(deleteId);
       const deletedItem = assessments.find((item) => item.id === deleteId);
-      setAssessments(assessments.filter((item) => item.id !== deleteId));
       toast.error(
         `Assessment dengan nama ${deletedItem?.title} berhasil dihapus.`,
         {
           position: 'bottom-right',
         },
       );
+      refreshAssessments();
+      updateTotalPages();
       closeModal();
     } catch (error) {
       toast.error('Gagal menghapus data konsentrasi.', {
@@ -148,10 +143,6 @@ const AssessmentPage: React.FC = () => {
       title: 'Delete',
     },
   ];
-
-  if (loading) {
-    return <Loading />;
-  }
 
   return (
     <div className='container pt-28 mx-auto p-4'>

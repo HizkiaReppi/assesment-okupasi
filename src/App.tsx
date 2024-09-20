@@ -3,6 +3,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
 import { FormProvider } from './context/FormContext';
+import { AssessmentProvider } from './context/AssessmentContext';
 import Navbar from './components/Navbar';
 import MainMenu from './pages/MainMenu';
 import Login from './pages/Login';
@@ -66,10 +67,12 @@ const App = () => {
   return (
     <AuthProvider>
       <FormProvider>
-        <ToastContainer />
-        <Router>
-          <AppContent />
-        </Router>
+        <AssessmentProvider>
+          <ToastContainer />
+          <Router>
+            <AppContent />
+          </Router>
+        </AssessmentProvider>
       </FormProvider>
     </AuthProvider>
   );

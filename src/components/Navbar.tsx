@@ -2,18 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FaDoorOpen, FaBars, FaCaretDown } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { assessmentApi, Assessment } from '../api/assessment-api';
+import { useAssessments } from '../context/AssessmentContext';
 import LogoutButton from './Logout';
 import DarkModeToggle from './DarkModeToggle';
 import LogoImage from '../assets/icon.png';
 
 const Navbar: React.FC = () => {
+  const { assessments } = useAssessments();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dataDropdownOpen, setDataDropdownOpen] = useState(false);
   const [assessmentDropdownOpen, setAssessmentDropdownOpen] = useState(false);
   const [settingsDropdownOpen, setSettingsDropdownOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1080);
-  const [assessments, setAssessments] = useState<Assessment[]>([]);
   const { isLoggedIn, isSuperAdmin } = useAuth();
   const location = useLocation();
   const dataDropdownRef = useRef<HTMLDivElement>(null);
@@ -42,21 +42,6 @@ const Navbar: React.FC = () => {
       ? 'text-orange-700 border-b-2 border-orange-700 font-medium dark:text-orange-500'
       : 'text-gray-800 hover:text-orange-700 transition duration-300 font-medium dark:text-gray-200 dark:hover:text-orange-500';
   };
-
-  useEffect(() => {
-    const fetchAssessments = async () => {
-      try {
-        const fetchedAssessments = await assessmentApi.getAll();
-        setAssessments(fetchedAssessments);
-      } catch (error) {
-        console.error('Failed to fetch assessments:', error);
-      }
-    };
-
-    if (isLoggedIn) {
-      fetchAssessments();
-    }
-  }, [isLoggedIn]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1080);
