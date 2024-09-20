@@ -11,38 +11,10 @@ import { useFormContext } from "../../context/FormContext";
 import {
   fetchSchoolsByOkupasi,
   fetchOkupasi,
+  School
 } from "../../hooks/sidebarApiHooks";
 import Loading from "../Loading2";
 
-interface Kompetensi {
-  id: string;
-  kode_unit: string;
-  nama: string;
-  standard_kompetensi: string;
-}
-
-interface Okupasi {
-  kode: string;
-  nama: string;
-  unit_kompetensi: Kompetensi[];
-}
-
-interface Konsentrasi {
-  kode: string;
-  nama: string;
-}
-
-interface School {
-  id: string;
-  nama: string;
-  kota: string;
-  kecocokan: string;
-  jumlah_siswa: number;
-  jumlah_kelulusan: number;
-  persentase_kelulusan: string;
-  okupasi?: Okupasi;
-  konsentrasi?: Konsentrasi[];
-}
 
 interface BottomBarProps {
   onSelectSchool: (schoolName: string, schoolDetails: any) => void;
