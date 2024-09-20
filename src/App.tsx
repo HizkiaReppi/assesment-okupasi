@@ -14,6 +14,7 @@ import FormPage from './pages/FormPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DataKonsentrasiPage from './pages/DataKonsentrasiPage';
+import AssessmentPage from './pages/AssesmentPage';
 
 const AppContent = () => {
   return (
@@ -51,6 +52,10 @@ const AppContent = () => {
         <Route
           path='/data-okupasi'
           element={<ProtectedRoute element={<DataOkupasiPage />} />}
+        />
+        <Route
+          path='/assesment'
+          element={<ProtectedRoute element={<AssessmentPage />} />}
         />
       </Routes>
     </>
