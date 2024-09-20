@@ -5,38 +5,9 @@ import { useFormContext } from "../../context/FormContext";
 import {
   fetchSchoolsByOkupasi,
   fetchOkupasi,
+  School,
 } from "../../hooks/sidebarApiHooks";
 import Loading from "../Loading2"; // Import the Loading component
-
-interface Kompetensi {
-  id: string;
-  kode_unit: string;
-  nama: string;
-  standard_kompetensi: string;
-}
-
-interface Okupasi {
-  kode: string;
-  nama: string;
-  unit_kompetensi: Kompetensi[];
-}
-
-interface Konsentrasi {
-  kode: string;
-  nama: string;
-}
-
-interface School {
-  id: string;
-  nama: string;
-  kota: string;
-  kecocokan: string;
-  jumlah_siswa: number;
-  jumlah_kelulusan: number;
-  persentase_kelulusan: string;
-  okupasi?: Okupasi;
-  konsentrasi?: Konsentrasi[];
-}
 
 interface SidebarProps {
   onSelectSchool: (schoolName: string, schoolDetails: any) => void;
@@ -104,13 +75,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
       nama: school.nama,
       kota: school.kota,
       kecocokan: school.kecocokan,
+      konsentrasi: school.konsentrasi, 
       jumlah_siswa: school.jumlah_siswa,
       jumlah_kelulusan: school.jumlah_kelulusan,
       persentase_kelulusan: school.persentase_kelulusan,
       okupasi: school.okupasi?.nama,
       kode_okupasi: kodeOkupasi,
       unit_kompetensi: school.okupasi?.unit_kompetensi,
-      konsentrasi: school.konsentrasi
     };
     onSelectSchool(school.nama, schoolDetails);
     setSelectedSchool(school);
@@ -129,8 +100,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectSchool }) => {
         searchQuery
       );
 
-      setSearchResults(result);
-      setFilteredSchools(result);
+      setSearchResults([...result]);
+      setFilteredSchools([...result]);
       setKodeOkupasi(selectedKode);
       setOkupasiName(selectedOkupasi ? selectedOkupasi.nama : "");
       setCurrentPage(1); // Reset pagination to first page

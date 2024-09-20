@@ -31,3 +31,4 @@ model-api.ts
 src/api/auth.ts
 src/api/apiClient.ts
 src/context/AuthContext.tsx
+src/pages/GdrivePage.tsx

@@ -203,13 +203,17 @@ const DataSekolahPage: React.FC = () => {
         isOpen={addingKompetensi}
         onClose={() => setAddingKompetensi(false)}
       >
-        <KompetensiAddForm
-          onSuccess={() => {
-            setAddingKompetensi(false);
-            handleSuccess();
-          }}
-          sekolahId={""}
-        />
+        {selectedSekolahId ? (
+          <KompetensiAddForm
+            onSuccess={() => {
+              setAddingKompetensi(false);
+              handleSuccess();
+            }}
+            sekolahId={selectedSekolahId}
+          />
+        ) : (
+          <div>Error: No school selected</div>
+        )}
       </Modal>
 
       <Modal

@@ -7,7 +7,7 @@ interface PopupFormProps {
   children: React.ReactNode;
 }
 
-const PopupForm: React.FC<PopupFormProps> = ({ isOpen, onClose, title, children }) => {
+const PopupForm: React.FC<PopupFormProps> = ({ isOpen, title, children }) => {
   if (!isOpen) return null;
 
   return (
@@ -19,12 +19,12 @@ const PopupForm: React.FC<PopupFormProps> = ({ isOpen, onClose, title, children 
             {children}
           </div>
           <div className="items-center px-4 py-3">
-            <button
+            {/* <button
               onClick={onClose}
               className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300"
             >
               Close
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

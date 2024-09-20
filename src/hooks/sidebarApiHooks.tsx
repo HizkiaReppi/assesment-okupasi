@@ -14,7 +14,12 @@ interface Okupasi {
   unit_kompetensi: UnitKompetensi[];
 }
 
-interface School {
+interface Konsentrasi {
+  id: string;
+  nama?: string;
+}
+
+export interface School {
   id: string;
   nama: string;
   kota: string;
@@ -23,6 +28,7 @@ interface School {
   jumlah_kelulusan: number;
   persentase_kelulusan: string;
   okupasi?: Okupasi;
+  konsentrasi?: Konsentrasi[];
 }
 
 export const fetchSchoolsByOkupasi = async (
@@ -52,6 +58,7 @@ export const fetchSchoolsByOkupasi = async (
         jumlah_kelulusan: school.jumlah_kelulusan,
         persentase_kelulusan: school.persentase_kelulusan,
         okupasi: school.okupasi ?? null,
+        konsentrasi: school.konsentrasi ?? [], // Add this line to include konsentrasi data
       }));
 
       allResults = [...allResults, ...pageResults];

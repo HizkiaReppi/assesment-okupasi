@@ -13,6 +13,11 @@ interface Kompetensi {
   unit_kompetensi: UnitKompetensi[];
 }
 
+interface Konsentrasi {
+  id: string;
+  nama?: string; 
+}
+
 interface School {
   id: string;
   nama: string;
@@ -24,6 +29,7 @@ interface School {
   jumlah_kelulusan?: number;
   persentase_kelulusan?: string;
   kompetensi?: Kompetensi[];
+  konsentrasi?: Konsentrasi[]; 
 }
 
 interface FormContextType {
