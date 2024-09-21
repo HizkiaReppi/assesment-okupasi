@@ -6,6 +6,11 @@ interface Kompetensi {
   nama: string;
 }
 
+interface Konsentrasi {
+  id: string;
+  nama: string;
+}
+
 interface Okupasi {
   kode: string;
   nama: string;
@@ -19,7 +24,8 @@ interface School {
   nama: string;
   kota: string;
   kecocokan?: string;
-  okupasi?: Okupasi;  
+  okupasi?: Okupasi;
+  konsentrasi?: Konsentrasi[];
 }
 
 interface Props {
@@ -34,7 +40,10 @@ const GoogleMapComponent: React.FC<Props> = ({
   selectedSchool,
 }) => {
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
-  const [center, setCenter] = useState<{ lat: number, lng: number }>({ lat: 1.483818, lng: 124.845726 }); // Default to North Sulawesi
+  const [center, setCenter] = useState<{ lat: number; lng: number }>({
+    lat: 1.483818,
+    lng: 124.845726,
+  }); // Default to North Sulawesi
   const [zoom, setZoom] = useState<number>(10);
 
   useEffect(() => {
@@ -80,7 +89,7 @@ const GoogleMapComponent: React.FC<Props> = ({
 
   useEffect(() => {
     if (selectedSchool) {
-      console.log("Selected school data for InfoWindow:", selectedSchool);
+      console.log('Selected school data for InfoWindow:', selectedSchool);
     }
   }, [selectedSchool]);
 
@@ -117,39 +126,74 @@ const GoogleMapComponent: React.FC<Props> = ({
             infoWindowRef.current = infoWindow;
           }}
         >
-          <div className="max-w-xs max-h-48 overflow-y-auto p-4 bg-white shadow-lg rounded-lg">
-            <h2 className="text-lg font-bold mb-2 text-gray-900">{selectedSchool.nama}</h2>
-            <p className="text-sm text-gray-800 mb-2">{selectedSchool.kota}</p>
+          <div className='max-w-xs max-h-48 overflow-y-auto p-4 bg-white shadow-lg rounded-lg'>
+            <h2 className='text-lg font-bold mb-2 text-gray-900'>
+              {selectedSchool.nama}
+            </h2>
+            <p className='text-sm text-gray-800 mb-2'>{selectedSchool.kota}</p>
             {selectedSchool.kecocokan && (
-              <p className="text-sm text-gray-800 mb-2">
+              <p className='text-sm text-gray-800 mb-2'>
                 <strong>Kecocokan:</strong> {selectedSchool.kecocokan}%
               </p>
             )}
+            {selectedSchool.konsentrasi &&
+            selectedSchool.konsentrasi.length > 0 ? (
+              <>
+                <p className='text-sm text-gray-800 mb-1'>
+                  <strong>
+                    Konsentrasi:{' '}
+                    {selectedSchool.konsentrasi.length < 2
+                      ? selectedSchool.konsentrasi[0]?.nama
+                      : ''}
+                  </strong>
+                </p>
+                <ul className='list-disc pl-5 text-sm text-gray-800'>
+                  {selectedSchool.konsentrasi.map((k: Konsentrasi) => (
+                    <li
+                      key={k.id}
+                      className='mb-1'
+                    >
+                      {k.nama}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className='text-sm text-gray-800 mb-1'>-</p>
+            )}
             {selectedSchool.okupasi ? (
               <>
-                <p className="text-sm text-gray-800 mb-1">
+                <p className='text-sm text-gray-800 mb-1'>
                   <strong>Kode Okupasi:</strong> {selectedSchool.okupasi.kode}
                 </p>
-                <p className="text-sm text-gray-800 mb-1">
+                <p className='text-sm text-gray-800 mb-1'>
                   <strong>Nama Okupasi:</strong> {selectedSchool.okupasi.nama}
                 </p>
-                {selectedSchool.okupasi.unit_kompetensi && selectedSchool.okupasi.unit_kompetensi.length > 0 ? (
+                {selectedSchool.okupasi.unit_kompetensi &&
+                selectedSchool.okupasi.unit_kompetensi.length > 0 ? (
                   <>
-                    <p className="text-sm text-gray-800 mb-1">
+                    <p className='text-sm text-gray-800 mb-1'>
                       <strong>Unit Kompetensi:</strong>
                     </p>
-                    <ul className="list-disc pl-5 text-sm text-gray-800">
-                      {selectedSchool.okupasi.unit_kompetensi.map((uk: Kompetensi) => (
-                        <li key={uk.id} className="mb-1">{uk.nama}</li>
-                      ))}
+                    <ul className='list-disc pl-5 text-sm text-gray-800'>
+                      {selectedSchool.okupasi.unit_kompetensi.map(
+                        (uk: Kompetensi) => (
+                          <li
+                            key={uk.id}
+                            className='mb-1'
+                          >
+                            {uk.nama}
+                          </li>
+                        ),
+                      )}
                     </ul>
                   </>
                 ) : (
-                  <p className="text-sm text-gray-800 mb-1">-</p>
+                  <p className='text-sm text-gray-800 mb-1'>-</p>
                 )}
               </>
             ) : (
-              <p className="text-sm text-gray-800 mb-1">-</p>
+              <p className='text-sm text-gray-800 mb-1'>-</p>
             )}
           </div>
         </InfoWindow>
