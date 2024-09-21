@@ -2,8 +2,8 @@ import { apiClient, handleError } from './apiClient';
 
 export interface Konsentrasi {
   id: string;
-  kode: string;
   nama: string;
+  total_sekolah: number;
 }
 
 interface KonsentrasiResponse {
