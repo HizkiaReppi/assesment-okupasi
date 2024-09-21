@@ -264,7 +264,7 @@ const KonsentrasiList: React.FC<KonsentrasiListProps> = ({
           >
             <span className='block text-gray-900 font-semibold mb-2 dark:text-white'>
               {item.nama.toUpperCase()} <br />
-              Jumlah Sekolah: 1
+              Jumlah Sekolah: {item.total_sekolah ?? 0}
             </span>
             <div className='mt-2 flex flex-wrap gap-2 justify-end'>
               <button

@@ -14,7 +14,7 @@ export interface Konsentrasi {
   id: string;
   kode: string;
   nama: string;
-  jumlahSekolah: number;
+  total_sekolah: number;
 }
 
 interface Sekolah {
