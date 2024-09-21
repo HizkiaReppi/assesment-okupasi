@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useCallback } from "react";
-import Sidebar from "../components/homepage/Sidebar";
-import BottomBar from "../components/homepage/BottomBar";
-import Loading from "../components/Loading";
-import { MapContainer, TileLayer, Popup, useMap } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import { getAllSekolah } from "../api/sekolah-api";
-import L from "leaflet";
-import debounce from "lodash.debounce";
-import "../index.css";
-import useSidebarBottombar from "../hooks/useSidebarBottombar";
-import CustomMarker from "../components/CustomMarker";
-import { geocodeAddress } from "../utils/geocodeAddress";
+import React, { useState, useEffect, useCallback } from 'react';
+import Sidebar from '../components/homepage/Sidebar';
+import BottomBar from '../components/homepage/BottomBar';
+import Loading from '../components/Loading';
+import { MapContainer, TileLayer, Popup, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { getAllSekolah } from '../api/sekolah-api';
+import L from 'leaflet';
+import debounce from 'lodash.debounce';
+import '../index.css';
+import useSidebarBottombar from '../hooks/useSidebarBottombar';
+import CustomMarker from '../components/CustomMarker';
+import { geocodeAddress } from '../utils/geocodeAddress';
 
 interface Kompetensi {
   kode: string;
@@ -43,7 +43,7 @@ interface UnitKompetensi {
 }
 
 interface Konsentrasi {
-  kode: string;
+  id: string;
   nama: string;
 }
 
@@ -81,27 +81,27 @@ const HomePage: React.FC = () => {
         if (response && Array.isArray(response.data)) {
           const schoolsWithCoords = response.data.filter(
             (school: School) =>
-              school.lat !== undefined && school.lng !== undefined
+              school.lat !== undefined && school.lng !== undefined,
           );
           setInitialSchools(schoolsWithCoords);
           if (schoolsWithCoords.length > 0) {
             const avgLat =
               schoolsWithCoords.reduce(
                 (sum: number, school: School) => sum + (school.lat ?? 0),
-                0
+                0,
               ) / schoolsWithCoords.length;
             const avgLng =
               schoolsWithCoords.reduce(
                 (sum: number, school: School) => sum + (school.lng ?? 0),
-                0
+                0,
               ) / schoolsWithCoords.length;
             setCenter({ lat: avgLat, lng: avgLng });
           }
         } else {
-          console.error("Expected an array but got:", response);
+          console.error('Expected an array but got:', response);
         }
       } catch (error) {
-        console.error("Error fetching initial schools:", error);
+        console.error('Error fetching initial schools:', error);
       } finally {
         setLoading(false);
       }
@@ -172,9 +172,9 @@ const HomePage: React.FC = () => {
       const result = await geocodeAddress(address);
       handleGeocodeResult(result, schoolName, schoolDetails);
     } catch (error) {
-      console.error("Error fetching geocode data:", error);
+      console.error('Error fetching geocode data:', error);
       console.log(
-        `Tidak dapat menemukan lokasi untuk: ${schoolName}, ${schoolDetails.kota}`
+        `Tidak dapat menemukan lokasi untuk: ${schoolName}, ${schoolDetails.kota}`,
       );
     } finally {
       setIsLoadingLocation(false);
@@ -196,7 +196,7 @@ const HomePage: React.FC = () => {
   const handleGeocodeResult = (
     result: { lat: number; lng: number },
     schoolName: string,
-    schoolDetails: School
+    schoolDetails: School,
   ) => {
     const position = new L.LatLng(result.lat, result.lng);
     setMarkers([position]);
@@ -222,7 +222,7 @@ const HomePage: React.FC = () => {
         [bounds.south, bounds.west],
         [bounds.north, bounds.east],
       ]);
-      map.on("zoomend", () => {
+      map.on('zoomend', () => {
         if (map.getZoom() < map.getMinZoom()) {
           map.setZoom(map.getMinZoom());
         }
@@ -239,8 +239,8 @@ const HomePage: React.FC = () => {
   };
 
   const formatPercentage = (numerator: number, denominator: number): string => {
-    if (denominator === 0) return "0%";
-    return ((numerator / denominator) * 100).toFixed(2) + "%";
+    if (denominator === 0) return '0%';
+    return ((numerator / denominator) * 100).toFixed(2) + '%';
   };
 
   if (loading) {
@@ -248,19 +248,19 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="relative flex flex-col sm:flex-row h-screen overflow-hidden dark:bg-gray-800">
+    <div className='relative flex flex-col sm:flex-row h-screen overflow-hidden dark:bg-gray-800'>
       {isLoadingLocation && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-gray-700 bg-opacity-50">
-          <div className="bg-white p-4 rounded shadow dark:bg-gray-800">
-            <p className="text-lg font-semibold dark:text-gray-200">
+        <div className='absolute inset-0 z-50 flex items-center justify-center bg-gray-700 bg-opacity-50'>
+          <div className='bg-white p-4 rounded shadow dark:bg-gray-800'>
+            <p className='text-lg font-semibold dark:text-gray-200'>
               Mencari lokasi...
             </p>
           </div>
         </div>
       )}
       <div
-        className="flex-grow h-full"
-        style={{ zIndex: 0, paddingTop: "64px" }}
+        className='flex-grow h-full'
+        style={{ zIndex: 0, paddingTop: '64px' }}
       >
         <MapContainer
           center={center}
@@ -268,11 +268,11 @@ const HomePage: React.FC = () => {
           minZoom={10}
           maxZoom={16}
           scrollWheelZoom={true}
-          className="h-full w-full sm:h-screen sm:w-screen"
+          className='h-full w-full sm:h-screen sm:w-screen'
         >
           <MapBoundsSetter />
           <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           {markers.map((position, index) => (
@@ -286,40 +286,67 @@ const HomePage: React.FC = () => {
               }}
             >
               <Popup>
-                <div className="max-h-72 max-w-96 overflow-y-auto pt-4 pb-4 pr-6 dark:bg-gray-900 dark:text-gray-200">
-                  <h3 className="text-xl font-semibold mb-2 underline mr-3">
+                <div className='max-h-72 max-w-96 overflow-y-auto pt-4 pb-4 pr-6 dark:bg-gray-900 dark:text-gray-200'>
+                  <h3 className='text-xl font-semibold mb-2 underline mr-3'>
                     {popupInfo?.name}
                   </h3>
-                  <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
+                  <p className='text-base sm:text-lg text-gray-700 dark:text-gray-400'>
                     <strong>Kota:</strong> {popupInfo?.details.kota}
                   </p>
                   {popupInfo?.details.kecocokan !== undefined && (
-                    <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400 mb-2">
+                    <p className='text-base sm:text-lg text-gray-700 dark:text-gray-400 mb-2'>
                       <strong>Kecocokan:</strong> {popupInfo.details.kecocokan}%
                     </p>
                   )}
                   {popupInfo?.details.jumlah_siswa !== undefined && (
-                    <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
-                      <strong>Jumlah Siswa:</strong>{" "}
+                    <p className='text-base sm:text-lg text-gray-700 dark:text-gray-400'>
+                      <strong>Jumlah Siswa:</strong>{' '}
                       {popupInfo.details.jumlah_siswa}
                     </p>
                   )}
                   {popupInfo?.details.jumlah_kelulusan !== undefined && (
-                    <p className="text-base text-gray-700 dark:text-gray-400 mb-4">
-                      <strong>Jumlah Kelulusan:</strong>{" "}
+                    <p className='text-base text-gray-700 dark:text-gray-400 mb-4'>
+                      <strong>Jumlah Kelulusan:</strong>{' '}
                       {popupInfo.details.jumlah_kelulusan}
                       {popupInfo.details.jumlah_siswa && (
                         <span>
-                          {" "}
+                          {' '}
                           (
                           {formatPercentage(
                             popupInfo.details.jumlah_kelulusan,
-                            popupInfo.details.jumlah_siswa
+                            popupInfo.details.jumlah_siswa,
                           )}
                           )
                         </span>
                       )}
                     </p>
+                  )}
+                  {popupInfo?.details.konsentrasi &&
+                  popupInfo?.details.konsentrasi.length > 0 ? (
+                    <>
+                      <p className='text-sm text-gray-800 mb-1'>
+                        <strong>
+                          Konsentrasi:{' '}
+                          {popupInfo?.details.konsentrasi.length < 2
+                            ? popupInfo?.details.konsentrasi[0]?.nama
+                            : ''}
+                        </strong>
+                      </p>
+                      <ul className='list-disc pl-5 text-sm text-gray-800'>
+                        {popupInfo?.details.konsentrasi.map(
+                          (k: Konsentrasi) => (
+                            <li
+                              key={k.id}
+                              className='mb-1'
+                            >
+                              {k.nama}
+                            </li>
+                          ),
+                        )}
+                      </ul>
+                    </>
+                  ) : (
+                    <p className='text-sm text-gray-800 mb-1'>-</p>
                   )}
                   {popupInfo?.details.okupasi && (
                     <div>
@@ -332,11 +359,11 @@ const HomePage: React.FC = () => {
                       </p> */}
                       {popupInfo.details.unit_kompetensi &&
                         popupInfo.details.unit_kompetensi.length > 0 && (
-                          <div className="mt-2">
-                            <h4 className="text-base sm:text-lg font-semibold dark:text-gray-300">
+                          <div className='mt-2'>
+                            <h4 className='text-base sm:text-lg font-semibold dark:text-gray-300'>
                               Unit Kompetensi:
                             </h4>
-                            <ul className="list-disc list-inside text-base sm:text-lg text-gray-700 dark:text-gray-400">
+                            <ul className='list-disc list-inside text-base sm:text-lg text-gray-700 dark:text-gray-400'>
                               {popupInfo.details.unit_kompetensi.map((unit) => (
                                 <li key={unit.id}>{unit.nama}</li>
                               ))}
@@ -366,9 +393,9 @@ const HomePage: React.FC = () => {
           ))}
         </MapContainer>
       </div>
-      {screenSize === "desktop" ? (
+      {screenSize === 'desktop' ? (
         <Sidebar onSelectSchool={handleSchoolClick} />
-      ) : screenSize === "mobile" ? (
+      ) : screenSize === 'mobile' ? (
         <BottomBar onSelectSchool={handleSchoolClick} />
       ) : (
         <Sidebar onSelectSchool={handleSchoolClick} />
