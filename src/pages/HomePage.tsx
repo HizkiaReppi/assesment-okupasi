@@ -7,7 +7,6 @@ import 'leaflet/dist/leaflet.css';
 import { getAllSekolah } from '../api/sekolah-api';
 import L from 'leaflet';
 import debounce from 'lodash.debounce';
-import '../index.css';
 import useSidebarBottombar from '../hooks/useSidebarBottombar';
 import CustomMarker from '../components/CustomMarker';
 import { geocodeAddress } from '../utils/geocodeAddress';
@@ -63,7 +62,6 @@ const HomePage: React.FC = () => {
   const [isLoadingLocation, setIsLoadingLocation] = useState<boolean>(false);
   const [markers, setMarkers] = useState<L.LatLng[]>([]);
   const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null);
-  // const [rateLimitExceeded, setRateLimitExceeded] = useState<boolean>(false);   // Aktifkan ini jika menggunakan locationiq
 
   const bounds = {
     north: 4.834726,
@@ -110,61 +108,6 @@ const HomePage: React.FC = () => {
     fetchInitialSchools();
   }, []);
 
-  // Aktifkan ini jika menggunakan locationiq
-  // const fetchGeocode = async (schoolName: string, schoolDetails: School) => {
-  //   setIsLoadingLocation(true);
-  //   try {
-  //     // Coba LocationIQ terlebih dahulu
-  //     const response = await fetch(
-  //       `https://us1.locationiq.com/v1/search.php?key=${
-  //         import.meta.env.VITE_LOCATION_IQ_API_KEY
-  //       }&q=${encodeURIComponent(`${schoolName}, ${schoolDetails.kota}, Sulawesi Utara, Indonesia`)}&format=json`
-  //     );
-
-  //     if (response.status === 429) {
-  //       setRateLimitExceeded(true);
-  //       console.log("LocationIQ rate limit exceeded, trying Nominatim...");
-  //       const nominatimResult = await fetchNominatim(schoolName, schoolDetails);
-  //       if (nominatimResult) {
-  //         handleGeocodeResult(nominatimResult, schoolName, schoolDetails);
-  //         return;
-  //       }
-  //     } else {
-  //       const data = await response.json();
-  //       if (data && data.length > 0) {
-  //         handleGeocodeResult(data[0], schoolName, schoolDetails);
-  //         return;
-  //       }
-  //     }
-
-  //     // Jika LocationIQ gagal atau tidak menemukan hasil, coba Nominatim
-  //     const nominatimResult = await fetchNominatim(schoolName, schoolDetails);
-  //     if (nominatimResult) {
-  //       handleGeocodeResult(nominatimResult, schoolName, schoolDetails);
-  //       return;
-  //     }
-
-  //     console.log(`Tidak dapat menemukan lokasi untuk: ${schoolName}, ${schoolDetails.kota}`);
-  //   } catch (error) {
-  //     console.error("Error fetching geocode data:", error);
-  //   } finally {
-  //     setIsLoadingLocation(false);
-  //     setRateLimitExceeded(false);
-  //   }
-  // };
-
-  // Aktifkan ini jika menggunakan Nominatim
-  // const fetchNominatim = async (schoolName: string, schoolDetails: School) => {
-  //   const query = encodeURIComponent(`${schoolName}, ${schoolDetails.kota}, Sulawesi Utara, Indonesia`);
-  //   const response = await fetch(
-  //     `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`
-  //   );
-  //   const data = await response.json();
-  //   return data && data.length > 0 ? { lat: data[0].lat, lon: data[0].lon } : null;
-  // };
-
-  // Google maps api
-
   const fetchGeocode = async (schoolName: string, schoolDetails: School) => {
     setIsLoadingLocation(true);
     try {
@@ -180,18 +123,6 @@ const HomePage: React.FC = () => {
       setIsLoadingLocation(false);
     }
   };
-
-  // Aktifkan ini jika menggunakan locationiq
-  // const handleGeocodeResult = (result: { lat: string; lon: string }, schoolName: string, schoolDetails: School) => {
-  //   const position = new L.LatLng(parseFloat(result.lat), parseFloat(result.lon));
-  //   setMarkers([position]);
-  //   setPopupInfo({
-  //     name: schoolName,
-  //     position,
-  //     details: schoolDetails,
-  //   });
-  //   setCenter({ lat: parseFloat(result.lat), lng: parseFloat(result.lon) });
-  // };
 
   const handleGeocodeResult = (
     result: { lat: number; lng: number },
@@ -280,9 +211,7 @@ const HomePage: React.FC = () => {
               key={index}
               position={position}
               eventHandlers={{
-                click: () => {
-                  // console.log("Marker clicked", e);
-                },
+                click: () => {},
               }}
             >
               <Popup>
@@ -324,7 +253,7 @@ const HomePage: React.FC = () => {
                   {popupInfo?.details.konsentrasi &&
                   popupInfo?.details.konsentrasi.length > 0 ? (
                     <>
-                      <p className='text-sm text-gray-800 mb-1'>
+                      <p className='text-base text-gray-700 dark:text-gray-400 mb-4'>
                         <strong>
                           Konsentrasi:{' '}
                           {popupInfo?.details.konsentrasi.length < 2
@@ -332,7 +261,7 @@ const HomePage: React.FC = () => {
                             : ''}
                         </strong>
                       </p>
-                      <ul className='list-disc pl-5 text-sm text-gray-800'>
+                      <ul className='list-disc list-inside text-base sm:text-lg text-gray-700 dark:text-gray-400'>
                         {popupInfo?.details.konsentrasi.map(
                           (k: Konsentrasi) => (
                             <li
@@ -346,17 +275,12 @@ const HomePage: React.FC = () => {
                       </ul>
                     </>
                   ) : (
-                    <p className='text-sm text-gray-800 mb-1'>-</p>
+                    <p className='text-base text-gray-700 dark:text-gray-400 mb-4'>
+                      Tidak ada konsentrasi terdaftar
+                    </p>
                   )}
                   {popupInfo?.details.okupasi && (
                     <div>
-                      {/* <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
-                        <strong>Okupasi:</strong> {popupInfo.details.okupasi}
-                      </p>
-                      <p className="text-base sm:text-lg text-gray-700 dark:text-gray-400">
-                        <strong>Kode Okupasi:</strong>{" "}
-                        {popupInfo.details.kode_okupasi}
-                      </p> */}
                       {popupInfo.details.unit_kompetensi &&
                         popupInfo.details.unit_kompetensi.length > 0 && (
                           <div className='mt-2'>
@@ -372,21 +296,6 @@ const HomePage: React.FC = () => {
                         )}
                     </div>
                   )}
-                  {/* {popupInfo?.details.konsentrasi &&
-                    popupInfo.details.konsentrasi.length > 0 && (
-                      <div className="mt-2">
-                        <h4 className="text-base sm:text-lg font-semibold dark:text-gray-300">
-                          Konsentrasi:
-                        </h4>
-                        <ul className="list-disc list-inside text-base sm:text-lg text-gray-700 dark:text-gray-400">
-                          {popupInfo.details.konsentrasi.map(
-                            (konsentrasi, index) => (
-                              <li key={index}>{konsentrasi.nama}</li>
-                            )
-                          )}
-                        </ul>
-                      </div>
-                    )} */}
                 </div>
               </Popup>
             </CustomMarker>
@@ -400,12 +309,6 @@ const HomePage: React.FC = () => {
       ) : (
         <Sidebar onSelectSchool={handleSchoolClick} />
       )}
-      {/* {rateLimitExceeded && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-red-500 text-white text-center">
-          You are making requests too quickly. Please wait a moment and try
-          again.
-        </div>
-      )} */}
     </div>
   );
 };
