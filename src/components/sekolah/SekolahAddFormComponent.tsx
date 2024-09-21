@@ -10,7 +10,6 @@ interface SekolahAddFormProps {
 
 interface Konsentrasi {
     id: string;
-    kode: string;
     nama: string;
 }
 
